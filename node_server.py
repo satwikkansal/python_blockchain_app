@@ -110,6 +110,8 @@ class Blockchain:
         self.add_block(new_block, proof)
 
         self.unconfirmed_transactions = []
+        # announce it to the network
+        announce_new_block(new_block)
         return new_block.index
 
 
@@ -145,6 +147,8 @@ def new_transaction():
 # all the posts to display.
 @app.route('/chain', methods=['GET'])
 def get_chain():
+    # make sure we've the longest chain
+    consensus()
     chain_data = []
     for block in blockchain.chain:
         chain_data.append(block.__dict__)
