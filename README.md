@@ -8,16 +8,22 @@ Please read the [step-by-step implementation tutorial](https://github.com/satwik
 
 ## Instructions to run
 
+Clone the project and move into the `app` directory
+
+```sh
+$ git clone https://github.com/satwikkansal/python_blockchain_app.git
+$ cd app
+
 Start a blockchain node server,
 
 ```sh
->>> python node_server.py
+$ python node_server.py
 ```
 
-Run our application,
+Run the application,
 
 ```sh
->>> python run_app.py
+$ python run_app.py
 ```
 
 The application should be up and running at [http://localhost:5000](http://localhost:5000).
