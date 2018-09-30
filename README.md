@@ -1,4 +1,4 @@
-# ibm_blockchain
+# python_blockchain_app
 
 Developing a blockchain application from scratch in Python
 
