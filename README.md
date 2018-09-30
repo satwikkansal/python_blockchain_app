@@ -8,11 +8,11 @@ Please read the [step-by-step implementation tutorial](https://github.com/satwik
 
 ## Instructions to run
 
-Clone the project and move into the `app` directory
+Clone the project,
 
 ```sh
 $ git clone https://github.com/satwikkansal/python_blockchain_app.git
-$ cd app
+```
 
 Start a blockchain node server,
 
