@@ -17,10 +17,14 @@ $ cd app
 Start a blockchain node server,
 
 ```sh
-$ python node_server.py
+$ export FLASK_APP=node_server.py
+$ flask run --port 8000
 ```
 
-Run the application,
+One instance of our blockchain node is now up and running at port 8000.
+
+
+To run the application,
 
 ```sh
 $ python run_app.py
@@ -42,4 +46,34 @@ Here are a few screenshots
 
 ![image.png](https://github.com/satwikkansal/python_blockchain_app/raw/master/screenshots/3.png)
 
-To play around by spinning off multiple custom nodes, use the `add_nodes/` endpoint to register a new node. To update the node with which the application syncs, change `CONNECTED_NODE_ADDRESS` field in the [views.py](https://github.com/satwikkansal/python_blockchain_app/blob/master/app/views.py) file.
+To play around by spinning off multiple custom nodes, use the `add_nodes/` endpoint to register a new node. 
+
+Here's a sample scenario that you might wanna try,
+
+```sh
+# already running
+$ flask run --port 8000
+# spinning up new nodes
+$ flask run --port 8001
+$ flask run --port 8002
+```
+
+You can use the following cURL requests to register the nodes at port `8001` and `8002` with the already running `8000`.
+
+```sh
+curl -X POST \
+  http://127.0.0.1:8001/register_with \
+  -H 'Content-Type: application/json' \
+  -d '{"node_address": "http://127.0.0.1:8000"}'
+```
+
+```sh
+curl -X POST \
+  http://127.0.0.1:8002/register_with \
+  -H 'Content-Type: application/json' \
+  -d '{"node_address": "http://127.0.0.1:8000"}'
+```
+
+This will update the newer nodes with the longest chain, and the list of peers, so that they are able to actively participate in the mining process post registration.
+
+To update the node with which the frontend application syncs, change `CONNECTED_NODE_ADDRESS` field in the [views.py](https://github.com/satwikkansal/python_blockchain_app/blob/master/app/views.py) file.
