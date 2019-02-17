@@ -477,14 +477,15 @@ def submit_textarea():
 
 ## Our application in action!
 
-Yay! It's done. You can find the final code [here](https://github.com/satwikkansal/ibm_blockchain).
+Yay! It's done. You can find the final code [here](https://github.com/satwikkansal/python_blockchain_app).
 
 ### Instructions to run
 
 Start a blockchain node server,
 
 ```sh
->>> python node_server.py
+>>> export FLASK_APP=node_server.py
+>>> flask run --port 8000
 ```
 
 Run our application,
