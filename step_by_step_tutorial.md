@@ -408,6 +408,74 @@ def announce_new_block(block):
 
 The `announce_new_block` method should be called after every block is mined by the node, so that peers can add it to their chains.
 
+### Registering new nodes to the chain
+
+Here's the code for this, the comments are self-explanatory
+
+```py
+# endpoint to add new peers to the network.
+@app.route('/register_node', methods=['POST'])
+def register_new_peers():
+    node_address = request.get_json()["node_address"]
+    if not node_address:
+        return "Invalid data", 400
+
+    # Add the node to the peer list
+    peers.add(node_address)
+
+    # Return the consensus blockchain to the newly registered node
+    # so that he can sync
+    return get_chain()
+
+
+@app.route('/register_with', methods=['POST'])
+def register_with_existing_node():
+    """
+    Internally calls the `register_node` endpoint to
+    register current node with the node specified in the
+    request, and sync the blockchain as well as peer data.
+    """
+    node_address = request.get_json()["node_address"]
+    if not node_address:
+        return "Invalid data", 400
+
+    data = {"node_address": request.host_url}
+    headers = {'Content-Type': "application/json"}
+
+    # Make a request to register with remote node and obtain information
+    response = requests.post(node_address + "/register_node",
+                             data=json.dumps(data), headers=headers)
+
+    if response.status_code == 200:
+        global blockchain
+        global peers
+        # update chain and the peers
+        chain_dump = response.json()['chain']
+        blockchain = create_chain_from_dump(chain_dump)
+        peers.update(response.json()['peers'])
+        return "Registration successful", 200
+    else:
+        # if something goes wrong, pass it on to the API response
+        return response.content, response.status_code
+
+
+def create_chain_from_dump(chain_dump):
+    blockchain = Blockchain()
+    for idx, block_data in enumerate(chain_dump):
+        block = Block(block_data["index"],
+                      block_data["transactions"],
+                      block_data["timestamp"],
+                      block_data["previous_hash"])
+        proof = block_data['hash']
+        if idx > 0:
+            added = blockchain.add_block(block, proof)
+            if not added:
+                raise Exception("The chain dump is tampered!!")
+        else:  # the block is a genesis block, no verification needed
+            blockchain.chain.append(block)
+    return blockchain
+```
+
 ### Building our application
 
 Alright, the backend is all set up. The code till now is available [here])(https://github.com/satwikkansal/ibm_blockchain/blob/631346a130a4effc374fc63f58a08de94bae3c8a/node_server.py). Now, it's time to start working on the interface of our application. I've used Jinja2 templating to render the web pages and some CSS to make the page look nice. You can find the entire code [here](https://github.com/satwikkansal/ibm_blockchain), but the main logic lies in the file `Views.py`.
