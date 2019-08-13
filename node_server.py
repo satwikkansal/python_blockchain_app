@@ -290,7 +290,7 @@ def consensus():
 
     for node in peers:
         print('{}/chain'.format(node))
-        response = requests.get('{}chain'.format(node))
+        response = requests.get('{}/chain'.format(node))
         print("Content", response.content)
         length = response.json()['length']
         chain = response.json()['chain']
