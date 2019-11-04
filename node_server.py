@@ -314,3 +314,5 @@ def announce_new_block(block):
     for peer in peers:
         url = "{}add_block".format(peer)
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+
+app.run(debug=True, port=8000)
