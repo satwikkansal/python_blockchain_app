@@ -315,4 +315,5 @@ def announce_new_block(block):
         url = "{}add_block".format(peer)
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
 
-app.run(debug=True, port=8000)
+# Uncomment this line if you want to fix the port number in the code
+#app.run(debug=True, port=8000)
