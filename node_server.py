@@ -36,7 +36,7 @@ class Blockchain:
         the chain. The block has index 0, previous_hash as 0, and
         a valid hash.
         """
-        genesis_block = Block(0, [], time.time(), "0")
+        genesis_block = Block(0, [], 0, "0")
         genesis_block.hash = genesis_block.compute_hash()
         self.chain.append(genesis_block)
 
@@ -168,8 +168,6 @@ def new_transaction():
 # all the posts to display.
 @app.route('/chain', methods=['GET'])
 def get_chain():
-    # make sure we've the longest chain
-    consensus()
     chain_data = []
     for block in blockchain.chain:
         chain_data.append(block.__dict__)
@@ -237,18 +235,18 @@ def register_with_existing_node():
 
 def create_chain_from_dump(chain_dump):
     blockchain = Blockchain()
+    blockchain.create_genesis_block()
     for idx, block_data in enumerate(chain_dump):
+        if idx == 0: continue # skip genesis block
         block = Block(block_data["index"],
                       block_data["transactions"],
                       block_data["timestamp"],
-                      block_data["previous_hash"])
+                      block_data["previous_hash"],
+                      block_data["nonce"])
         proof = block_data['hash']
-        if idx > 0:
-            added = blockchain.add_block(block, proof)
-            if not added:
-                raise Exception("The chain dump is tampered!!")
-        else:  # the block is a genesis block, no verification needed
-            blockchain.chain.append(block)
+        added = blockchain.add_block(block, proof)
+        if not added:
+            raise Exception("The chain dump is tampered!!")
     return blockchain
 
 
@@ -261,7 +259,8 @@ def verify_and_add_block():
     block = Block(block_data["index"],
                   block_data["transactions"],
                   block_data["timestamp"],
-                  block_data["previous_hash"])
+                  block_data["previous_hash"],
+                  block_data["nonce"])
 
     proof = block_data['hash']
     added = blockchain.add_block(block, proof)
@@ -280,7 +279,7 @@ def get_pending_tx():
 
 def consensus():
     """
-    Our simple consnsus algorithm. If a longer valid chain is
+    Our naive consnsus algorithm. If a longer valid chain is
     found, our chain is replaced with it.
     """
     global blockchain
@@ -311,7 +310,10 @@ def announce_new_block(block):
     """
     for peer in peers:
         url = "{}add_block".format(peer)
-        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+        headers = {'Content-Type': "application/json"}
+        requests.post(url,
+                      data=json.dumps(block.__dict__, sort_keys=True),
+                      headers=headers)
 
-# Uncomment this line if you want to fix the port number in the code
+# Uncomment this line if you want to specify the port number in the code
 #app.run(debug=True, port=8000)
