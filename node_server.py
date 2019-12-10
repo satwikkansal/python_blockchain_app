@@ -234,20 +234,21 @@ def register_with_existing_node():
 
 
 def create_chain_from_dump(chain_dump):
-    blockchain = Blockchain()
-    blockchain.create_genesis_block()
+    generated_blockchain = Blockchain()
+    generated_blockchain.create_genesis_block()
     for idx, block_data in enumerate(chain_dump):
-        if idx == 0: continue # skip genesis block
+        if idx == 0:
+            continue  # skip genesis block
         block = Block(block_data["index"],
                       block_data["transactions"],
                       block_data["timestamp"],
                       block_data["previous_hash"],
                       block_data["nonce"])
         proof = block_data['hash']
-        added = blockchain.add_block(block, proof)
+        added = generated_blockchain.add_block(block, proof)
         if not added:
             raise Exception("The chain dump is tampered!!")
-    return blockchain
+    return generated_blockchain
 
 
 # endpoint to add a block mined by someone else to
