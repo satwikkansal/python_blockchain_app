@@ -53,7 +53,7 @@ Here are a few screenshots
 
 ![image.png](https://github.com/satwikkansal/python_blockchain_app/raw/master/screenshots/3.png)
 
-To play around by spinning off multiple custom nodes, use the `add_nodes/` endpoint to register a new node. 
+To play around by spinning off multiple custom nodes, use the `register_with/` endpoint to register a new node. 
 
 Here's a sample scenario that you might wanna try,
 
