@@ -59,7 +59,7 @@ Here's a sample scenario that you might wanna try,
 
 ```sh
 # already running
-$ flask run --port 8000  &
+$ flask run --port 8000 &
 # spinning up new nodes
 $ flask run --port 8001 &
 $ flask run --port 8002 &
