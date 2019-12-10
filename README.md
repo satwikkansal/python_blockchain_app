@@ -14,6 +14,13 @@ Clone the project,
 $ git clone https://github.com/satwikkansal/python_blockchain_app.git
 ```
 
+Install the dependencies,
+
+```sh
+$ cd python_blockchain_app
+$ pip install -r requirements.txt
+```
+
 Start a blockchain node server,
 
 ```sh
@@ -24,7 +31,7 @@ $ flask run --port 8000
 One instance of our blockchain node is now up and running at port 8000.
 
 
-To run the application,
+Run the application on a different terminal session,
 
 ```sh
 $ python run_app.py
@@ -52,10 +59,10 @@ Here's a sample scenario that you might wanna try,
 
 ```sh
 # already running
-$ flask run --port 8000
+$ flask run --port 8000  &
 # spinning up new nodes
-$ flask run --port 8001
-$ flask run --port 8002
+$ flask run --port 8001 &
+$ flask run --port 8002 &
 ```
 
 You can use the following cURL requests to register the nodes at port `8001` and `8002` with the already running `8000`.
