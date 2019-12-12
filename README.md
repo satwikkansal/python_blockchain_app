@@ -81,6 +81,13 @@ curl -X POST \
   -d '{"node_address": "http://127.0.0.1:8000"}'
 ```
 
-This will update the newer nodes with the longest chain, and the list of peers, so that they are able to actively participate in the mining process post registration.
+This will make the node at port 8000 aware of the nodes at port 8001 and 8002, and make the newer nodes sync the chain with the node 8000, so that they are able to actively participate in the mining process post registration.
 
-To update the node with which the frontend application syncs, change `CONNECTED_NODE_ADDRESS` field in the [views.py](https://github.com/satwikkansal/python_blockchain_app/blob/master/app/views.py) file.
+To update the node with which the frontend application syncs (default is localhost port 8000), change `CONNECTED_NODE_ADDRESS` field in the [views.py](/app/views.py) file.
+
+Once you do all this, you can run the application, create transactions (post messages via the web inteface), and once you mine the transactions, all the nodes in the network will update the chain. The chain of the nodes can also be inspected by inovking `/chain` endpoint using cURL.
+
+```sh
+$ curl -X GET http://localhost:8001/chain
+$ curl -X GET http://localhost:8002/chain
+```
