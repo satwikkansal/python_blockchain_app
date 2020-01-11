@@ -64,7 +64,8 @@ class Blockchain:
         self.chain.append(block)
         return True
 
-    def proof_of_work(self, block):
+    @staticmethod
+    def proof_of_work(block):
         """
         Function that tries different values of nonce to get a hash
         that satisfies our difficulty criteria.
@@ -130,9 +131,8 @@ class Blockchain:
         self.add_block(new_block, proof)
 
         self.unconfirmed_transactions = []
-        # announce it to the network
-        announce_new_block(new_block)
-        return new_block.index
+
+        return True
 
 
 app = Flask(__name__)
@@ -154,7 +154,7 @@ def new_transaction():
 
     for field in required_fields:
         if not tx_data.get(field):
-            return "Invlaid transaction data", 404
+            return "Invalid transaction data", 404
 
     tx_data["timestamp"] = time.time()
 
@@ -184,7 +184,14 @@ def mine_unconfirmed_transactions():
     result = blockchain.mine()
     if not result:
         return "No transactions to mine"
-    return "Block #{} is mined.".format(result)
+    else:
+        # Making sure we have the longest chain before announcing to the network
+        chain_length = len(blockchain.chain)
+        consensus()
+        if chain_length == len(blockchain.chain):
+            # announce the recently mined block to the network
+            announce_new_block(blockchain.last_block)
+        return "Block #{} is mined.".format(blockchain.last_block.index)
 
 
 # endpoint to add new peers to the network.
