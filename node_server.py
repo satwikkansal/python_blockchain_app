@@ -33,6 +33,15 @@ class Block:
         block_string = json.dumps(self.__dict__, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 
+    def has_transaction(id):
+        return self.transactions[0].id <= id and self.transactions[-1].id >= id
+
+    def get_transaction(id):
+        if(self.has_transaction(id)):
+            return self.transactions[id - self.transactions[0].id]
+        else:
+            return False
+
 
 class Blockchain:
     # difficulty of our PoW algorithm
@@ -146,6 +155,9 @@ class Blockchain:
 
         return True
 
+    def get_block(id):
+        return self.chain[id]
+
 
 app = Flask(__name__)
 
@@ -188,6 +200,39 @@ def get_chain():
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data,
                        "peers": list(peers)})
+
+# endpoint to return the transactions of a block gived its id.
+# Our application will be using this endpoint to query
+# all the posts to display.
+@app.route('/blocks/<block_id>', methods=['GET'])
+def get_transaction_by_block_id(block_id):
+    block = blockchain.get_block(block_id)        
+    return json.dumps({"length": len(block.transactions),
+                       "transactions": block.transactions})
+
+# endpoint to return the transaction gived its id.
+# Our application will be using this endpoint to query
+# all the posts to display.
+@app.route('/transactions/<transaction_id>', methods=['GET'])
+def get_transaction_by_id(transaction_id):
+    min_id = 0
+    max_id = len(blockchain) - 1
+    med_id = max_id // 2
+    med_block = blockchain.get_block(med_id)
+
+    while(not med_block.has_transaction(transaction_id) and min_id != max_id):
+        if(transaction_id < med_block.transactions[0].id):
+            max_id = med_id
+        else:
+            min_id = med_id
+        med_id = (max_id + min_id) // 2
+        med_block = blockchain.get_block(med_id)
+
+    if(med_block.has_transaction(transaction_id)):
+        return med_block.get_transaction(transaction_id)
+    else:
+        return False
+
 
 
 # endpoint to request the node to mine the unconfirmed
