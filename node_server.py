@@ -5,6 +5,18 @@ import time
 from flask import Flask, request
 import requests
 
+transaction_fields = {"YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID", 
+"OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",   
+"DEST", "DEST_CITY_NAME", "DEST_STATE_NM", "DEP_TIME", "DEP_DELAY", "ARR_TIME", "ARR_DELAY", "CANCELLED", "AIR_TIME"}
+
+class Transaction:
+    id = 0
+
+    def __init__(self, transaction):
+        self.TRANSACTION_ID = Transaction.id
+        self.__dict__.update(transaction.__dict__)
+        Transaction.id += 1
+
 
 class Block:
     def __init__(self, index, transactions, timestamp, previous_hash, nonce=0):
@@ -150,15 +162,17 @@ peers = set()
 @app.route('/new_transaction', methods=['POST'])
 def new_transaction():
     tx_data = request.get_json()
-    required_fields = ["author", "content"]
+    #required_fields = ["author", "content"]
+    global transaction_fields
 
-    for field in required_fields:
+    for field in transaction_fields:
         if not tx_data.get(field):
             return "Invalid transaction data", 404
 
     tx_data["timestamp"] = time.time()
 
-    blockchain.add_new_transaction(tx_data)
+    transaction = Transaction(tx_data)
+    blockchain.add_new_transaction(transaction)
 
     return "Success", 201
 
