@@ -50,12 +50,48 @@ def submit_textarea():
     """
     Endpoint to create a new transaction via our application.
     """
-    post_content = request.form["content"]
-    author = request.form["author"]
+    TRANSACTION             = request.form["TRANSACTION"]
+    YEAR                    = request.form["YEAR"]
+    DAY_OF_WEEK             = request.form["DAY_OF_WEEK"]
+    FL_DATE                 = request.form["FL_DATE"]
+    OP_CARRIER_AIRLINE_ID   = request.form["OP_CARRIER_AIRLINE_ID"]
+    OP_CARRIER_FL_NUM       = request.form["OP_CARRIER_FL_NUM"]
+    ORIGIN_AIRPORT_ID       = request.form["OP_CARRIER_FL_NUM"]
+    ORIGIN                  = request.form["ORIGIN"]
+    ORIGIN_CITY_NAME        = request.form["ORIGIN_CITY_NAME"]
+    ORIGIN_STATE_NM         = request.form["ORIGIN_STATE_NM"]
+    DEST_AIRPORT_ID         = request.form["DEST_AIRPORT_ID"]
+    DEST                    = request.form["DEST"]
+    DEST_CITY_NAME          = request.form["DEST_CITY_NAME"]
+    DEST_STATE_NM           = request.form["DEST_STATE_NM"]
+    DEP_TIME                = request.form["DEP_TIME"]
+    DEP_DELAY               = request.form["DEP_DELAY"]
+    ARR_TIME                = request.form["ARR_TIME"]
+    ARR_DELAY               = request.form["ARR_DELAY"]
+    CANCELLED               = request.form["CANCELLED"]
+    AIR_TIME                = request.form["AIR_TIME"]
 
     post_object = {
-        'author': author,
-        'content': post_content,
+        'TRANSACTION'           : TRANSACTION,
+        'YEAR'                  : YEAR,
+        'DAY_OF_WEEK'           : DAY_OF_WEEK,
+        'FL_DATE'               : FL_DATE,
+        'OP_CARRIER_AIRLINE_ID' : OP_CARRIER_AIRLINE_ID,
+        'OP_CARRIER_FL_NUM'     : OP_CARRIER_FL_NUM,
+        'ORIGIN_AIRPORT_ID'     : ORIGIN_AIRPORT_ID,
+        'ORIGIN'                : ORIGIN,
+        'ORIGIN_CITY_NAME'      : ORIGIN_CITY_NAME,
+        'ORIGIN_STATE_NM'       : ORIGIN_STATE_NM,
+        'DEST_AIRPORT_ID'       : DEST_AIRPORT_ID,
+        'DEST'                  : DEST,
+        'DEST_CITY_NAME'        : DEST_CITY_NAME,
+        'DEST_STATE_NM'         : DEST_STATE_NM,
+        'DEP_TIME'              : DEP_TIME,
+        'DEP_DELAY'             : DEP_DELAY,
+        'ARR_TIME'              : ARR_TIME,
+        'ARR_DELAY'             : ARR_DELAY,
+        'CANCELLED'             : CANCELLED,
+        'AIR_TIME'              : AIR_TIME
     }
 
     # Submit a transaction

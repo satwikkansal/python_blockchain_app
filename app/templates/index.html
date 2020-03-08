@@ -2,101 +2,116 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<br>
+    <br>
 
-	<center>
-	<form action="/submit" id="textform" method="post">
-	    <textarea name="content" rows="4" cols="50" placeholder="Just write whatever you want to..."></textarea>
-	    <br>
-	    <input type="text" name="author" placeholder="Your name">
-	    <input type="submit" value="Post">
-	</form>
-	</center>
+    <center>
+    <form action="/submit" id="textform" method="post">
+        <input type="text" name="TRANSACTION" placeholder="TRANSACTION" value='aaa'>
+        <input type="text" name="YEAR" placeholder="YEAR" value='aaa'>
+        <input type="text" name="DAY_OF_WEEK" placeholder="DAY_OF_WEEK" value='aaa'>
+        <input type="text" name="FL_DATE" placeholder="FL_DATE" value='aaa'>
+        <input type="text" name="OP_CARRIER_FL_NUM" placeholder="OP_CARRIER_FL_NUM" value='aaa'>
+        <input type="text" name="OP_CARRIER_AIRLINE_ID" placeholder="OP_CARRIER_AIRLINE_ID" value='aaa'>
+        <input type="text" name="ORIGIN_AIRPORT_ID" placeholder="ORIGIN_AIRPORT_ID" value='aaa'>
+        <input type="text" name="ORIGIN" placeholder="ORIGIN" value='aaa'>
+        <input type="text" name="ORIGIN_CITY_NAME" placeholder="ORIGIN_CITY_NAME" value='aaa'>
+        <input type="text" name="ORIGIN_STATE_NM" placeholder="ORIGIN_STATE_NM" value='aaa'>
+        <input type="text" name="DEST_AIRPORT_ID" placeholder="DEST_AIRPORT_ID" value='aaa'>
+        <input type="text" name="DEST" placeholder="DEST" value='aaa'>
+        <input type="text" name="DEST_CITY_NAME" placeholder="DEST_CITY_NAME" value='aaa'>
+        <input type="text" name="DEST_STATE_NM" placeholder="DEST_STATE_NM" value='aaa'>
+        <input type="text" name="DEP_TIME" placeholder="DEP_TIME" value='aaa'>
+        <input type="text" name="DEP_DELAY" placeholder="DEP_DELAY" value='aaa'>
+        <input type="text" name="ARR_TIME" placeholder="ARR_TIME" value='aaa'>
+        <input type="text" name="ARR_DELAY" placeholder="ARR_DELAY" value='aaa'>
+        <input type="text" name="CANCELLED" placeholder="CANCELLED" value='aaa'>
+        <input type="text" name="AIR_TIME" placeholder="AIR_TIME" value='aaa'>
 
-	<br>
+        <br>
+        <input type="submit" value="Post">
+    </form>
+    </center>
 
-	<a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
-	<a href="/"><button>Resync</button></a>
+    <br>
 
-	<div style="margin: 20px;">
+    <a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
+    <a href="/"><button>Resync</button></a>
+
+    <div style="margin: 20px;">
 
     {% for post in posts %}
     <div class="post_box">
-	   <div class="post_box-header">
-	      <div class="post_box-options"><button class="option-btn">Reply</button></div>
-	      <div style="background: rgb(0, 97, 146) none repeat scroll 0% 0%; box-shadow: rgb(0, 97, 146) 0px 0px 0px 2px;" class="post_box-avatar">{{post.author[0]}}</div>
-	      <div class="name-header">{{post.author}}</div>
-	      <div class="post_box-subtitle"> Posted at <i>{{readable_time(post.timestamp)}}</i></div>
-	   </div>
-	   <div>
-	      <div class="post_box-body">
-	         <p>{{post.content}}</p>
-	      </div>
-	   </div>
-	</div>
-	{% endfor %}
 
-	<style>
-		.post_box {
-		    background: #fff;
-		    padding: 12px 0px 0px 12px;
-		    margin-top: 0px;
-		    margin-bottom: 8px;
-		    border-top: 1px solid #f0f0f0;
-		}
+       <ul>
+        {% for field in post %}
+        <li>{{field}}::{{post[field]}}</li>
+        {% endfor %}
+       </ul>
 
-		.post_box-header {
-		    padding-bottom: 12px;
-		}
+    </div>
+    {% endfor %}
 
-		.post_box-avatar {
-		    width: 38px;
-		    height: 38px;
-		    border-radius: 50%;
-		    display: flex;
-		    justify-content: center;
-		    align-items: center;
-		    color: white;
-		    font-size: 22px;
-		    float: left;
-		    margin-right: 16px;
-		    border: 1px solid #fff;
-		    box-shadow: 0px 0px 0px 2px #f00;
-		}
+    <style>
+        .post_box {
+            background: #fff;
+            padding: 12px 0px 0px 12px;
+            margin-top: 0px;
+            margin-bottom: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
 
-		.post_box-avatar::after {
-		    content:"";
-		    display:block;
-		}
+        .post_box-header {
+            padding-bottom: 12px;
+        }
 
-		.post_box-name {
-		    font-weight: bold;
-		}
+        .post_box-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 22px;
+            float: left;
+            margin-right: 16px;
+            border: 1px solid #fff;
+            box-shadow: 0px 0px 0px 2px #f00;
+        }
 
-		.post_box-subtitle {
-		    color: #777;
-		}
+        .post_box-avatar::after {
+            content:"";
+            display:block;
+        }
 
-		.post_box-body {
-		    margin-top: 16px;
-		    margin-bottom: 8px;
-		}
+        .post_box-name {
+            font-weight: bold;
+        }
 
-		.post_box-options {
-		    float: right;
-		}
-		.option-btn {
-		    background: #f8f8f8;
-		    border: none;
-		    color: #2c3e50;
-		    padding: 7px;
-		    cursor: pointer;
-		    font-size: 14px;
-		    margin-left: 2px;
-		    margin-right: 2px;
-		    outline: none;
-		    height: 42px;
-		}
-	</style>
+        .post_box-subtitle {
+            color: #777;
+        }
+
+        .post_box-body {
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .post_box-options {
+            float: right;
+        }
+        .option-btn {
+            background: #f8f8f8;
+            border: none;
+            color: #2c3e50;
+            padding: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 2px;
+            margin-right: 2px;
+            outline: none;
+            height: 42px;
+        }
+    </style>
     </div>
 {% endblock %}

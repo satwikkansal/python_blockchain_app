@@ -1,12 +1,14 @@
 from hashlib import sha256
 import json
+from json import JSONEncoder
+
 import time
 
 from flask import Flask, request
 import requests
 
-transaction_fields = {"YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID", 
-"OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",   
+transaction_fields = {"YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID",
+"OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",
 "DEST", "DEST_CITY_NAME", "DEST_STATE_NM", "DEP_TIME", "DEP_DELAY", "ARR_TIME", "ARR_DELAY", "CANCELLED", "AIR_TIME"}
 
 class Transaction:
@@ -14,7 +16,16 @@ class Transaction:
 
     def __init__(self, transaction):
         self.TRANSACTION_ID = Transaction.id
-        self.__dict__.update(transaction.__dict__)
+
+        #debug
+        print("AAAAAA")
+        print(self.__dict__)
+        print("BBBBBBB")
+        print(transaction)
+        #
+
+
+        self.__dict__.update(transaction)
         Transaction.id += 1
 
 
@@ -30,7 +41,7 @@ class Block:
         """
         A function that return the hash of the block contents.
         """
-        block_string = json.dumps(self.__dict__, sort_keys=True)
+        block_string = json.dumps(self, cls=BlockEncoder, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 
     def has_transaction(id):
@@ -42,6 +53,10 @@ class Block:
         else:
             return False
 
+# subclass JSONEncoder
+class BlockEncoder(JSONEncoder):
+        def default(self, o):
+            return o.__dict__
 
 class Blockchain:
     # difficulty of our PoW algorithm
@@ -196,17 +211,48 @@ def new_transaction():
 def get_chain():
     chain_data = []
     for block in blockchain.chain:
-        chain_data.append(block.__dict__)
+
+
+        block_to_add = block.__dict__.copy()
+
+        #debug
+        print("BLOCK BEFORE")
+        print(block_to_add)
+        #
+
+        transactions_dict = []
+        for i in range(0,len(block_to_add["transactions"])):
+            print("POS")
+            print(i)
+            print(block_to_add["transactions"][i].__dict__)
+            transactions_dict.append(block_to_add["transactions"][i].__dict__)
+            #block_to_add["transactions"][i] = block_to_add["transactions"][i].__dict__
+
+        block_to_add["transactions"] = transactions_dict
+
+        #debug
+        print("BLOCK AFTER")
+        print(block_to_add)
+        #
+
+        chain_data.append(block_to_add)
+
+    #debug
+    print("CHAIN_DATA")
+    print(type(chain_data))
+    print(chain_data)
+    #
+
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data,
-                       "peers": list(peers)})
+                       "peers": list(peers)}, cls=BlockEncoder)
 
 # endpoint to return the transactions of a block gived its id.
 # Our application will be using this endpoint to query
 # all the posts to display.
 @app.route('/blocks/<block_id>', methods=['GET'])
 def get_transaction_by_block_id(block_id):
-    block = blockchain.get_block(block_id)        
+    block = blockchain.get_block(block_id)
     return json.dumps({"length": len(block.transactions),
                        "transactions": block.transactions})
 
