@@ -1,0 +1,8 @@
+
+.card-animation-on-hover{
+  transition: all .3s cubic-bezier(.34,1.61,.7,1);
+  &:hover{
+    transform: translate3d(0,-5px,0);
+    transition: all .3s cubic-bezier(.34,1.61,.7,1);
+  }
+}

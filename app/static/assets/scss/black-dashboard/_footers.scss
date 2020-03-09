@@ -1,0 +1,47 @@
+.footer{
+    padding: 24px 0 24px 250px;
+
+    &.footer-default{
+        background-color: #f2f2f2;
+    }
+
+    nav{
+        display: inline-block;
+        float: left;
+        padding-left: 7px;
+    }
+
+    ul{
+        margin-bottom: 0;
+        padding: 0;
+        list-style: none;
+
+        li{
+            display: inline-block;
+
+            a{
+                color: $white-color;
+                padding: $padding-base-vertical;
+                font-size: $font-size-small;
+                text-transform: uppercase;
+                text-decoration: none;
+
+                &:hover{
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+
+    .copyright{
+        font-size: $font-size-small;
+        line-height: 1.8;
+        color: $white-color;
+    }
+
+    &:after{
+        display: table;
+        clear: both;
+        content: " ";
+    }
+}

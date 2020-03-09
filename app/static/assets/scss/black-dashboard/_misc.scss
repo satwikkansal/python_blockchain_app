@@ -1,0 +1,198 @@
+body{
+    background: #1e1e2d;
+    color: $black-color;
+    font-size: $font-size-base;
+    font-family: $sans-serif-family;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    &.dashboard-white{
+      .main-panel{
+        background: $opacity-gray-3;
+      }
+
+      .footer ul li a{
+        color: $black-color;
+      }
+
+      .footer .copyright{
+        color: $black-color;
+      }
+      .navbar-minimize button i{
+        color: $black-color;
+      }
+
+      .navbar .navbar-brand{
+        color: $black-color;
+      }
+
+    }
+}
+
+.main{
+    position: relative;
+    background: $white-color;
+}
+/* Animations */
+.nav-pills .nav-link,
+.navbar,
+.nav-tabs .nav-link,
+.sidebar .nav a,
+.sidebar .nav a i,
+.navbar-collapse .navbar-nav .nav-link,
+.animation-transition-general,
+.tag,
+.tag [data-role="remove"],
+.animation-transition-general{
+    @include transition($general-transition-time, $transition-ease);
+}
+
+//transition for dropdown caret
+.bootstrap-switch-label:before,
+.caret{
+    @include transition($fast-transition-time, $transition-ease);
+}
+
+.dropdown-toggle[aria-expanded="true"]:after,
+a[data-toggle="collapse"][aria-expanded="true"] .caret,
+.card-collapse .card a[data-toggle="collapse"][aria-expanded="true"] i,
+.card-collapse .card a[data-toggle="collapse"].expanded i{
+    @include rotate-180();
+}
+
+.button-bar{
+    display: block;
+    position: relative;
+    width: 22px;
+    height: 1px;
+    border-radius: 1px;
+    background: $white-bg;
+
+    & + .button-bar{
+        margin-top: 7px;
+    }
+
+    &:nth-child(2){
+        width: 17px;
+    }
+}
+
+.caret{
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+  border-top: 4px dashed;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  margin-top: -5px;
+  position: absolute;
+  top: 30px;
+  margin-left: 5px;
+}
+
+.pull-left{
+  float: left;
+}
+.pull-right{
+  float: right;
+}
+.sidebar, .main-panel{
+  -webkit-transition-property: top,bottom,width;
+    transition-property: top,bottom, width;
+    -webkit-transition-duration: .2s,.2s, .35s;
+    transition-duration: .2s,.2s, .35s;
+    -webkit-transition-timing-function: linear,linear,ease;
+    transition-timing-function: linear,linear,ease;
+    -webkit-overflow-scrolling: touch;
+}
+
+// card user profile page
+
+.card {
+  form {
+    label + .form-control {
+      margin-bottom: 20px;
+    }
+  }
+}
+
+// offline documentation
+
+.offline-doc {
+  .page-header:before {
+    background: rgba(0,0,0,.75);
+  }
+
+  .navbar {
+    border: none;
+  }
+
+  .footer {
+    position: absolute;
+    width: 100%;
+    background: transparent;
+    bottom: 0;
+    color: $white-color;
+    padding: 0.9375rem 0;
+  }
+}
+
+//documentation
+
+.bd-docs {
+
+  h1,h2,h3,h4,h5,h6,p,ul li,ol li{
+    color:#2c2c2c;
+  }
+
+  .navbar .navbar-brand{
+    position: relative;
+    margin-top: 0;
+  }
+
+  .bd-example {
+    background: linear-gradient(#1e1e2f,#1e1e24);
+
+    .tim-icons{
+      color: $white-color;
+    }
+
+     h1, h2, h3, h4, h5, h6,
+      .h1, .h2, .h3, .h4, .h5, .h6 {
+        color: hsla(0,0%,100%,.8);
+      }
+
+  }
+
+  .navbar {
+    border-top: none;
+
+    .navbar-nav .nav-link {
+      color: rgba(255,255,255,.8) !important;
+    }
+  }
+
+  .card.card-body,
+  .card .card-body {
+    color: hsla(0,0%,100%,.8);
+  }
+
+  .card{
+    p{
+      color: rgba($white-color,0.8);
+    }
+  }
+
+  .blockquote, .blockquote p, .card p{
+    color: rgba($white-color,0.8);
+  }
+
+
+
+// footer align
+
+  .footer {
+    .container-fluid > nav {
+      display: inline-block;
+    }
+  }
+}

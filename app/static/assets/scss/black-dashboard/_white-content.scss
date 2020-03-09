@@ -1,0 +1,286 @@
+.white-content{
+  background: $background-white;
+
+  .navbar.navbar-transparent .navbar-brand{
+    color: $black-states-color;
+  }
+
+  .navbar.navbar-transparent .navbar-toggler-bar{
+    background: $black-states-color;
+  }
+  .navbar.navbar-transparent .navbar-nav li a:not(.dropdown-item) {
+      color: $black-states-color;
+  }
+
+  .sidebar{
+    box-shadow: 0 2px 22px 0 rgba(0,0,0,.1), 0 4px 20px 0 rgba(0,0,0,.15);
+  }
+
+  .main-panel{
+    background: #f5f6fa;
+
+    h1, h2, h3, h4, h5, h6, p, ol li, ul li, pre {
+      color: $black-states-color;
+    }
+
+    .navbar.navbar-transparent .navbar-minimize button i{
+      color: $black-states-color;
+    }
+
+    .navbar.navbar-transparent .search-bar.input-group i{
+      color: $black-states-color;
+    }
+    .navbar.navbar-transparent .search-bar.input-group .form-control{
+      color: $default-color;
+      &::placeholder{
+        color: $dark-gray;
+      }
+    }
+
+    .font-icon-detail i{
+      color: $black-color;
+    }
+
+    .btn:not([data-action]):hover{
+      box-shadow:  0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    }
+
+    .btn-neutral.btn-link{
+      color: rgba($black-color, 0.7);
+    }
+
+    //style for inputs
+
+    @include form-control-placeholder(rgba($black-color,0.4), 1);
+      .has-danger{
+        .form-control, .input-group-prepend .input-group-text{
+          border-color: $danger-states-color;
+        }
+      }
+
+      .input-group-prepend .input-group-text{
+        border-color: rgba($black-states-color,0.5);
+        color: $black-states-color;
+      }
+
+      .form-control{
+        color: $black-color;
+        border-color: rgba($black-states-color,0.5);
+        &:focus{
+          border-color: $primary-color;
+        }
+      }
+
+    .form-group.no-border,
+    .input-group.no-border{
+        .form-control,
+        .form-control + .input-group-prepend .input-group-text,
+        .form-control + .input-group-append .input-group-text,
+        .input-group-prepend .input-group-text,
+        .input-group-append .input-group-text{
+            background-color: $opacity-gray-3;
+            &:focus,
+            &:active,
+            &:active{
+                background-color: $opacity-gray-5;
+            }
+        }
+
+        .form-control{
+            &:focus{
+                & + .input-group-prepend .input-group-text,
+                & + .input-group-append .input-group-text{
+
+                    background-color: $transparent-bg;
+                }
+            }
+        }
+
+
+    }
+
+    .input-group[disabled]{
+        .input-group-prepend .input-group-text,
+        .input-group-append .input-group-text{
+            background-color: $black-color;
+        }
+    }
+
+    .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control{
+      background: $light-gray;
+      border-color: rgba($black-states-color,0.3);
+    }
+
+    .input-group-focus{
+        .input-group-prepend .input-group-text,
+        .input-group-append .input-group-text,
+        .form-control{
+          background-color: $white-bg;
+          border-color: $primary-color;
+        }
+
+        &.no-border{
+            .input-group-prepend .input-group-text,
+            .input-group-append .input-group-text{
+
+                background-color: $opacity-gray-5;
+            }
+        }
+    }
+    .input-group-prepend .input-group-text {
+        border-right: none;
+    }
+
+    .input-group-append .input-group-text {
+        border-left: none;
+    }
+
+    .has-danger .form-control:focus, .has-success.input-group-focus .input-group-append .input-group-text, .has-success.input-group-focus .input-group-prepend .input-group-text {
+      border-color: $danger-states-color;
+    }
+
+    .has-success .form-control:focus, .has-success.input-group-focus .input-group-append .input-group-text, .has-success.input-group-focus .input-group-prepend .input-group-text {
+      border-color: darken($success-color, 10%);
+    }
+
+
+    .btn.btn-link{
+      &:hover,&:active, &:focus{
+        color: $dark-gray !important;
+      }
+    }
+
+    .btn-group .btn.active{
+      box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    }
+
+    .bootstrap-switch.bootstrap-switch-off .bootstrap-switch-label{
+      background: darken($background-white,10%);
+    }
+
+    .bootstrap-switch-off:before{
+      background: rgba(darken($background-white,10%),0.5);
+
+    }
+
+
+    .card:not(.card-pricing){
+      background: $white-color;
+      box-shadow: 0 1px 15px 0 rgba(123, 123, 123, 0.05);
+      .card-header{
+        color: $black-color;
+        a[data-toggle="collapse"]{
+          color: $black-color;
+        }
+      }
+      .card-header .card-title, .card-body .card-title{
+        color: $black-states-color;
+      }
+
+      .card-body{
+        .card-category, .card-description{
+          color: $black-states-color;
+        }
+      }
+
+
+      label:not(.btn){
+        color: $default-color;
+      }
+
+       .pagination .page-item:not(.active) .page-link{
+         color: $black-states-color;
+          &:hover{
+            background: rgba($dark-gray,0.1);
+          }
+       }
+
+       &:not(.card-wizard).nav-pills .nav-item .nav-link {
+          color: #444;
+          background-color: hsla(0,0%,87%,.3);
+          &:not(.active):hover{
+            background: hsla(0,0%,87%,.5);
+          }
+          &.active{
+            color: $white-color;
+
+          }
+      }
+
+      .tab-content .tab-pane {
+          color: #444;
+      }
+
+
+      .card{
+        box-shadow: none;
+      }
+
+      .card-collapse{
+        .card{
+          .card-body{
+            color: $dark-gray;
+          }
+        }
+      }
+
+      &.card-contributions{
+        span{
+          color: $dark-gray;
+        }
+        .bootstrap-switch-container{
+          span{
+            color: $white-color;
+          }
+        }
+      }
+      &.card-plain{
+        background: $transparent-bg;
+        box-shadow: none;
+      }
+
+      &.card-tasks{
+        .card-body{
+          i{
+            color: rgba(34,42,66,0.7);
+            &:hover{
+              color: #222a42;
+            }
+          }
+        }
+      }
+    }
+
+
+    .table{
+
+        > tbody > tr > td {
+          color: rgba($black-color, 0.7) !important;
+
+      }
+
+      > thead > tr > th,
+      > tbody > tr > th,
+      > tfoot > tr > th,
+      > thead > tr > td,
+      > tbody > tr > td,
+      > tfoot > tr > td{
+          border-color: rgba($black-color, 0.2);
+          padding: 12px 7px;
+          vertical-align: middle;
+      }
+
+      > thead > tr > th, button.btn-neutral.btn-link{
+        color: rgba($black-color, 0.7);
+      }
+    }
+
+    .footer ul li a{
+      color: $black-states-color;
+    }
+
+    .footer .copyright{
+      color: $black-states-color;
+    }
+  }
+}

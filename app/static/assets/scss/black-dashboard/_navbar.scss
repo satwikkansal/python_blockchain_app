@@ -1,0 +1,176 @@
+
+
+.navbar{
+  padding: 10px 30px 10px 15px;
+  width: 100%;
+  z-index: 1050;
+  min-height: 70px;
+  background: $navbar-color;
+  border-top: 2px solid $primary-color;
+    .photo{
+      display: inline-block;
+      height: 30px;
+      width: 30px;
+      border-radius: 50%;
+      vertical-align: middle;
+      overflow: hidden;
+        img{
+          width: 100%;
+        }
+    }
+
+  .navbar-text{
+    color: $white-color;
+  }
+
+  .btn{
+    margin: 0 5px 0 10px;
+  }
+
+  &.navbar-absolute{
+    position: absolute;
+    width: 100%;
+    z-index: 1050;
+  }
+
+  &[data-color="blue"]{
+    border-top: 2px solid $info-color;
+  }
+
+  &[data-color="green"]{
+    border-top: 2px solid $success-color;
+  }
+
+  &[data-color="orange"]{
+    border-top: 2px solid $warning-color;
+  }
+
+  &[data-color="red"]{
+    border-top: 2px solid $danger-color;
+  }
+
+  &[data-color="primary"]{
+    border-top: 2px solid $primary-color;
+  }
+
+
+  &.navbar-transparent{
+    background: transparent !important;
+  }
+
+  &.bg-white{
+    .navbar-nav{
+      .search-bar.input-group{
+        i{
+          color: $black-color;
+        }
+      }
+
+      .search-bar.input-group .form-control{
+        background: rgba($black-color,0.1);
+        border-radius: 4px;
+      }
+
+      a.nav-link{
+        color: $black-color !important;
+        p{
+          color: $black-color;
+        }
+      }
+
+    }
+
+    .navbar-text, .navbar-brand{
+      color: $black-color;
+    }
+
+    .form-control{
+      color: $black-color !important;
+    }
+
+    .form-control::placeholder{
+      color: $dark-gray !important;
+    }
+
+  }
+
+  &.bg-dark{
+    background: $black-color !important;
+  }
+
+  &.bg-primary{
+    background-color: $primary-color !important;
+  }
+
+  &.bg-warning{
+    background-color: $warning-color !important;
+  }
+
+  &.bg-info{
+    background-color: $info-color !important;
+  }
+
+  &.bg-success{
+    background-color: darken($success-color, 10%) !important;
+  }
+
+  &.bg-danger{
+    background-color: $danger-color !important;
+  }
+
+  .navbar-brand{
+    position: fixed;
+    color: $white-color;
+    margin-left: 17px;
+    margin-top: -15px;
+    text-transform: uppercase;
+    font-size: $font-paragraph;
+  }
+
+  .navbar-toggle button:focus, .navbar-toggler{
+    outline: none;
+  }
+
+}
+
+.navbar-minimize-fixed{
+	position: fixed;
+  margin-left: 40px;
+  margin-top: 14px;
+	transition: 0.3s ease;
+	color: white;
+	z-index: 20;
+	opacity: 0;
+	transition: 0.2s ease;
+	button{
+		i {
+			font-size: 20px;
+		}
+	}
+}
+
+.notification{
+  background:$danger-color;
+	color: white;
+	border-radius: $border-radius-extreme;
+	height: 6px;
+	width: 6px;
+	position: absolute;
+	text-align: center;
+	font-size: 12px;
+	font-weight: 800;
+  top: 10px;
+  right: 10px;
+	border: 1px solid $danger-color;
+}
+
+.navbar-nav li{
+  padding: 0 10px;
+  a{
+    color: $white-color;
+  }
+  i{
+    vertical-align: middle;
+    font-size: 20px;
+  }
+}

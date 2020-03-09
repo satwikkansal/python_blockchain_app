@@ -1,0 +1,461 @@
+@include form-control-placeholder(rgba($white-color,0.2), 1);
+
+.form-control {
+    border-color: lighten($black-color,5%);
+    background-color: $transparent-bg;
+    border-radius: $border-radius-large;
+    color: rgba($white-color,0.8);
+    line-height: normal;
+    font-size: $font-size-small;
+    @include transition-input-focus-color();
+    @include box-shadow(none);
+
+
+
+    &:focus{
+        border-color:$primary-color ;
+        background: $transparent-bg;
+        @include box-shadow(none);
+        outline: 0 !important;
+        color: rgba($white-color,0.8);
+
+        & + .input-group-append .input-group-text,
+        & ~ .input-group-append .input-group-text,
+        & + .input-group-prepend .input-group-text,
+        & ~ .input-group-prepend .input-group-text{
+            border: 1px solid $primary-color;
+            border-left: none;
+            background-color: $transparent-bg;
+        }
+    }
+
+    .has-success &,
+    .has-error &,
+    .has-success &:focus,
+    .has-error &:focus{
+        @include box-shadow(none);
+    }
+
+    .has-danger &,
+    .has-success &{
+        &.form-control-success,
+        &.form-control-danger{
+            background-image: none;
+        }
+    }
+
+    & + .form-control-feedback{
+        border-radius: $border-radius-large;
+        font-size: $font-size-base;
+        margin-top: -7px;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        vertical-align: middle;
+    }
+
+    .open &{
+        border-radius: $border-radius-large $border-radius-large 0 0;
+        border-bottom-color: transparent;
+    }
+
+    & + .input-group-append .input-group-text,
+    & + .input-group-prepend .input-group-text{
+        background-color: $white-bg;
+    }
+}
+
+.has-success .input-group-append .input-group-text,
+.has-success .input-group-prepend .input-group-text,
+.has-success .form-control{
+    border-color: lighten($black-color,5%);
+}
+
+.has-success .form-control:focus,
+.has-success.input-group-focus .input-group-append .input-group-text,
+.has-success.input-group-focus .input-group-prepend .input-group-text{
+  border-color: darken($success-color, 10%);
+}
+
+.has-danger .form-control,
+.has-danger .input-group-append .input-group-text,
+.has-danger .input-group-prepend .input-group-text,
+.has-danger.input-group-focus .input-group-prepend .input-group-text,
+.has-danger.input-group-focus .input-group-append .input-group-text{
+    border-color: lighten($danger-states-color,5%);
+    color: $danger-states-color;
+    background-color: rgba(222,222,222, .1);
+
+    &:focus{
+        background-color: $transparent-bg;
+    }
+}
+
+.has-success,
+.has-danger{
+    &:after{
+        font-family: 'nucleo';
+        content: "\ea1b";
+        display: inline-block;
+        position: absolute;
+        right: 20px;
+        top: 13px;
+        color: $success-color;
+        font-size: 11px;
+    }
+
+    &.form-control-lg{
+      &:after{
+        font-size: 13px;
+        top: 24px;
+      }
+    }
+
+    &.has-label{
+      &:after{
+        top: 37px;
+      }
+    }
+
+
+    &.form-check:after{
+      display: none !important;
+    }
+
+    &.form-check .form-check-label{
+      color: $success-color;
+    }
+}
+
+.has-danger{
+  &:after{
+    content: "\ea48";
+    color: $danger-states-color;
+  }
+
+  &.form-check .form-check-label{
+    color: $danger-states-color;
+  }
+}
+
+.form-group.has-danger .error,
+.input-group.has-danger .error {
+  color: $danger-states-color;
+}
+
+.form-group.has-success .error,
+.input-group.has-success .error {
+  color: $success-color;
+}
+
+@include form-control-lg-padding($padding-large-vertical, $padding-input-horizontal);
+@include input-base-padding($padding-input-vertical, $padding-input-horizontal);
+
+.form-group.no-border,
+.input-group.no-border{
+    .form-control,
+    .form-control + .input-group-prepend .input-group-text,
+    .form-control + .input-group-append .input-group-text{
+
+        background-color: lighten($black-color,1%);
+        border: medium none;
+        &:focus,
+        &:active,
+        &:active{
+            border: medium none;
+            background-color: lighten($black-color,2%);
+        }
+    }
+
+    .form-control{
+        &:focus{
+            & + .input-group-prepend .input-group-text,
+            & + .input-group-append .input-group-text{
+                background-color: lighten($black-color,2%);
+            }
+        }
+    }
+
+    .input-group-prepend .input-group-text,
+    .input-group-append .input-group-text{
+        background-color: lighten($black-color,1%);;
+        border: none;
+    }
+}
+
+.has-error{
+    .form-control-feedback, .control-label{
+        color: $danger-states-color;
+    }
+}
+.has-success{
+    .form-control-feedback, .control-label{
+        color: $success-color;
+    }
+}
+
+.input-group-append .input-group-text,
+.input-group-prepend .input-group-text {
+    background-color: transparent;
+    border: 1px solid lighten($black-color,5%);
+    border-radius: $border-radius-large;
+    color: $white-color;
+
+    & i{
+      opacity: .5;
+    }
+
+    @include transition-input-focus-color();
+
+    .has-danger.input-group-focus &{
+        background-color: $transparent-bg;
+    }
+
+    .has-success &{
+        background-color: $transparent-bg;
+    }
+    .has-danger .form-control:focus + &{
+        color: $danger-states-color;
+    }
+    .has-success .form-control:focus + &{
+        color: $success-color;
+    }
+
+    & + .form-control,
+    & ~ .form-control{
+        @include input-size($padding-base-vertical - 1, $padding-base-horizontal);
+        padding-left: 18px;
+    }
+
+    i{
+        width: 17px;
+    }
+}
+
+.input-group-append,
+.input-group-prepend{
+  margin: 0;
+}
+
+
+.input-group-append .input-group-text{
+  border-left: none;
+}
+.input-group-prepend .input-group-text{
+  border-right: none;
+}
+
+.input-group-focus{
+    .input-group-prepend .input-group-text,
+    .input-group-append .input-group-text{
+        background-color: $white-bg;
+        border-color: $primary-color;
+        background-color: $transparent-bg;
+        border-color: $primary-color;
+    }
+
+    &.no-border{
+        .input-group-prepend .input-group-text,
+        .input-group-append .input-group-text{
+            background-color: lighten($black-color,2%);
+        }
+    }
+}
+
+.input-group,
+.form-group{
+    margin-bottom: 10px;
+    position: relative;
+
+    .form-control-static{
+        margin-top: 9px;
+    }
+}
+.input-group[disabled]{
+    .input-group-prepend .input-group-text,
+    .input-group-append .input-group-text{
+        background-color: $light-gray;
+    }
+}
+
+.input-group .form-control:not(:first-child):not(:last-child), .input-group-btn:not(:first-child):not(:last-child){
+    border-radius: $border-radius-large;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0 none;
+}
+
+.input-group .form-control:first-child,
+.input-group-btn:first-child > .dropdown-toggle,
+.input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle) {
+    border-right: 0 none;
+}
+.input-group .form-control:last-child,
+.input-group-btn:last-child > .dropdown-toggle,
+.input-group-btn:first-child > .btn:not(:first-child) {
+    border-left: 0 none;
+}
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    background-color: $black-states-color;
+    color: $default-color;
+    cursor: not-allowed;
+}
+
+.input-group-btn .btn{
+    border-width: $border-thin;
+    padding: $padding-btn-vertical  $padding-base-horizontal;
+}
+.input-group-btn .btn-default:not(.btn-fill){
+    border-color: $medium-gray;
+}
+
+.input-group-btn:last-child > .btn{
+    margin-left: 0;
+}
+textarea.form-control{
+    max-width: 100%;
+    max-height: 80px;
+    padding: 10px 10px 0 0;
+    resize: none;
+    border: none;
+    border-bottom: 1px solid lighten($black-color,5%);
+    border-radius: 0;
+    line-height: 2;
+
+    &:focus,
+    &:active{
+        border-left: none;
+        border-top: none;
+        border-right: none;
+    }
+}
+
+.has-success,
+.has-danger{
+
+    &.form-group .form-control,
+    &.form-group.no-border .form-control{
+        padding-right: $padding-input-horizontal + 21;
+    }
+}
+
+.form.form-newsletter .form-group{
+    float: left;
+    width: 78%;
+    margin-right: 2%;
+    margin-top: 9px;
+}
+
+.input-group .input-group-btn{
+    padding: 0 12px;
+}
+
+// Input files - hide actual input - requires specific markup in the sample.
+.form-group input[type=file] {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+}
+
+.form-text{
+    font-size: $font-size-small;
+    color: rgba($white-color,0.8);
+}
+
+.form-control-lg{
+    padding: 0;
+    font-size: inherit;
+    line-height: 0;
+    border-radius: 0;
+}
+
+.form-horizontal{
+    .col-form-label,
+    .label-on-right{
+        padding: 10px 5px 0 15px;
+        text-align: right;
+        max-width: 180px;
+    }
+
+    .checkbox-radios{
+        margin-bottom: 15px;
+
+        .form-check:first-child{
+           margin-top: 8px;
+       }
+    }
+
+    .label-on-right{
+        text-align: left;
+        padding: 10px 15px 0 5px;
+    }
+
+    .form-check-inline{
+        margin-top: 6px;
+        .form-check-label{
+          margin-right: 1.5rem;
+        }
+    }
+}
+
+.search-bar{
+    margin-left: $margin-large-vertical;
+      .btn{
+        margin: 0;
+      }
+       &.input-group{
+           border-radius: 25px;
+           z-index: 4;
+           margin-bottom: 0;
+           height: 43px;
+           .input-group-addon{
+              padding: $padding-simple-vertical;
+               background: transparent;
+               border: none;
+               color: rgba(255, 255, 255, 0.7);
+
+           }
+
+           i{
+               font-size: 20px;
+               color: white;
+               margin-top: 0 !important;
+           }
+           input{
+               background: transparent;
+               border:none !important;
+               border-radius: 0;
+               padding: 12px !important;
+               font-size: 12px;
+               opacity: 0.5;
+               &:focus{
+                   background: transparent;
+               }
+           }
+           .form-control{
+               opacity: 1;
+               color: $white-color;
+               &::placeholder{
+                 color: white;
+               }
+           }
+       }
+   }
+
+   #searchModal .modal-dialog{
+     max-width: 1000px;
+     margin: 20px auto;
+     .form-control{
+       border: none;
+       color: $black-color;
+       &::placeholder{
+         color: $black-color;
+       }
+     }
+   }

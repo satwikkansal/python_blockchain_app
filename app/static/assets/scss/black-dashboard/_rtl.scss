@@ -1,0 +1,73 @@
+.rtl{
+  .sidebar,
+  .bootstrap-navbar{
+    right: 0;
+    left: auto;
+    margin-right: 20px;
+    margin-left: 0;
+
+    .nav{
+        i{
+            float: right;
+            margin-left: 15px;
+            margin-right: 0;
+        }
+
+        p{
+            margin-right: 45px;
+            text-align: right;
+        }
+
+        .caret{
+            left: 11px;
+            right: auto;
+        }
+      }
+
+      .logo{
+          a.logo-mini{
+             float: right;
+             margin-right: 20px;
+             margin-left: 10px;
+          }
+
+          .simple-text{
+              text-align: right;
+          }
+      }
+  }
+
+  .btn.dropdown-toggle:after{
+    margin-right: 5px;
+  }
+
+  .main-panel .content{
+    padding: 80px 280px 30px 30px;
+  }
+
+  .footer{
+    padding: 24px 300px 24px 0;
+  }
+
+  .search-bar{
+    margin-left: 0;
+  }
+
+  .card.card-tasks .dropdown-menu{
+    margin-right: -115px;
+  }
+
+  @media screen and (max-width: 991px){
+
+    .sidebar{
+      margin-right: 0;
+    }
+    .main-panel .content{
+      padding-right: 50px;
+    }
+  }
+
+  .navbar {
+    overflow-x: hidden;
+  }
+}

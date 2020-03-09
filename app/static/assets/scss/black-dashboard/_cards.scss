@@ -1,0 +1,108 @@
+.card{
+    background: $card-black-background;
+    border: 0;
+    border-radius: $border-radius-small;
+    position: relative;
+    width: 100%;
+    margin-bottom: 30px;
+    box-shadow: $box-shadow;
+
+    label{
+      color: rgba($white-color, 0.6);
+    }
+    .card-body{
+        padding: 15px;
+
+        &.table-full-width{
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .card-title{
+
+          color: $white-color;
+          text-transform: inherit;
+          font-weight: $font-weight-light;
+        }
+
+        .card-description, .card-category{
+          color: rgba($white-color, 0.6);
+        }
+
+    }
+
+    .card-header{
+      &:not([data-background-color]){
+        background-color: transparent;
+      }
+      padding: 15px 15px 0;
+      border: 0;
+      color: rgba($white-color,0.8);
+
+      .card-title{
+          color: $white-color;
+          font-weight: 100;
+      }
+
+      .card-category{
+        color: $dark-gray;
+        margin-bottom: 5px;
+        font-weight: 300;
+      }
+    }
+
+    .map{
+        border-radius: $border-radius-small;
+
+        &.map-big{
+          height: 400px;
+        }
+    }
+
+
+
+    &.card-plain {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .image{
+        overflow: hidden;
+        height: 200px;
+        position: relative;
+    }
+
+    .avatar{
+        width: 30px;
+        height: 30px;
+        overflow: hidden;
+        border-radius: 50%;
+        margin-bottom: 15px;
+    }
+
+    label{
+        font-size: $font-size-small;
+        margin-bottom: 5px;
+
+    }
+
+    .card-footer{
+        background-color: transparent;
+        border: 0;
+        padding: 15px;
+
+
+        .stats{
+            i{
+                margin-right: 5px;
+                position: relative;
+
+            }
+        }
+
+        h6{
+          margin-bottom: 0;
+          padding: 7px 0;
+        }
+    }
+}
