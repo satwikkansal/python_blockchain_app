@@ -3,9 +3,13 @@ import json
 from json import JSONEncoder
 
 import time
+import threading
 
 from flask import Flask, request
 import requests
+import os
+
+backup_path = "./backup"
 
 transaction_fields = {"YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID",
 "OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",
@@ -28,6 +32,22 @@ class Transaction:
         self.__dict__.update(transaction)
         Transaction.id += 1
 
+
+def write_block_and_check_dir(block, id):
+    
+    if(not os.path.isdir(backup_path)): 
+        try:
+            os.mkdir(backup_path)
+        except OSError:
+            print ('Creation of the directory %s failed!' % backup_path)
+            return False
+        else:
+            print ("Successfully created the directory %s" % backup_path)
+            
+    f = open('{}/{}'.format(backup_path, id), 'w')
+    f.write(json.dumps(block, cls=BlockEncoder, sort_keys=True))
+    f.close()
+    return True
 
 class Block:
     def __init__(self, index, transactions, timestamp, previous_hash, nonce=0):
@@ -154,21 +174,32 @@ class Blockchain:
         and figuring out Proof Of Work.
         """
         if not self.unconfirmed_transactions:
-            return False
+            return -1
+
+        unconfirmed_transactions_to_block = []
+
+        if len(self.unconfirmed_transactions) > 1000:
+            unconfirmed_transactions_to_block = self.unconfirmed_transactions[0:1000]
+            self.unconfirmed_transactions = self.unconfirmed_transactions[1000:]
+        else:
+            unconfirmed_transactions_to_block = self.unconfirmed_transactions
+            self.unconfirmed_transactions = []
 
         last_block = self.last_block
 
         new_block = Block(index=last_block.index + 1,
-                          transactions=self.unconfirmed_transactions,
+                          transactions=unconfirmed_transactions_to_block,
                           timestamp=time.time(),
                           previous_hash=last_block.hash)
 
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
-
-        self.unconfirmed_transactions = []
-
-        return True
+        
+        if(write_block_and_check_dir(new_block, new_block.index)):
+            return 1
+        else: 
+            print("Save failed!")
+            return 0
 
     def get_block(id):
         return self.chain[id]
@@ -182,7 +213,6 @@ blockchain.create_genesis_block()
 
 # the address to other participating members of the network
 peers = set()
-
 
 # endpoint to submit a new transaction. This will be used by
 # our application to add new data (posts) to the blockchain
@@ -287,8 +317,10 @@ def get_transaction_by_id(transaction_id):
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
     result = blockchain.mine()
-    if not result:
+    if result == -1:
         return "No transactions to mine"
+    elif result == 0:
+        return 500, "No transactions to mine"
     else:
         # Making sure we have the longest chain before announcing to the network
         chain_length = len(blockchain.chain)
@@ -429,4 +461,22 @@ def announce_new_block(block):
                       headers=headers)
 
 # Uncomment this line if you want to specify the port number in the code
-#app.run(debug=True, port=8000)
+def start_runner():
+    def start_loop():
+        while True:
+            print('In start loop ', threading.current_thread().ident)
+            try:
+                r = requests.get('http://127.0.0.1:8000/mine')
+                if r.status_code == 200:
+                    print(r.content)
+                print(r.status_code)
+            except:
+                print('Server not yet started')
+            time.sleep(60)
+
+    print('Started runner')
+    thread = threading.Thread(target=start_loop)
+    thread.start()
+
+start_runner()
+app.run(debug=False, port=8000)
