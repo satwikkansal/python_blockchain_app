@@ -204,12 +204,26 @@ class Blockchain:
     def get_block(id):
         return self.chain[id]
 
+    #read from the backup folder and initialize the chain
+    def read_backup(self):
+        self.create_genesis_block()
+
+        if(not os.path.isdir(backup_path)):
+            return False
+        for r, d, f, in os.walk(backup_path):
+            backup = f                          #list of the names of the files in the backup folder
+        backup.sort()
+
+        for n in backup:
+            tmp = open(backup_path + '/' + n, 'r');
+
+
 
 app = Flask(__name__)
 
 # the node's copy of blockchain
 blockchain = Blockchain()
-blockchain.create_genesis_block()
+blockchain.read_backup()
 
 # the address to other participating members of the network
 peers = set()
