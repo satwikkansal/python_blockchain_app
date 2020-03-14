@@ -34,8 +34,8 @@ class Transaction:
 
 
 def write_block_and_check_dir(block, id):
-    
-    if(not os.path.isdir(backup_path)): 
+
+    if(not os.path.isdir(backup_path)):
         try:
             os.mkdir(backup_path)
         except OSError:
@@ -43,7 +43,7 @@ def write_block_and_check_dir(block, id):
             return False
         else:
             print ("Successfully created the directory %s" % backup_path)
-            
+
     f = open('{}/{}'.format(backup_path, id), 'w')
     f.write(json.dumps(block, cls=BlockEncoder, sort_keys=True))
     f.close()
@@ -194,10 +194,10 @@ class Blockchain:
 
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
-        
+
         if(write_block_and_check_dir(new_block, new_block.index)):
             return 1
-        else: 
+        else:
             print("Save failed!")
             return 0
 
@@ -206,8 +206,6 @@ class Blockchain:
 
     #read from the backup folder and initialize the chain
     def read_backup(self):
-        self.create_genesis_block()
-
         if(not os.path.isdir(backup_path)):
             return False
         for r, d, f, in os.walk(backup_path):
@@ -215,7 +213,10 @@ class Blockchain:
         backup.sort()
 
         for n in backup:
-            tmp = open(backup_path + '/' + n, 'r');
+            tmp_file = open(backup_path + '/' + n, 'r')
+            tmp_json = tmp_file.read()
+
+
 
 
 
@@ -223,7 +224,8 @@ app = Flask(__name__)
 
 # the node's copy of blockchain
 blockchain = Blockchain()
-blockchain.read_backup()
+blockchain.create_genesis_block()
+#blockchain.read_backup()
 
 # the address to other participating members of the network
 peers = set()
