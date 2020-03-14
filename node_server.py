@@ -111,11 +111,19 @@ class Blockchain:
         previous_hash = self.last_block.hash
 
         if previous_hash != block.previous_hash:
+            #debug
+            print("PREVIOUS HASH ERROR ", block.index)
+            #
             return False
 
         if not Blockchain.is_valid_proof(block, proof):
+            #debug
+            print("PROOF NOT VALID ", block.index)
+            #
             return False
-
+        #debug
+        print("ADDING BLOCK ", block.index)
+        #
         block.hash = proof
         self.chain.append(block)
         return True
@@ -210,11 +218,56 @@ class Blockchain:
             return False
         for r, d, f, in os.walk(backup_path):
             backup = f                          #list of the names of the files in the backup folder
+
+        backup = [int(i) for i in backup]
+
         backup.sort()
+        #debug
+        print("SORTED BACKUP")
+        print(type(backup))
+        print(type(backup[0]))
+        print(backup)
+        #
+        #debug
+        #print(backup)
+        #
 
         for n in backup:
-            tmp_file = open(backup_path + '/' + n, 'r')
+            #parse json from file
+            tmp_file = open(backup_path + '/' + str(n), 'r')
+            #debug
+            #print("tmp_file")
+            #print(type(tmp_file))
+            #print(tmp_file)
+            #
             tmp_json = tmp_file.read()
+
+            #debug
+            #print("TMP_JSON")
+            #print(type(tmp_json))
+            #
+            tmp_dict = json.loads(tmp_json)
+
+            #create transactions objects
+            for i in range(0, len(tmp_dict["transactions"])):
+                tmp_trans = Transaction(tmp_dict["transactions"][i])
+                tmp_dict["transactions"][i] = tmp_trans
+            #debug
+
+            #print("TMP_DICT")
+            #print(tmp_dict)
+            #
+
+            #create block object
+            tmp_block = Block(0,0,0,0,0)
+            tmp_proof = tmp_dict["hash"]
+            del tmp_dict["hash"]
+            tmp_block.__dict__ = tmp_dict
+
+            self.add_block(tmp_block, tmp_proof)
+
+
+
 
 
 
@@ -225,7 +278,7 @@ app = Flask(__name__)
 # the node's copy of blockchain
 blockchain = Blockchain()
 blockchain.create_genesis_block()
-#blockchain.read_backup()
+blockchain.read_backup()
 
 # the address to other participating members of the network
 peers = set()
@@ -256,21 +309,25 @@ def new_transaction():
 @app.route('/chain', methods=['GET'])
 def get_chain():
     chain_data = []
+    #debug
+    print("Blockchain SIZE")
+    print(len(blockchain.chain))
+    #
     for block in blockchain.chain:
 
 
         block_to_add = block.__dict__.copy()
 
         #debug
-        print("BLOCK BEFORE")
-        print(block_to_add)
+        #print("BLOCK BEFORE")
+        #print(block_to_add)
         #
 
         transactions_dict = []
         for i in range(0,len(block_to_add["transactions"])):
-            print("POS")
-            print(i)
-            print(block_to_add["transactions"][i].__dict__)
+            #print("POS")
+            #print(i)
+            #print(block_to_add["transactions"][i].__dict__)
             transactions_dict.append(block_to_add["transactions"][i].__dict__)
             #block_to_add["transactions"][i] = block_to_add["transactions"][i].__dict__
 
@@ -284,9 +341,9 @@ def get_chain():
         chain_data.append(block_to_add)
 
     #debug
-    print("CHAIN_DATA")
-    print(type(chain_data))
-    print(chain_data)
+    #print("CHAIN_DATA")
+    #print(type(chain_data))
+    #print(chain_data)
     #
 
     return json.dumps({"length": len(chain_data),
