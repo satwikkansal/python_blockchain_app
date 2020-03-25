@@ -15,6 +15,7 @@ transaction_fields = {"YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID",
 "OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",
 "DEST", "DEST_CITY_NAME", "DEST_STATE_NM", "DEP_TIME", "DEP_DELAY", "ARR_TIME", "ARR_DELAY", "CANCELLED", "AIR_TIME"}
 
+
 class Transaction:
     id = 0
 
@@ -64,10 +65,10 @@ class Block:
         block_string = json.dumps(self, cls=BlockEncoder, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 
-    def has_transaction(id):
+    def has_transaction(self, id):
         return self.transactions[0].id <= id and self.transactions[-1].id >= id
 
-    def get_transaction(id):
+    def get_transaction(self, id):
         if(self.has_transaction(id)):
             return self.transactions[id - self.transactions[0].id]
         else:
@@ -75,6 +76,10 @@ class Block:
 
 # subclass JSONEncoder
 class BlockEncoder(JSONEncoder):
+        def default(self, o):
+            return o.__dict__
+
+class TransactionEncoder(JSONEncoder):
         def default(self, o):
             return o.__dict__
 
@@ -209,7 +214,7 @@ class Blockchain:
             print("Save failed!")
             return 0
 
-    def get_block(id):
+    def get_block(self, id):
         return self.chain[id]
 
     #read from the backup folder and initialize the chain
@@ -266,7 +271,8 @@ class Blockchain:
 
             self.add_block(tmp_block, tmp_proof)
 
-
+    def get_chain_length(self):
+        return len(self.chain)
 
 
 
@@ -296,7 +302,6 @@ def new_transaction():
             return "Invalid transaction data", 404
 
     tx_data["timestamp"] = time.time()
-
     transaction = Transaction(tx_data)
     blockchain.add_new_transaction(transaction)
 
@@ -383,6 +388,52 @@ def get_transaction_by_id(transaction_id):
         return False
 
 
+@app.route('/transactions', methods=['GET'])
+def get_flight_status_by_number_and_date():
+    op_carrier = request.args.get('op_carrier')
+    date = request.args.get('date')
+    select_dict = {"OP_CARRIER_FL_NUM" : op_carrier, "FL_DATE" : date}
+    result_flights = []
+
+    for i in range(blockchain.get_chain_length()):
+
+        block = blockchain.get_block(i)
+
+        for flight in block.transactions:
+            result = True
+            for key in select_dict.keys():
+                if flight.__dict__[key] != select_dict[key]:  
+                    result = False
+
+            if result:
+                result_flights += [flight]
+
+
+    return json.dumps([json.dumps(flight, cls=TransactionEncoder, sort_keys=True) for flight in result_flights])
+
+
+@app.route('/average_delays', methods=['GET'])
+def get_arr_delays_per_dates_and_carrier():
+    op_carrier = request.args.get('op_carrier')
+    initial_date = request.args.get('initial_date')
+    final_date = request.args.get('final_date')
+    #select_dict = {"OP_CARRIER_FL_NUM" : op_carrier, "FL_DATE" : date}
+    filtered_flights_delays = []
+
+    for i in range(blockchain.get_chain_length()):
+
+        block = blockchain.get_block(i)
+
+        for flight in block.transactions:
+            print(flight.__dict__["FL_DATE"], ", ", initial_date, ", ", final_date, ", ", flight.__dict__["OP_CARRIER_AIRLINE_ID"])
+            
+            if flight.__dict__["OP_CARRIER_AIRLINE_ID"] == op_carrier and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:  
+                filtered_flights_delays += [int(flight.__dict__["ARR_DELAY"])]
+
+    if(len(filtered_flights_delays) > 0):
+        return {"average_delay" : sum(filtered_flights_delays)/len(filtered_flights_delays)}
+    else:
+        return "Not found", 404 
 
 # endpoint to request the node to mine the unconfirmed
 # transactions (if any). We'll be using it to initiate
