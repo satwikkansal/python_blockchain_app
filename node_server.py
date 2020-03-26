@@ -23,10 +23,10 @@ class Transaction:
         self.TRANSACTION_ID = Transaction.id
 
         #debug
-        print("AAAAAA")
-        print(self.__dict__)
-        print("BBBBBBB")
-        print(transaction)
+        #print("AAAAAA")
+        #print(self.__dict__)
+        #print("BBBBBBB")
+        #print(transaction)
         #
 
 
@@ -66,11 +66,17 @@ class Block:
         return sha256(block_string.encode()).hexdigest()
 
     def has_transaction(self, id):
-        return self.transactions[0].id <= id and self.transactions[-1].id >= id
+        #debug
+        #print("69 ID ", id)
+        #print("LEN TRANSACTIONS ", len(self.transactions))
+        #print("FIRST TRANSACTION ID ", self.transactions[0].TRANSACTION_ID)
+        
+        return self.transactions[0].TRANSACTION_ID <= id and self.transactions[-1].TRANSACTION_ID >= id
 
     def get_transaction(self, id):
+
         if(self.has_transaction(id)):
-            return self.transactions[id - self.transactions[0].id]
+            return self.transactions[id - self.transactions[0].TRANSACTION_ID]
         else:
             return False
 
@@ -117,17 +123,17 @@ class Blockchain:
 
         if previous_hash != block.previous_hash:
             #debug
-            print("PREVIOUS HASH ERROR ", block.index)
+            #print("PREVIOUS HASH ERROR ", block.index)
             #
             return False
 
         if not Blockchain.is_valid_proof(block, proof):
             #debug
-            print("PROOF NOT VALID ", block.index)
+            #print("PROOF NOT VALID ", block.index)
             #
             return False
         #debug
-        print("ADDING BLOCK ", block.index)
+        #print("ADDING BLOCK ", block.index)
         #
         block.hash = proof
         self.chain.append(block)
@@ -211,11 +217,16 @@ class Blockchain:
         if(write_block_and_check_dir(new_block, new_block.index)):
             return 1
         else:
-            print("Save failed!")
+            #print("Save failed!")
             return 0
 
     def get_block(self, id):
+
+        if id < 0 or id > len(self.chain):
+            return False
+        
         return self.chain[id]
+        
 
     #read from the backup folder and initialize the chain
     def read_backup(self):
@@ -228,10 +239,10 @@ class Blockchain:
 
         backup.sort()
         #debug
-        print("SORTED BACKUP")
-        print(type(backup))
-        print(type(backup[0]))
-        print(backup)
+        #print("SORTED BACKUP")
+        #print(type(backup))
+        #print(type(backup[0]))
+        #print(backup)
         #
         #debug
         #print(backup)
@@ -291,7 +302,7 @@ peers = set()
 
 # endpoint to submit a new transaction. This will be used by
 # our application to add new data (posts) to the blockchain
-@app.route('/new_transaction', methods=['POST'])
+@app.route('/new_transaction', methods=['POST']) #tested
 def new_transaction():
     tx_data = request.get_json()
     #required_fields = ["author", "content"]
@@ -311,12 +322,12 @@ def new_transaction():
 # endpoint to return the node's copy of the chain.
 # Our application will be using this endpoint to query
 # all the posts to display.
-@app.route('/chain', methods=['GET'])
+@app.route('/chain', methods=['GET'])  #tested 
 def get_chain():
     chain_data = []
     #debug
-    print("Blockchain SIZE")
-    print(len(blockchain.chain))
+    #print("Blockchain SIZE")
+    #print(len(blockchain.chain))
     #
     for block in blockchain.chain:
 
@@ -339,8 +350,8 @@ def get_chain():
         block_to_add["transactions"] = transactions_dict
 
         #debug
-        print("BLOCK AFTER")
-        print(block_to_add)
+        #print("BLOCK AFTER")
+        #print(block_to_add)
         #
 
         chain_data.append(block_to_add)
@@ -358,37 +369,54 @@ def get_chain():
 # endpoint to return the transactions of a block gived its id.
 # Our application will be using this endpoint to query
 # all the posts to display.
-@app.route('/blocks/<block_id>', methods=['GET'])
+@app.route('/blocks/<block_id>', methods=['GET']) #tested
 def get_transaction_by_block_id(block_id):
-    block = blockchain.get_block(block_id)
+
+    block = blockchain.get_block(int(block_id))
+    
+    if not block:
+        return "Block not found", 404    
+        
     return json.dumps({"length": len(block.transactions),
-                       "transactions": block.transactions})
+                       "transactions": [json.dumps(transaction, cls=TransactionEncoder, sort_keys=True) for transaction in block.transactions]})
 
 # endpoint to return the transaction gived its id.
 # Our application will be using this endpoint to query
 # all the posts to display.
 @app.route('/transactions/<transaction_id>', methods=['GET'])
-def get_transaction_by_id(transaction_id):
+def get_transaction_by_id(transaction_id): #tested
+    transaction_id = int(transaction_id)
     min_id = 0
-    max_id = len(blockchain) - 1
+    max_id = blockchain.get_chain_length() - 1
     med_id = max_id // 2
     med_block = blockchain.get_block(med_id)
 
-    while(not med_block.has_transaction(transaction_id) and min_id != max_id):
-        if(transaction_id < med_block.transactions[0].id):
-            max_id = med_id
+    #debug
+    #print(transaction_id)
+    #print("BLOCK ID ", med_id)
+    #print("MAX_ID ", max_id)
+
+
+    while((not med_block.has_transaction(transaction_id)) and min_id != max_id):
+        #debug
+        #print("MED_BLOCK TRANS_ID ", med_block.transactions[0].TRANSACTION_ID)
+        #print("MIN_ID ", min_id)
+        #print("MAX_ID ", max_id)
+        if(transaction_id < med_block.transactions[0].TRANSACTION_ID):
+            max_id = med_id - 1
         else:
-            min_id = med_id
+            min_id = med_id + 1
         med_id = (max_id + min_id) // 2
+        #print("BLOCK ID ", med_id)
         med_block = blockchain.get_block(med_id)
 
     if(med_block.has_transaction(transaction_id)):
-        return med_block.get_transaction(transaction_id)
+        return {"transaction" : json.dumps(med_block.get_transaction(transaction_id), cls=TransactionEncoder, sort_keys=True)}
     else:
-        return False
+        return "Transaction not found", 404
 
 
-@app.route('/transactions', methods=['GET'])
+@app.route('/transactions', methods=['GET']) #tested
 def get_flight_status_by_number_and_date():
     op_carrier = request.args.get('op_carrier')
     date = request.args.get('date')
@@ -412,7 +440,7 @@ def get_flight_status_by_number_and_date():
     return json.dumps([json.dumps(flight, cls=TransactionEncoder, sort_keys=True) for flight in result_flights])
 
 
-@app.route('/average_delays', methods=['GET'])
+@app.route('/average_delays', methods=['GET']) #tested
 def get_arr_delays_per_dates_and_carrier():
     op_carrier = request.args.get('op_carrier')
     initial_date = request.args.get('initial_date')
@@ -425,7 +453,7 @@ def get_arr_delays_per_dates_and_carrier():
         block = blockchain.get_block(i)
 
         for flight in block.transactions:
-            print(flight.__dict__["FL_DATE"], ", ", initial_date, ", ", final_date, ", ", flight.__dict__["OP_CARRIER_AIRLINE_ID"])
+            #print(flight.__dict__["FL_DATE"], ", ", initial_date, ", ", final_date, ", ", flight.__dict__["OP_CARRIER_AIRLINE_ID"])
             
             if flight.__dict__["OP_CARRIER_AIRLINE_ID"] == op_carrier and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:  
                 filtered_flights_delays += [int(flight.__dict__["ARR_DELAY"])]
@@ -434,6 +462,28 @@ def get_arr_delays_per_dates_and_carrier():
         return {"average_delay" : sum(filtered_flights_delays)/len(filtered_flights_delays)}
     else:
         return "Not found", 404 
+
+@app.route('/flight_counter', methods=['GET']) #tested
+def count_flights_from_A_to_B():
+    origin = request.args.get("origin")
+    destination = request.args.get("destination")
+    initial_date = request.args.get('initial_date')
+    final_date = request.args.get('final_date')
+
+    filtered_flights_counter = 0
+
+    for i in range(blockchain.get_chain_length()):
+
+        block = blockchain.get_block(i)
+
+        for flight in block.transactions:
+
+            if flight.__dict__['ORIGIN_CITY_NAME'] == origin and flight.__dict__['DEST_CITY_NAME'] == destination and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:
+                filtered_flights_counter += 1
+
+    return {"filtered_flights_counter" : filtered_flights_counter}
+
+
 
 # endpoint to request the node to mine the unconfirmed
 # transactions (if any). We'll be using it to initiate
