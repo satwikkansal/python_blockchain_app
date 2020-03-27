@@ -12,6 +12,10 @@ CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
 posts = []
 
+block_transactions = []
+
+transaction = []
+
 
 def fetch_posts():
     """
@@ -25,6 +29,7 @@ def fetch_posts():
         chain = json.loads(response.content)
         for block in chain["chain"]:
             for tx in block["transactions"]:
+
                 #tx["index"] = block["index"]
                 #tx["hash"] = block["previous_hash"]
                 content.append(tx)
@@ -32,6 +37,10 @@ def fetch_posts():
         global posts
         posts = sorted(content, key=lambda k: k['timestamp'],
                        reverse=True)
+        
+        #remove timestamps
+        for post in posts:
+            del post["timestamp"]
 
 
 @app.route('/')
@@ -106,3 +115,21 @@ def submit_textarea():
 
 def timestamp_to_string(epoch_time):
     return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
+
+@app.route('/blocks', methods=['GET'])
+def get_block_from_id():
+    block_id = request.form["BLOCK_ID"]
+
+    block_id_address = "{}/blocks/{}".format(CONNECTED_NODE_ADDRESS, block_id)
+
+    r = requests.get(block_id_address)
+
+    resp = r.json()
+
+    global block_transactions
+    block_transactions = sorted(resp.transactions, key=lambda k: k['timestamp'],reverse=True)
+
+    for transaction in block_transactions:
+        del transaction["timestamp"]
+
+    return redirect('/')

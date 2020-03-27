@@ -393,9 +393,91 @@
                   </div>
                   <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
                   </form>
+
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="table-responsive">
+                          <table class="table tablesorter" id="">
+                            <thead class=" text-primary">
+                              <th>
+                                TRANSACTION_ID
+                              </th>
+                              <th>
+                                YEAR
+                              </th>
+                              <th>
+                                DAY_OF_WEEK
+                              </th>
+                              <th>
+                                FL_DATE
+                              </th>
+                              <th>
+                                OP_CARRIER_AIRLINE_ID
+                              </th>
+                              <th>
+                                OP_CARRIER_FL_NUM
+                              </th>
+                              <th>
+                                ORIGIN_AIRPORT_ID
+                              </th>
+                              <th>
+                                ORIGIN
+                              </th>
+                              <th>
+                                ORIGIN_CITY_NAME
+                              </th>
+                              <th>
+                                ORIGIN_STATE_NM
+                              </th>
+                              <th>
+                                DEST_AIRPORT_ID
+                              </th>
+                              <th>
+                                DEST
+                              </th>
+                              <th>
+                                DEST_CITY_NAME
+                              </th>
+                              <th>
+                                DEST_STATE_NM
+                              </th>
+                              <th>
+                                DEP_TIME
+                              </th>
+                              <th>
+                                DEP_DELAY
+                              </th>
+                              <th>
+                                ARR_TIME
+                              </th>
+                              <th>
+                                ARR_DELAY
+                              </th>
+                              <th>
+                                CANCELLED
+                              </th>
+                              <th>
+                                AIR_TIME
+                              </th>
+                            </thead>
+                            <tbody>
+                              {% for transaction in block_transactions %}
+                              <tr>
+                                {% for field in transaction %}
+                                <td>{{transaction[field]}}</td>
+                                {% endfor %}
+                              </tr>
+                              {% endfor %}
+                              </tr>
+                            </tbody>
+                          </table>
+                      </div>
                 </div>
               </div>
             </div>
+          </div>
+          </div>  
             <div class="card">
               <div class="card-header" id="headingFive">
                 <h2 class="mb-0">
@@ -461,8 +543,8 @@
                           <input type="date" name="FINAL_DATE" class="form-control" placeholder="1" value="2019-02-25">
                         </div>
                       </div>
-
                   </div>
+
                   <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
                 </div>
                 </form>
