@@ -418,8 +418,8 @@ def get_transaction_by_id(transaction_id): #tested
 
 @app.route('/transactions', methods=['GET']) #tested
 def get_flight_status_by_number_and_date():
-    op_carrier = request.args.get('op_carrier')
-    date = request.args.get('date')
+    op_carrier = request.args.get("OP_CARRIER_FL_NUM")
+    date = request.args.get("FL_DATE")
     select_dict = {"OP_CARRIER_FL_NUM" : op_carrier, "FL_DATE" : date}
     result_flights = []
 
@@ -442,9 +442,9 @@ def get_flight_status_by_number_and_date():
 
 @app.route('/average_delays', methods=['GET']) #tested
 def get_arr_delays_per_dates_and_carrier():
-    op_carrier = request.args.get('op_carrier')
-    initial_date = request.args.get('initial_date')
-    final_date = request.args.get('final_date')
+    op_carrier = request.args.get("OP_CARRIER_FL_NUM")
+    initial_date = request.args.get('INITIAL_DATE')
+    final_date = request.args.get('FINAL_DATE')
     #select_dict = {"OP_CARRIER_FL_NUM" : op_carrier, "FL_DATE" : date}
     filtered_flights_delays = []
 
@@ -465,10 +465,10 @@ def get_arr_delays_per_dates_and_carrier():
 
 @app.route('/flight_counter', methods=['GET']) #tested
 def count_flights_from_A_to_B():
-    origin = request.args.get("origin")
-    destination = request.args.get("destination")
-    initial_date = request.args.get('initial_date')
-    final_date = request.args.get('final_date')
+    origin = request.args.get("ORIGIN_CITY_NAME")
+    destination = request.args.get("DEST_CITY_NAME")
+    initial_date = request.args.get('INITIAL_DATE')
+    final_date = request.args.get('FINAL_DATE')
 
     filtered_flights_counter = 0
 

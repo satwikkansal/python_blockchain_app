@@ -97,13 +97,6 @@
                       <div class="card-body">
                         <form action="/submit" id="textform" method="post">
                           <div class="row">
-                            <div class="col-md-4 pr-md-1">
-                              <div class="form-group">
-                                <label>Transaction</label>
-                                <input type="text" name="TRANSACTION" class="form-control" placeholder="Company"
-                                  value="12">
-                              </div>
-                            </div>
                             <div class="col-md-4 px-md-1">
                               <div class="form-group">
                                 <label>Year</label>
@@ -268,77 +261,71 @@
                           <table class="table tablesorter" id="">
                             <thead class=" text-primary">
                               <th>
-                                ORIGIN_CITY_NAME
-                              </th>
-                              <th>
-                                TRANSACTION
-                              </th>
-                              <th>
-                                ARR_DELAY
-                              </th>
-                              <th>
-                                Index
-                              </th>
-                              <th>
-                                AIR_TIME
-                              </th>
-                              <th>
                                 TRANSACTION_ID
-                              </th>
-                              <th>
-                                ORIGIN_AIRPORT_ID
-                              </th>
-                              <th>
-                                DEST_CITY_NAME
-                              </th>
-                              <th>
-                                OP_CARRIER_FL_NUM
-                              </th>
-                              <th>
-                                ORIGIN
-                              </th>
-                              <th>
-                                DEP_TIME
-                              </th>
-                              <th>
-                                Hash
-                              </th>
-                              <th>
-                                DEST
-                              </th>
-                              <th>
-                                TImeStamp
-                              </th>
-                              <th>
-                                DAY_OF_WEEK
-                              </th>
-                              <th>
-                                DEST_AIRPORT_ID
                               </th>
                               <th>
                                 YEAR
                               </th>
                               <th>
-                                CANCELLED
+                                DAY_OF_WEEK
                               </th>
                               <th>
                                 FL_DATE
                               </th>
                               <th>
+                                OP_CARRIER_AIRLINE_ID
+                              </th>
+                              <th>
+                                OP_CARRIER_FL_NUM
+                              </th>
+                              <th>
+                                ORIGIN_AIRPORT_ID
+                              </th>
+                              <th>
+                                ORIGIN
+                              </th>
+                              <th>
+                                ORIGIN_CITY_NAME
+                              </th>
+                              <th>
                                 ORIGIN_STATE_NM
                               </th>
                               <th>
-                                DEP_DELAY
+                                DEST_AIRPORT_ID
+                              </th>
+                              <th>
+                                DEST
+                              </th>
+                              <th>
+                                DEST_CITY_NAME
                               </th>
                               <th>
                                 DEST_STATE_NM
                               </th>
                               <th>
+                                DEP_TIME
+                              </th>
+                              <th>
+                                DEP_DELAY
+                              </th>
+                              <th>
                                 ARR_TIME
                               </th>
                               <th>
-                                OP_CARRIER_AIRLINE_ID
+                                ARR_DELAY
                               </th>
+                              <th>
+                                CANCELLED
+                              </th>
+                              <th>
+                                AIR_TIME
+                              </th>
+                              <!--<th>
+                                TImeStamp
+                              </th>-->
+                              <!--<th>
+                                Hash
+                              </th>-->
                             </thead>
                             <tbody>
                               {% for post in posts %}

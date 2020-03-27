@@ -25,8 +25,8 @@ def fetch_posts():
         chain = json.loads(response.content)
         for block in chain["chain"]:
             for tx in block["transactions"]:
-                tx["index"] = block["index"]
-                tx["hash"] = block["previous_hash"]
+                #tx["index"] = block["index"]
+                #tx["hash"] = block["previous_hash"]
                 content.append(tx)
 
         global posts
@@ -50,7 +50,7 @@ def submit_textarea():
     """
     Endpoint to create a new transaction via our application.
     """
-    TRANSACTION             = request.form["TRANSACTION"]
+    #TRANSACTION             = request.form["TRANSACTION"]
     YEAR                    = request.form["YEAR"]
     DAY_OF_WEEK             = request.form["DAY_OF_WEEK"]
     FL_DATE                 = request.form["FL_DATE"]
@@ -72,7 +72,7 @@ def submit_textarea():
     AIR_TIME                = request.form["AIR_TIME"]
 
     post_object = {
-        'TRANSACTION'           : TRANSACTION,
+        #'TRANSACTION'           : TRANSACTION,
         'YEAR'                  : YEAR,
         'DAY_OF_WEEK'           : DAY_OF_WEEK,
         'FL_DATE'               : FL_DATE,
