@@ -375,10 +375,18 @@ def get_transaction_by_block_id(block_id):
     block = blockchain.get_block(int(block_id))
     
     if not block:
-        return "Block not found", 404    
+        return "Block not found", 404 
+
+    block_to_add = block.__dict__.copy()
+
+    transactions_dict = []
+    for i in range(0,len(block_to_add["transactions"])):
+    
+        transactions_dict.append(block_to_add["transactions"][i].__dict__)
+
+    block_to_add["transactions"] = transactions_dict   
         
-    return json.dumps({"length": len(block.transactions),
-                       "transactions": [json.dumps(transaction, cls=TransactionEncoder, sort_keys=True) for transaction in block.transactions]})
+    return json.dumps({"block": block_to_add}, cls=BlockEncoder)
 
 # endpoint to return the transaction gived its id.
 # Our application will be using this endpoint to query
@@ -411,7 +419,8 @@ def get_transaction_by_id(transaction_id): #tested
         med_block = blockchain.get_block(med_id)
 
     if(med_block.has_transaction(transaction_id)):
-        return {"transaction" : json.dumps(med_block.get_transaction(transaction_id), cls=TransactionEncoder, sort_keys=True)}
+        #return {"transaction" : json.dumps(med_block.get_transaction(transaction_id), cls=TransactionEncoder, sort_keys=True)}
+        return json.dumps({"transaction" : med_block.get_transaction(transaction_id).__dict__})
     else:
         return "Transaction not found", 404
 
@@ -420,6 +429,9 @@ def get_transaction_by_id(transaction_id): #tested
 def get_flight_status_by_number_and_date():
     op_carrier = request.args.get("OP_CARRIER_FL_NUM")
     date = request.args.get("FL_DATE")
+    print("OP_CARRIER ", op_carrier)
+    print("FL_DATE", date)
+
     select_dict = {"OP_CARRIER_FL_NUM" : op_carrier, "FL_DATE" : date}
     result_flights = []
 
@@ -434,19 +446,24 @@ def get_flight_status_by_number_and_date():
                     result = False
 
             if result:
-                result_flights += [flight]
+                result_flights += [flight.__dict__]
 
 
-    return json.dumps([json.dumps(flight, cls=TransactionEncoder, sort_keys=True) for flight in result_flights])
+    return json.dumps({"flights" : result_flights})
 
 
 @app.route('/average_delays', methods=['GET']) #tested
 def get_arr_delays_per_dates_and_carrier():
-    op_carrier = request.args.get("OP_CARRIER_FL_NUM")
+    op_carrier = request.args.get("OP_CARRIER_AIRLINE_ID")
     initial_date = request.args.get('INITIAL_DATE')
     final_date = request.args.get('FINAL_DATE')
     #select_dict = {"OP_CARRIER_FL_NUM" : op_carrier, "FL_DATE" : date}
     filtered_flights_delays = []
+
+    #debug
+    print("OP_CARRIER ", op_carrier)
+    print("INITIAL_DATE ", initial_date)
+    print("FINAL_DATE ", final_date)
 
     for i in range(blockchain.get_chain_length()):
 
@@ -457,6 +474,9 @@ def get_arr_delays_per_dates_and_carrier():
             
             if flight.__dict__["OP_CARRIER_AIRLINE_ID"] == op_carrier and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:  
                 filtered_flights_delays += [int(flight.__dict__["ARR_DELAY"])]
+
+    #debug
+    print("FILTERED ", filtered_flights_delays)
 
     if(len(filtered_flights_delays) > 0):
         return {"average_delay" : sum(filtered_flights_delays)/len(filtered_flights_delays)}

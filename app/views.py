@@ -16,6 +16,12 @@ block_transactions = []
 
 transaction = []
 
+flights_filtered = []
+
+average_delay = "Not available"
+
+flights_counter = "Not available"
+
 
 def fetch_posts():
     """
@@ -39,17 +45,26 @@ def fetch_posts():
                        reverse=True)
         
         #remove timestamps
-        for post in posts:
-            del post["timestamp"]
+        #for post in posts:
+            #del post["timestamp"]
 
 
 @app.route('/')
 def index():
     fetch_posts()
+    #debug
+    #print("POSTS ", posts)
+    #print("BLOCK_TRANSACTIONS ", block_transactions)
+    #
     return render_template('index2.html',
                            title='YourNet: Decentralized '
                                  'content sharing',
                            posts=posts,
+                           block_transactions = block_transactions,
+                           transaction = transaction,
+                           flights_filtered = flights_filtered,
+                           average_delay = average_delay,
+                           flights_counter = flights_counter, 
                            node_address=CONNECTED_NODE_ADDRESS,
                            readable_time=timestamp_to_string)
 
@@ -124,14 +139,126 @@ def get_block_from_id():
 
     r = requests.get(block_id_address)
 
-    resp = r.json()
+    resp = json.loads(r.content)["block"]
 
-    print resp
+    #print(resp)
+    content = []
+
+    for tx in resp["transactions"]:
+        content.append(tx)
 
     global block_transactions
-    block_transactions = sorted(resp.transactions, key=lambda k: k['timestamp'],reverse=True)
+    block_transactions = sorted(content, key=lambda k: k['timestamp'],reverse=True)
 
     for transaction in block_transactions:
         del transaction["timestamp"]
+    
+    #print("BLOCK_TRANSACTIONS ", block_transactions)
 
+    return redirect('/')
+
+@app.route('/transactions', methods=['GET'])
+def get_trans_from_id():
+
+    transaction_id = request.args.get("TRANSACTION_ID")
+
+    transaction_id_address = "{}/transactions/{}".format(CONNECTED_NODE_ADDRESS, transaction_id)
+
+    r = requests.get(transaction_id_address)
+
+    #print("RESP CONTENT", json.loads(r.content)["transaction"])
+
+    global transaction
+
+    transaction += [json.loads(r.content)["transaction"]]
+
+    #print("TRANSACTION ", transaction)
+
+    #print(resp)
+    
+    return redirect('/')
+
+
+@app.route('/filter_transactions', methods=['GET'])
+def get_trans_from_filters():
+
+    transaction_id_address = "{}/transactions".format(CONNECTED_NODE_ADDRESS)
+
+    r = requests.get(transaction_id_address, params={"OP_CARRIER_FL_NUM": request.args.get("OP_CARRIER_FL_NUM"), "FL_DATE": request.args.get("FL_DATE")})
+
+    print("RESP ", r.content)
+    print("RESP CONTENT", json.loads(r.content)["flights"])
+
+    global flights_filtered
+
+    flights_filtered = json.loads(r.content)["flights"]
+
+    print("flights_filtered ", flights_filtered)
+
+    #print(resp)
+    
+    return redirect('/')
+
+@app.route('/average_delays', methods=['GET'])
+def average_delay_of_flight():
+
+    average_delay_address = "{}/average_delays".format(CONNECTED_NODE_ADDRESS)
+
+    r = requests.get(average_delay_address, params={"OP_CARRIER_AIRLINE_ID": request.args.get("OP_CARRIER_AIRLINE_ID"), 'INITIAL_DATE': request.args.get('INITIAL_DATE'), 'FINAL_DATE': request.args.get('FINAL_DATE')})
+
+    #debug
+    print("RESP ", r.content)
+    
+
+    global average_delay
+
+    #debug
+    print(r.status_code)
+
+    if r.status_code != 404:
+
+        #debug
+        print("RESP CONTENT", json.loads(r.content)["average_delay"])
+
+        average_delay = json.loads(r.content)["average_delay"]
+
+        #debug
+        print("average_delay ", average_delay)
+
+    else:
+        average_delay = "Not available"
+    #print(resp)
+    
+    return redirect('/')
+
+
+@app.route('/flight_counter', methods=['GET'])
+def count_flights_from_A_to_B():
+
+    flights_counter_address = "{}/flight_counter".format(CONNECTED_NODE_ADDRESS)
+
+    r = requests.get(flights_counter_address, params={"ORIGIN_CITY_NAME": request.args.get("ORIGIN_CITY_NAME"), "DEST_CITY_NAME": request.args.get("DEST_CITY_NAME"), 'INITIAL_DATE': request.args.get('INITIAL_DATE'), 'FINAL_DATE': request.args.get('FINAL_DATE')})
+
+    #debug
+    print("RESP ", r.content)
+    
+    global flights_counter
+
+    #debug
+    print(r.status_code)
+
+    if r.status_code != 404:
+
+        #debug
+        print("RESP CONTENT", json.loads(r.content)["filtered_flights_counter"])
+
+        flights_counter = json.loads(r.content)["filtered_flights_counter"]
+
+        #debug
+        print("flights_counter ", flights_counter)
+
+    else:
+        flights_counter = "Not available"
+    #print(resp)
+    
     return redirect('/')

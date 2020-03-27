@@ -368,6 +368,88 @@
                   </div>
                   <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
                   </form>
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="table-responsive">
+                          <table class="table tablesorter" id="">
+                            <thead class=" text-primary">
+                              <th>
+                                TRANSACTION_ID
+                              </th>
+                              <th>
+                                YEAR
+                              </th>
+                              <th>
+                                DAY_OF_WEEK
+                              </th>
+                              <th>
+                                FL_DATE
+                              </th>
+                              <th>
+                                OP_CARRIER_AIRLINE_ID
+                              </th>
+                              <th>
+                                OP_CARRIER_FL_NUM
+                              </th>
+                              <th>
+                                ORIGIN_AIRPORT_ID
+                              </th>
+                              <th>
+                                ORIGIN
+                              </th>
+                              <th>
+                                ORIGIN_CITY_NAME
+                              </th>
+                              <th>
+                                ORIGIN_STATE_NM
+                              </th>
+                              <th>
+                                DEST_AIRPORT_ID
+                              </th>
+                              <th>
+                                DEST
+                              </th>
+                              <th>
+                                DEST_CITY_NAME
+                              </th>
+                              <th>
+                                DEST_STATE_NM
+                              </th>
+                              <th>
+                                DEP_TIME
+                              </th>
+                              <th>
+                                DEP_DELAY
+                              </th>
+                              <th>
+                                ARR_TIME
+                              </th>
+                              <th>
+                                ARR_DELAY
+                              </th>
+                              <th>
+                                CANCELLED
+                              </th>
+                              <th>
+                                AIR_TIME
+                              </th>
+                            </thead>
+                            <tbody>
+                              {% for trans in transaction %}
+                              <tr>
+                                {% for field in trans %}
+                                <td>{{trans[field]}}</td>
+                                {% endfor %}
+                              </tr>
+                              {% endfor %}
+                              </tr>
+                            </tbody>
+                          </table>
+                      </div>
+                </div>
+              </div>
+            </div>
                 </div>
               </div>
             </div>
@@ -393,7 +475,7 @@
                   </div>
                   <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
                   </form>
-
+                  
                   <div class="col-md-12">
                     <div class="card">
                       <div class="card-body">
@@ -491,14 +573,14 @@
               <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample">
                 <div class="card-body">
                   <div class="row">
-                    <form method="get" action="/transactions">
+                    <form method="get" action="/filter_transactions">
                       <div class="col-md-4 pr-md-1">
                         <div class="form-group">
                           <label>Op. Carrier FL</label>
                           <input type="text" name="OP_CARRIER_FL_NUM" class="form-control" placeholder="1" value="1">
                         </div>
                       </div>
-                      <div class="col-md-4 px-md-1">
+                      <div class="col-md-6 px-md-1">
                         <div class="form-group">
                           <label>Date</label>
                           <input type="date" name="FL_DATE" class="form-control" placeholder="1" value="2019-02-25">
@@ -507,6 +589,88 @@
                   </div>
                   <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
                   </form>
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="table-responsive">
+                          <table class="table tablesorter" id="">
+                            <thead class=" text-primary">
+                              <th>
+                                TRANSACTION_ID
+                              </th>
+                              <th>
+                                YEAR
+                              </th>
+                              <th>
+                                DAY_OF_WEEK
+                              </th>
+                              <th>
+                                FL_DATE
+                              </th>
+                              <th>
+                                OP_CARRIER_AIRLINE_ID
+                              </th>
+                              <th>
+                                OP_CARRIER_FL_NUM
+                              </th>
+                              <th>
+                                ORIGIN_AIRPORT_ID
+                              </th>
+                              <th>
+                                ORIGIN
+                              </th>
+                              <th>
+                                ORIGIN_CITY_NAME
+                              </th>
+                              <th>
+                                ORIGIN_STATE_NM
+                              </th>
+                              <th>
+                                DEST_AIRPORT_ID
+                              </th>
+                              <th>
+                                DEST
+                              </th>
+                              <th>
+                                DEST_CITY_NAME
+                              </th>
+                              <th>
+                                DEST_STATE_NM
+                              </th>
+                              <th>
+                                DEP_TIME
+                              </th>
+                              <th>
+                                DEP_DELAY
+                              </th>
+                              <th>
+                                ARR_TIME
+                              </th>
+                              <th>
+                                ARR_DELAY
+                              </th>
+                              <th>
+                                CANCELLED
+                              </th>
+                              <th>
+                                AIR_TIME
+                              </th>
+                            </thead>
+                            <tbody>
+                              {% for flight in flights_filtered %}
+                              <tr>
+                                {% for field in flight %}
+                                <td>{{flight[field]}}</td>
+                                {% endfor %}
+                              </tr>
+                              {% endfor %}
+                              </tr>
+                            </tbody>
+                          </table>
+                      </div>
+                </div>
+              </div>
+            </div>
                 </div>
               </div>
             </div>
@@ -526,8 +690,8 @@
                     <form method="get" action="/average_delays">
                       <div class="col-md-4 pr-md-1">
                         <div class="form-group">
-                          <label>Op. Carrier fl num</label>
-                          <input type="text" name="OP_CARRIER_FL_NUM" class="form-control" placeholder="1" value="1">
+                          <label>Op. Carrier Airline ID</label>
+                          <input type="text" name="OP_CARRIER_AIRLINE_ID" class="form-control" placeholder="1" value="1">
                         </div>
                       </div>
                       <div class="col-md-4 px-md-1">
@@ -549,6 +713,9 @@
                   <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
                 </div>
                 </form>
+                <p>
+                  Average delay: {{average_delay}}
+                </p>
               </div>
             </div>
 
@@ -602,6 +769,9 @@
 
               </div>
               </form>
+              <p>
+                Number of flights: {{flights_counter}}
+              </p>
             </div>
           </div>
         </div>
