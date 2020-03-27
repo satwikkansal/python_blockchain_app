@@ -118,13 +118,15 @@ def timestamp_to_string(epoch_time):
 
 @app.route('/blocks', methods=['GET'])
 def get_block_from_id():
-    block_id = request.form["BLOCK_ID"]
+    block_id = request.args.get("BLOCK_ID")
 
     block_id_address = "{}/blocks/{}".format(CONNECTED_NODE_ADDRESS, block_id)
 
     r = requests.get(block_id_address)
 
     resp = r.json()
+
+    print resp
 
     global block_transactions
     block_transactions = sorted(resp.transactions, key=lambda k: k['timestamp'],reverse=True)
