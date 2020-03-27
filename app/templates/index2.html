@@ -20,6 +20,52 @@
   <!-- CSS Files -->
   <link href="{{ url_for('static',filename='assets/css/bootstrap.min.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static',filename='assets/css/black-dashboard.css') }}" rel="stylesheet" />
+  <script src="https://unpkg.com/papaparse@5.1.1/papaparse.min.js"></script>
+  <script>
+    function send_data(data, n, max){
+      if (n > max){
+        return;
+      }
+      $.post("http://127.0.0.1:5000/submit_multi", {transactions: data[n].map((obj) => {
+        return JSON.stringify(obj);})
+      }).done((result2) => {
+        console.log("REQUEST # " + n + ": OK");
+        send_data(data, n+1, max);
+      });
+    };
+    document.addEventListener("DOMContentLoaded", function(event) {
+      $("body").append("<input type='file' id='files' name='files[]' style='float: right' multiple />");
+
+      function handleFileSelect(evt) {
+        var files = evt.target.files; // FileList object
+        console.log("FILES[0]");
+        console.log(files[0]);
+        Papa.parse(files[0], {
+          delimiter: ',',
+          header: true,
+          complete: function(result){
+            var start = 0;
+            var end = result.data.length;
+            result.data.forEach((elem) => {
+              delete elem[''];
+            });
+            console.log("RESULT");
+            console.log(result);
+            var splitted_array = [];
+            while (start < end ){
+              splitted_array.push(result.data.slice(start, start+1000));
+              start += 1000;
+            }
+            send_data(splitted_array, 0, end+1);
+          }
+        });
+      }
+    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+    });
+
+
+  </script>
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="{{ url_for('static',filename='assets/demo/demo.css') }}" rel="stylesheet" />
   <style>
@@ -475,7 +521,7 @@
                   </div>
                   <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
                   </form>
-                  
+
                   <div class="col-md-12">
                     <div class="card">
                       <div class="card-body">
@@ -560,7 +606,7 @@
             </div>
           </div>
           </div>
-          </div>  
+          </div>
             <div class="card">
               <div class="card-header" id="headingFive">
                 <h2 class="mb-0">

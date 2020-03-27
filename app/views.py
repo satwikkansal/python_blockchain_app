@@ -43,7 +43,7 @@ def fetch_posts():
         global posts
         posts = sorted(content, key=lambda k: k['timestamp'],
                        reverse=True)
-        
+
         #remove timestamps
         #for post in posts:
             #del post["timestamp"]
@@ -64,7 +64,7 @@ def index():
                            transaction = transaction,
                            flights_filtered = flights_filtered,
                            average_delay = average_delay,
-                           flights_counter = flights_counter, 
+                           flights_counter = flights_counter,
                            node_address=CONNECTED_NODE_ADDRESS,
                            readable_time=timestamp_to_string)
 
@@ -128,6 +128,26 @@ def submit_textarea():
     return redirect('/')
 
 
+@app.route('/submit_multi', methods=['POST'])
+def submit_textarea_multi():
+    """
+    Endpoint to create many new transaction via our application.
+    """
+
+    new_transactions_json = request.form.getlist("transactions[]");
+    new_transactions = [json.loads(line) for line in new_transactions_json]
+
+    # Submit a transaction
+    new_tx_address = "{}/new_transaction_multi".format(CONNECTED_NODE_ADDRESS)
+
+    requests.post(new_tx_address,
+                  json=new_transactions,
+                  headers={'Content-type': 'application/json'})
+
+
+    return redirect('/')
+
+
 def timestamp_to_string(epoch_time):
     return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
 
@@ -152,7 +172,7 @@ def get_block_from_id():
 
     for transaction in block_transactions:
         del transaction["timestamp"]
-    
+
     #print("BLOCK_TRANSACTIONS ", block_transactions)
 
     return redirect('/')
@@ -175,7 +195,7 @@ def get_trans_from_id():
     #print("TRANSACTION ", transaction)
 
     #print(resp)
-    
+
     return redirect('/')
 
 
@@ -196,7 +216,7 @@ def get_trans_from_filters():
     print("flights_filtered ", flights_filtered)
 
     #print(resp)
-    
+
     return redirect('/')
 
 @app.route('/average_delays', methods=['GET'])
@@ -208,7 +228,7 @@ def average_delay_of_flight():
 
     #debug
     print("RESP ", r.content)
-    
+
 
     global average_delay
 
@@ -228,7 +248,7 @@ def average_delay_of_flight():
     else:
         average_delay = "Not available"
     #print(resp)
-    
+
     return redirect('/')
 
 
@@ -241,7 +261,7 @@ def count_flights_from_A_to_B():
 
     #debug
     print("RESP ", r.content)
-    
+
     global flights_counter
 
     #debug
@@ -260,5 +280,5 @@ def count_flights_from_A_to_B():
     else:
         flights_counter = "Not available"
     #print(resp)
-    
+
     return redirect('/')

@@ -70,7 +70,7 @@ class Block:
         #print("69 ID ", id)
         #print("LEN TRANSACTIONS ", len(self.transactions))
         #print("FIRST TRANSACTION ID ", self.transactions[0].TRANSACTION_ID)
-        
+
         return self.transactions[0].TRANSACTION_ID <= id and self.transactions[-1].TRANSACTION_ID >= id
 
     def get_transaction(self, id):
@@ -224,9 +224,9 @@ class Blockchain:
 
         if id < 0 or id > len(self.chain):
             return False
-        
+
         return self.chain[id]
-        
+
 
     #read from the backup folder and initialize the chain
     def read_backup(self):
@@ -300,29 +300,54 @@ blockchain.read_backup()
 # the address to other participating members of the network
 peers = set()
 
-# endpoint to submit a new transaction. This will be used by
+# endpoint to submit many new transaction. This will be used by
 # our application to add new data (posts) to the blockchain
-@app.route('/new_transaction', methods=['POST']) #tested
+@app.route('/new_transaction', methods=['POST'])
 def new_transaction():
     tx_data = request.get_json()
     #required_fields = ["author", "content"]
     global transaction_fields
 
-    for field in transaction_fields:
-        if not tx_data.get(field):
-            return "Invalid transaction data", 404
-
+    ''' TODO questo controllo va tolto o affinato
+    if not tx_data.get(field):
+        return "Invalid transaction data", 404
+    '''
     tx_data["timestamp"] = time.time()
     transaction = Transaction(tx_data)
     blockchain.add_new_transaction(transaction)
 
     return "Success", 201
 
+# endpoint to submit a new transaction. This will be used by
+# our application to add new data (posts) to the blockchain
+@app.route('/new_transaction_multi', methods=['POST']) #tested
+def new_transaction_multi():
+    tx_data = request.get_json()
+
+    #debug
+    print("TX_DATA");
+    print(tx_data);
+
+    #required_fields = ["author", "content"]
+    #debug
+    print("TRANSACTIONS")
+    print(len(tx_data))
+
+    global transaction_fields
+
+    for line in tx_data:
+        line["timestamp"] = time.time()
+        transaction = Transaction(line)
+        blockchain.add_new_transaction(transaction)
+
+    mine_unconfirmed_transactions()
+    return "Success", 201
+
 
 # endpoint to return the node's copy of the chain.
 # Our application will be using this endpoint to query
 # all the posts to display.
-@app.route('/chain', methods=['GET'])  #tested 
+@app.route('/chain', methods=['GET'])  #tested
 def get_chain():
     chain_data = []
     #debug
@@ -373,19 +398,19 @@ def get_chain():
 def get_transaction_by_block_id(block_id):
 
     block = blockchain.get_block(int(block_id))
-    
+
     if not block:
-        return "Block not found", 404 
+        return "Block not found", 404
 
     block_to_add = block.__dict__.copy()
 
     transactions_dict = []
     for i in range(0,len(block_to_add["transactions"])):
-    
+
         transactions_dict.append(block_to_add["transactions"][i].__dict__)
 
-    block_to_add["transactions"] = transactions_dict   
-        
+    block_to_add["transactions"] = transactions_dict
+
     return json.dumps({"block": block_to_add}, cls=BlockEncoder)
 
 # endpoint to return the transaction gived its id.
@@ -442,7 +467,7 @@ def get_flight_status_by_number_and_date():
         for flight in block.transactions:
             result = True
             for key in select_dict.keys():
-                if flight.__dict__[key] != select_dict[key]:  
+                if flight.__dict__[key] != select_dict[key]:
                     result = False
 
             if result:
@@ -471,8 +496,8 @@ def get_arr_delays_per_dates_and_carrier():
 
         for flight in block.transactions:
             #print(flight.__dict__["FL_DATE"], ", ", initial_date, ", ", final_date, ", ", flight.__dict__["OP_CARRIER_AIRLINE_ID"])
-            
-            if flight.__dict__["OP_CARRIER_AIRLINE_ID"] == op_carrier and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:  
+
+            if flight.__dict__["OP_CARRIER_AIRLINE_ID"] == op_carrier and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:
                 filtered_flights_delays += [int(flight.__dict__["ARR_DELAY"])]
 
     #debug
@@ -481,7 +506,7 @@ def get_arr_delays_per_dates_and_carrier():
     if(len(filtered_flights_delays) > 0):
         return {"average_delay" : sum(filtered_flights_delays)/len(filtered_flights_delays)}
     else:
-        return "Not found", 404 
+        return "Not found", 404
 
 @app.route('/flight_counter', methods=['GET']) #tested
 def count_flights_from_A_to_B():
