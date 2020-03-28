@@ -34,7 +34,13 @@
       });
     };
     document.addEventListener("DOMContentLoaded", function(event) {
-      $("body").append("<input type='file' id='files' name='files[]' style='float: right' multiple />");
+      //$("body").append(
+
+     
+
+
+      //);
+      $("body").append("<input type='file' id='files' name='files[]' class='btn btn-primary' style='float: right' multiple />");
 
       function handleFileSelect(evt) {
         var files = evt.target.files; // FileList object
@@ -619,8 +625,9 @@
               <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample">
                 <div class="card-body">
                   <div class="row">
+                    <div class="col-md-2 pr-md-1">
+
                     <form method="get" action="/filter_transactions">
-                      <div class="col-md-4 pr-md-1">
                         <div class="form-group">
                           <label>Op. Carrier FL</label>
                           <input type="text" name="OP_CARRIER_FL_NUM" class="form-control" placeholder="1" value="1">
@@ -733,14 +740,15 @@
               <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordionExample">
                 <div class="card-body">
                   <div class="row">
+                    <div class="col-md-12 pr-md-1">
+
                     <form method="get" action="/average_delays">
-                      <div class="col-md-4 pr-md-1">
                         <div class="form-group">
                           <label>Op. Carrier Airline ID</label>
                           <input type="text" name="OP_CARRIER_AIRLINE_ID" class="form-control" placeholder="1" value="1">
                         </div>
                       </div>
-                      <div class="col-md-4 px-md-1">
+                      <div class="col-md-6 px-md-1">
                         <div class="form-group">
                           <label>Initial Date</label>
                           <input type="date" name="INITIAL_DATE" class="form-control" placeholder="1"
@@ -748,7 +756,7 @@
                         </div>
                       </div>
 
-                      <div class="col-md-4 px-md-1">
+                      <div class="col-md-6 px-md-1">
                         <div class="form-group">
                           <label>Final Date</label>
                           <input type="date" name="FINAL_DATE" class="form-control" placeholder="1" value="2019-02-25">
@@ -780,14 +788,14 @@
                 <div class="card-body">
                   <form method="get" action="/flight_counter">
                     <div class="row">
-                      <div class="col-md-4 pr-md-1">
+                      <div class="col-md-6 pr-md-1">
                         <div class="form-group">
                           <label>City A (origin)</label>
                           <input type="text" name="ORIGIN_CITY_NAME" class="form-control" placeholder="Roma"
-                            value="ROma">
+                            value="NewYork">
                         </div>
                       </div>
-                      <div class="col-md-4 px-md-1">
+                      <div class="col-md-6 px-md-1">
                         <div class="form-group">
                           <label>City 2 (dest)</label>
                           <input type="text" name="DEST_CITY_NAME" class="form-control" placeholder="MIlano"
@@ -795,24 +803,26 @@
                         </div>
                       </div>
                     </div>
-
-                    <div class="col-md-4 px-md-1">
+                    <div class="row">
+                    <div class="col-md-6 px-md-1">
                       <div class="form-group">
                         <label>Initial date</label>
                         <input type="text" name="INITIAL_DATE" class="form-control" placeholder="2019-02-25"
-                          value="2019-02-25">
+                          value="2019/02/25">
                       </div>
                     </div>
 
-                <div class="col-md-4 px-md-1">
+                <div class="col-md-6 px-md-1">
                   <div class="form-group">
                     <label>Final Date</label>
                     <input type="text" name="FINAL_DATE" class="form-control" placeholder="2019-03-26"
-                      value="2019-03-26">
+                      value="2019/03/26">
                   </div>
                 </div>
-              <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
+              </div>
 
+              <button type="submit" id="search" class="btn btn-fill btn-primary">Search</button>
+                
               </div>
               </form>
               <p>
@@ -824,8 +834,7 @@
 
       </div>
 
-    </div>
-
+  
 
   </div>
   </div>
@@ -883,6 +892,8 @@
     </script>
     -->
 </body>
+
+
 
 </html>
 {% endblock %}

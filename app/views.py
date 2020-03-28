@@ -164,9 +164,6 @@ def get_block_from_id():
     #print(resp)
     content = []
 
-    for tx in resp["transactions"]:
-        content.append(tx)
-
     global block_transactions
     block_transactions = sorted(content, key=lambda k: k['timestamp'],reverse=True)
 
