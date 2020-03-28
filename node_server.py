@@ -80,6 +80,10 @@ class Block:
         else:
             return False
 
+    def get_block_len(self):
+        return len(self.transactions)
+
+
 # subclass JSONEncoder
 class BlockEncoder(JSONEncoder):
         def default(self, o):
@@ -257,6 +261,7 @@ class Blockchain:
             #print(tmp_file)
             #
             tmp_json = tmp_file.read()
+            print("Lettura blocco ", n)
 
             #debug
             #print("TMP_JSON")
@@ -282,11 +287,13 @@ class Blockchain:
 
             self.add_block(tmp_block, tmp_proof)
 
+            if n == 1:
+                return
+
+        print("LETTURA BACKUP TERMINATA")
+
     def get_chain_length(self):
         return len(self.chain)
-
-
-
 
 
 
@@ -349,11 +356,13 @@ def new_transaction_multi():
 # all the posts to display.
 @app.route('/chain', methods=['GET'])  #tested
 def get_chain():
+    
     chain_data = []
     #debug
     #print("Blockchain SIZE")
     #print(len(blockchain.chain))
     #
+    
     for block in blockchain.chain:
 
 
@@ -419,9 +428,10 @@ def get_transaction_by_block_id(block_id):
 @app.route('/transactions/<transaction_id>', methods=['GET'])
 def get_transaction_by_id(transaction_id): #tested
     transaction_id = int(transaction_id)
-    min_id = 0
+    print(transaction_id)
+    min_id = 1
     max_id = blockchain.get_chain_length() - 1
-    med_id = max_id // 2
+    med_id = (min_id + max_id) // 2
     med_block = blockchain.get_block(med_id)
 
     #debug
@@ -449,6 +459,55 @@ def get_transaction_by_id(transaction_id): #tested
     else:
         return "Transaction not found", 404
 
+@app.route('/transactions_pages', methods=['GET']) 
+def get_transactions_per_pages():
+    page = int(request.args.get("page"))
+    per_page = int(request.args.get("per_page"))
+
+    print("PAGE ", page)
+    print("PER_PAGE ", per_page)
+
+    counter = page*per_page
+    i = 1
+
+    if i >= len(blockchain.chain):
+        return "Page not found", 404
+
+    while counter - blockchain.chain[i].get_block_len() >= 0:
+
+        counter -= blockchain.chain[i].get_block_len()
+
+        i += 1
+
+        if i >= len(blockchain.chain):
+            return "Page not found", 404
+        
+    block = blockchain.chain[i].__dict__.copy()
+
+    index = counter
+    finished_chain = False
+
+    transactions = []
+    j = 0
+
+    while j < per_page and not finished_chain:
+
+        transactions.append(block["transactions"][index].__dict__)
+        
+        if index == len(block["transactions"]):
+            index = 0
+            i += 1
+
+            if i == len(blockchain.chain):
+                finished_chain = True
+            else:
+                block = blockchain.chain[i].__dict__.copy()
+        else:
+            index += 1
+        
+        j += 1
+
+    return json.dumps({"transactions" : transactions})
 
 @app.route('/transactions', methods=['GET']) #tested
 def get_flight_status_by_number_and_date():
@@ -485,6 +544,9 @@ def get_arr_delays_per_dates_and_carrier():
     #select_dict = {"OP_CARRIER_FL_NUM" : op_carrier, "FL_DATE" : date}
     filtered_flights_delays = []
 
+    print(initial_date)
+    print(final_date)
+
     #debug
     print("OP_CARRIER ", op_carrier)
     print("INITIAL_DATE ", initial_date)
@@ -498,7 +560,9 @@ def get_arr_delays_per_dates_and_carrier():
             #print(flight.__dict__["FL_DATE"], ", ", initial_date, ", ", final_date, ", ", flight.__dict__["OP_CARRIER_AIRLINE_ID"])
 
             if flight.__dict__["OP_CARRIER_AIRLINE_ID"] == op_carrier and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:
-                filtered_flights_delays += [int(flight.__dict__["ARR_DELAY"])]
+                if not flight.__dict__["ARR_DELAY"] == '':
+                    print(flight.__dict__["ARR_DELAY"])
+                    filtered_flights_delays += [float(flight.__dict__["ARR_DELAY"])]
 
     #debug
     print("FILTERED ", filtered_flights_delays)
@@ -514,6 +578,10 @@ def count_flights_from_A_to_B():
     destination = request.args.get("DEST_CITY_NAME")
     initial_date = request.args.get('INITIAL_DATE')
     final_date = request.args.get('FINAL_DATE')
+    print(initial_date)
+    print(final_date)
+    print(origin)
+    print(destination)
 
     filtered_flights_counter = 0
 

@@ -36,9 +36,6 @@
     document.addEventListener("DOMContentLoaded", function(event) {
       //$("body").append(
 
-     
-
-
       //);
       $("body").append("<input type='file' id='files' name='files[]' class='btn btn-primary' style='float: right' multiple />");
 
@@ -310,7 +307,7 @@
                     <div class="card">
                       <div class="card-body">
                         <div class="table-responsive">
-                          <table class="table tablesorter" id="">
+                          <table class="table tablesorter" id="transaction-table">
                             <thead class=" text-primary">
                               <th>
                                 TRANSACTION_ID
@@ -390,6 +387,12 @@
                               </tr>
                             </tbody>
                           </table>
+                          
+                        </div>
+                        <div class="row">
+                          <p>Page {{page}}</p>
+                          <button type="button" value="a" id="back" class="btn btn-fill btn-primary">PREV</button>
+                          <button type="button" value=">" id="next" class="btn btn-fill btn-primary">NEXT</button>
                         </div>
                       </div>
                     </div>
@@ -807,16 +810,16 @@
                     <div class="col-md-6 px-md-1">
                       <div class="form-group">
                         <label>Initial date</label>
-                        <input type="text" name="INITIAL_DATE" class="form-control" placeholder="2019-02-25"
-                          value="2019/02/25">
+                        <input type="date" name="INITIAL_DATE" class="form-control" placeholder="2019-02-25"
+                          value="2019-02-25">
                       </div>
                     </div>
 
                 <div class="col-md-6 px-md-1">
                   <div class="form-group">
                     <label>Final Date</label>
-                    <input type="text" name="FINAL_DATE" class="form-control" placeholder="2019-03-26"
-                      value="2019/03/26">
+                    <input type="date" name="FINAL_DATE" class="form-control" placeholder="2019-03-26"
+                      value="2019-03-26">
                   </div>
                 </div>
               </div>
@@ -874,7 +877,7 @@
       <!-- Black Dashboard DEMO methods, don't include it in your project! -->
       <script src="{{ url_for('static',filename='assets/demo/demo.js') }}"></script>
 
-      <!--
+    
     <script>
       /*$( document ).ready(function() {
       $("#post").hide();
@@ -884,13 +887,58 @@
             $("#post2").show();
       });
     });*/
-    $("#post").click(function(){
+    /*$("#post").click(function(){
       $.get("{{node_address}}/mine", function(data, status){
       });
       $("#myModal").modal();
-    });
+    });*/
+
+    /*function generate_table() {
+      var tr;
+      $('#emp_body').html('');
+      for (var i = 0; i < displayRecords.length; i++) {
+            tr = $('<tr/>');
+            tr.append("<td>" + displayRecords[i]["TRANSACTION_ID"] + "</td>");
+            $('#emp_body').append(tr);
+      }
+    }
+
+    function apply_pagination() {
+      $pagination.twbsPagination({
+            totalPages: totalPages,
+            visiblePages: 6,
+            onPageClick: function (event, page) {
+                  displayRecordsIndex = Math.max(page - 1, 0) * recPerPage;
+                  endRec = (displayRecordsIndex) + recPerPage;
+                 
+                  displayRecords = records.slice(displayRecordsIndex, endRec);
+                  generate_table();
+            }
+      });
+    }*/
+
+    var next_button = $('#next')
+    var back_button = $('#back')
+    /*var page = 0
+    var per_page = 100*/
+
+    /*if (page == 0)
+      back_button.hide()*/
+
+    next_button[0].addEventListener("click", function() {
+      //page++;
+      //$.get("http://127.0.0.1:5000/transactions_paginated", params={"direction": "next"})
+      window.location.replace("http://127.0.0.1:5000/transactions_paginated?direction=next")
+    })
+
+    back_button[0].addEventListener("click", function(){
+      //page--;
+      //$.get("http://127.0.0.1:5000/transactions_paginated", params={"direction": "back"})
+      window.location.replace("http://127.0.0.1:5000/transactions_paginated?direction=back")
+    })
+    
     </script>
-    -->
+    
 </body>
 
 

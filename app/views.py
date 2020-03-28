@@ -10,6 +10,10 @@ from app import app
 # such nodes as well.
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
+page = 0
+
+per_page = 100
+
 posts = []
 
 block_transactions = []
@@ -30,6 +34,7 @@ def fetch_posts():
     """
     get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
     response = requests.get(get_chain_address)
+
     if response.status_code == 200:
         content = []
         chain = json.loads(response.content)
@@ -45,15 +50,37 @@ def fetch_posts():
                        reverse=True)
 
         #remove timestamps
-        #for post in posts:
-            #del post["timestamp"]
+        for post in posts:
+            del post["timestamp"]
 
+def fetch_posts_paginated(page, per_page):
+
+    get_chain_address = "{}/transactions_pages".format(CONNECTED_NODE_ADDRESS)
+    r = requests.get(get_chain_address, {"page": page, "per_page": per_page})
+
+    global posts
+
+    if(r.status_code == 404):
+        posts = []
+    else:
+        content = json.loads(r.content)["transactions"]
+
+        #posts = sorted(content, key=lambda k: k['timestamp'],reverse=True)
+
+        posts = content
+
+        #print("CONTENT ", posts)
+
+        for post in posts:
+            del post["timestamp"]
 
 @app.route('/')
 def index():
-    fetch_posts()
+    #fetch_posts()
+    fetch_posts_paginated(page, per_page)
     #debug
     #print("POSTS ", posts)
+
     #print("BLOCK_TRANSACTIONS ", block_transactions)
     #
     return render_template('index2.html',
@@ -62,6 +89,8 @@ def index():
                            posts=posts,
                            block_transactions = block_transactions,
                            transaction = transaction,
+                           page = page,
+                           per_page = per_page,
                            flights_filtered = flights_filtered,
                            average_delay = average_delay,
                            flights_counter = flights_counter,
@@ -162,10 +191,12 @@ def get_block_from_id():
     resp = json.loads(r.content)["block"]
 
     #print(resp)
-    content = []
+    content = resp["transactions"]
+
+    print("CONTENT ", content)
 
     global block_transactions
-    block_transactions = sorted(content, key=lambda k: k['timestamp'],reverse=True)
+    block_transactions = sorted(content, key=lambda k: k['timestamp'], reverse=True)
 
     for transaction in block_transactions:
         del transaction["timestamp"]
@@ -279,3 +310,27 @@ def count_flights_from_A_to_B():
     #print(resp)
 
     return redirect('/')
+
+@app.route('/transactions_paginated', methods=['GET'])
+def get_transactions_per_page():
+
+    global page
+    #global per_page
+
+    #page = request.args.get("page")
+    #per_page = request.args.get("per_page")
+
+    direction = request.args.get("direction")
+
+
+    if direction == "next" :
+        page += 1
+    else:
+        if(page != 0):
+            page -= 1
+
+    print("ciao ", page)
+
+    return redirect('/')
+
+    
