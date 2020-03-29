@@ -26,6 +26,10 @@ average_delay = "Not available"
 
 flights_counter = "Not available"
 
+fields = ["TRANSACTION_ID"] + sorted(["YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID", 
+"OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",
+"DEST", "DEST_CITY_NAME", "DEST_STATE_NM", "DEP_TIME", "DEP_DELAY", "ARR_TIME", "ARR_DELAY", "CANCELLED", "AIR_TIME"])
+
 
 def fetch_posts():
     """
@@ -78,6 +82,7 @@ def fetch_posts_paginated(page, per_page):
 def index():
     #fetch_posts()
     fetch_posts_paginated(page, per_page)
+    print(fields)
     #debug
     #print("POSTS ", posts)
 
@@ -90,6 +95,7 @@ def index():
                            block_transactions = block_transactions,
                            transaction = transaction,
                            page = page,
+                           fields = fields,
                            per_page = per_page,
                            flights_filtered = flights_filtered,
                            average_delay = average_delay,
@@ -188,20 +194,25 @@ def get_block_from_id():
 
     r = requests.get(block_id_address)
 
-    resp = json.loads(r.content)["block"]
-
-    #print(resp)
-    content = resp["transactions"]
-
-    print("CONTENT ", content)
-
     global block_transactions
-    block_transactions = sorted(content, key=lambda k: k['timestamp'], reverse=True)
+    block_transactions = []
 
-    for transaction in block_transactions:
-        del transaction["timestamp"]
+    if r.status_code != 404:
 
-    #print("BLOCK_TRANSACTIONS ", block_transactions)
+        resp = json.loads(r.content)["block"]
+
+        #print(resp)
+        content = resp["transactions"]
+
+        print("CONTENT ", content)
+
+        
+        block_transactions = sorted(content, key=lambda k: k['timestamp'], reverse=True)
+
+        for transaction in block_transactions:
+            del transaction["timestamp"]
+
+        #print("BLOCK_TRANSACTIONS ", block_transactions)
 
     return redirect('/')
 
@@ -218,7 +229,11 @@ def get_trans_from_id():
 
     global transaction
 
-    transaction += [json.loads(r.content)["transaction"]]
+    transaction = []
+
+    if r.status_code != 404:
+
+        transaction += [json.loads(r.content)["transaction"]]
 
     #print("TRANSACTION ", transaction)
 
@@ -234,16 +249,16 @@ def get_trans_from_filters():
 
     r = requests.get(transaction_id_address, params={"OP_CARRIER_FL_NUM": request.args.get("OP_CARRIER_FL_NUM"), "FL_DATE": request.args.get("FL_DATE")})
 
-    print("RESP ", r.content)
-    print("RESP CONTENT", json.loads(r.content)["flights"])
-
     global flights_filtered
+    flights_filtered = []
 
-    flights_filtered = json.loads(r.content)["flights"]
+    if r.status_code != 404:
 
-    print("flights_filtered ", flights_filtered)
+        flights_filtered = json.loads(r.content)["flights"]
 
-    #print(resp)
+        print("flights_filtered ", flights_filtered)
+
+        #print(resp)
 
     return redirect('/')
 

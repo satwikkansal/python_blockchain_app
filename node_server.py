@@ -261,7 +261,6 @@ class Blockchain:
             #print(tmp_file)
             #
             tmp_json = tmp_file.read()
-            print("Lettura blocco ", n)
 
             #debug
             #print("TMP_JSON")
@@ -287,10 +286,8 @@ class Blockchain:
 
             self.add_block(tmp_block, tmp_proof)
 
-            if n == 1:
-                return
-
-        print("LETTURA BACKUP TERMINATA")
+            #if n == 1:
+            #    return
 
     def get_chain_length(self):
         return len(self.chain)
@@ -525,12 +522,17 @@ def get_flight_status_by_number_and_date():
 
         for flight in block.transactions:
             result = True
-            for key in select_dict.keys():
-                if flight.__dict__[key] != select_dict[key]:
-                    result = False
+            #print(flight.__dict__.keys())
+            if "OP_CARRIER_FL_NUM" not in flight.__dict__.keys():
+                print(flight.__dict__)
+            else :
+                for key in select_dict.keys():
+                
+                    if flight.__dict__[key] != select_dict[key]:
+                        result = False
 
-            if result:
-                result_flights += [flight.__dict__]
+                if result:
+                    result_flights += [flight.__dict__]
 
 
     return json.dumps({"flights" : result_flights})
@@ -559,13 +561,17 @@ def get_arr_delays_per_dates_and_carrier():
         for flight in block.transactions:
             #print(flight.__dict__["FL_DATE"], ", ", initial_date, ", ", final_date, ", ", flight.__dict__["OP_CARRIER_AIRLINE_ID"])
 
-            if flight.__dict__["OP_CARRIER_AIRLINE_ID"] == op_carrier and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:
-                if not flight.__dict__["ARR_DELAY"] == '':
-                    print(flight.__dict__["ARR_DELAY"])
-                    filtered_flights_delays += [float(flight.__dict__["ARR_DELAY"])]
+            if "OP_CARRIER_AIRLINE_ID" not in flight.__dict__.keys():
+                print(flight.__dict__)
+            else:
+                if flight.__dict__["OP_CARRIER_AIRLINE_ID"] == op_carrier and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:
+                    if not flight.__dict__["ARR_DELAY"] == '':
+                        #debug
+                        #print(flight.__dict__["ARR_DELAY"])
+                        filtered_flights_delays += [float(flight.__dict__["ARR_DELAY"])]
 
     #debug
-    print("FILTERED ", filtered_flights_delays)
+    #print("FILTERED ", filtered_flights_delays)
 
     if(len(filtered_flights_delays) > 0):
         return {"average_delay" : sum(filtered_flights_delays)/len(filtered_flights_delays)}
@@ -591,8 +597,11 @@ def count_flights_from_A_to_B():
 
         for flight in block.transactions:
 
-            if flight.__dict__['ORIGIN_CITY_NAME'] == origin and flight.__dict__['DEST_CITY_NAME'] == destination and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:
-                filtered_flights_counter += 1
+            if 'ORIGIN_CITY_NAME' not in flight.__dict__.keys():
+                print(flight.__dict__)
+            else:
+                if flight.__dict__['ORIGIN_CITY_NAME'] == origin and flight.__dict__['DEST_CITY_NAME'] == destination and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:
+                    filtered_flights_counter += 1
 
     return {"filtered_flights_counter" : filtered_flights_counter}
 

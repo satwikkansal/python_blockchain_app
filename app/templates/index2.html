@@ -246,8 +246,8 @@
                             <div class="col-md-4 pl-md-1">
                               <div class="form-group">
                                 <label>Dep time</label>
-                                <input type="time" name="DEP_TIME" class="form-control" placeholder="ZIP Code"
-                                  value="12:50">
+                                <input type="number" name="DEP_TIME" class="form-control" placeholder="ZIP Code" max="4" min="3"
+                                  value="1250">
                               </div>
                             </div>
                           </div>
@@ -261,8 +261,8 @@
                             <div class="col-md-4 px-md-1">
                               <div class="form-group">
                                 <label>Arr time</label>
-                                <input type="time" name="ARR_TIME" class="form-control" placeholder="Country"
-                                  value="12:50">
+                                <input type="number" name="ARR_TIME" class="form-control" placeholder="Country" max="4" min="3"
+                                  value="1250">
                               </div>
                             </div>
                             <div class="col-md-4 pl-md-1">
@@ -277,14 +277,17 @@
                             <div class="col-md-4 pr-md-1">
                               <div class="form-group">
                                 <label>Cancelled</label>
-                                <input type="text" name="CANCELLED" class="form-control" placeholder="City" value="Yes">
+                                <select name="CANCELLED" class="form-control">
+                                  <option value="0.00">no</option>
+                                  <option value="1.00">yes</option>
+                                </select>
                               </div>
                             </div>
                             <div class="col-md-4 px-md-1">
                               <div class="form-group">
                                 <label>Air time</label>
-                                <input type="time" name="AIR_TIME" class="form-control" placeholder="Country"
-                                  value="17:20">
+                                <input type="text" name="AIR_TIME" class="form-control" placeholder="Country"
+                                  value="17.00">
                               </div>
                             </div>
                           </div>
@@ -307,74 +310,18 @@
                     <div class="card">
                       <div class="card-body">
                         <div class="table-responsive">
+                          <div class="row">
+                            <p>Page {{page}}</p>
+                            <button type="button" value="a" id="back" class="btn btn-fill btn-primary">PREV</button>
+                            <button type="button" value=">" id="next" class="btn btn-fill btn-primary">NEXT</button>
+                          </div>
                           <table class="table tablesorter" id="transaction-table">
                             <thead class=" text-primary">
+                              {% for field in fields %}
                               <th>
-                                TRANSACTION_ID
+                                {{field}}
                               </th>
-                              <th>
-                                YEAR
-                              </th>
-                              <th>
-                                DAY_OF_WEEK
-                              </th>
-                              <th>
-                                FL_DATE
-                              </th>
-                              <th>
-                                OP_CARRIER_AIRLINE_ID
-                              </th>
-                              <th>
-                                OP_CARRIER_FL_NUM
-                              </th>
-                              <th>
-                                ORIGIN_AIRPORT_ID
-                              </th>
-                              <th>
-                                ORIGIN
-                              </th>
-                              <th>
-                                ORIGIN_CITY_NAME
-                              </th>
-                              <th>
-                                ORIGIN_STATE_NM
-                              </th>
-                              <th>
-                                DEST_AIRPORT_ID
-                              </th>
-                              <th>
-                                DEST
-                              </th>
-                              <th>
-                                DEST_CITY_NAME
-                              </th>
-                              <th>
-                                DEST_STATE_NM
-                              </th>
-                              <th>
-                                DEP_TIME
-                              </th>
-                              <th>
-                                DEP_DELAY
-                              </th>
-                              <th>
-                                ARR_TIME
-                              </th>
-                              <th>
-                                ARR_DELAY
-                              </th>
-                              <th>
-                                CANCELLED
-                              </th>
-                              <th>
-                                AIR_TIME
-                              </th>
-                              <!--<th>
-                                TImeStamp
-                              </th>-->
-                              <!--<th>
-                                Hash
-                              </th>-->
+                              {% endfor %}
                             </thead>
                             <tbody>
                               {% for post in posts %}
@@ -429,66 +376,11 @@
                         <div class="table-responsive">
                           <table class="table tablesorter" id="">
                             <thead class=" text-primary">
+                              {% for field in fields %}
                               <th>
-                                TRANSACTION_ID
+                                {{field}}
                               </th>
-                              <th>
-                                YEAR
-                              </th>
-                              <th>
-                                DAY_OF_WEEK
-                              </th>
-                              <th>
-                                FL_DATE
-                              </th>
-                              <th>
-                                OP_CARRIER_AIRLINE_ID
-                              </th>
-                              <th>
-                                OP_CARRIER_FL_NUM
-                              </th>
-                              <th>
-                                ORIGIN_AIRPORT_ID
-                              </th>
-                              <th>
-                                ORIGIN
-                              </th>
-                              <th>
-                                ORIGIN_CITY_NAME
-                              </th>
-                              <th>
-                                ORIGIN_STATE_NM
-                              </th>
-                              <th>
-                                DEST_AIRPORT_ID
-                              </th>
-                              <th>
-                                DEST
-                              </th>
-                              <th>
-                                DEST_CITY_NAME
-                              </th>
-                              <th>
-                                DEST_STATE_NM
-                              </th>
-                              <th>
-                                DEP_TIME
-                              </th>
-                              <th>
-                                DEP_DELAY
-                              </th>
-                              <th>
-                                ARR_TIME
-                              </th>
-                              <th>
-                                ARR_DELAY
-                              </th>
-                              <th>
-                                CANCELLED
-                              </th>
-                              <th>
-                                AIR_TIME
-                              </th>
+                              {% endfor %}
                             </thead>
                             <tbody>
                               {% for trans in transaction %}
@@ -537,66 +429,11 @@
                         <div class="table-responsive">
                           <table class="table tablesorter" id="">
                             <thead class=" text-primary">
+                              {% for field in fields %}
                               <th>
-                                TRANSACTION_ID
+                                {{field}}
                               </th>
-                              <th>
-                                YEAR
-                              </th>
-                              <th>
-                                DAY_OF_WEEK
-                              </th>
-                              <th>
-                                FL_DATE
-                              </th>
-                              <th>
-                                OP_CARRIER_AIRLINE_ID
-                              </th>
-                              <th>
-                                OP_CARRIER_FL_NUM
-                              </th>
-                              <th>
-                                ORIGIN_AIRPORT_ID
-                              </th>
-                              <th>
-                                ORIGIN
-                              </th>
-                              <th>
-                                ORIGIN_CITY_NAME
-                              </th>
-                              <th>
-                                ORIGIN_STATE_NM
-                              </th>
-                              <th>
-                                DEST_AIRPORT_ID
-                              </th>
-                              <th>
-                                DEST
-                              </th>
-                              <th>
-                                DEST_CITY_NAME
-                              </th>
-                              <th>
-                                DEST_STATE_NM
-                              </th>
-                              <th>
-                                DEP_TIME
-                              </th>
-                              <th>
-                                DEP_DELAY
-                              </th>
-                              <th>
-                                ARR_TIME
-                              </th>
-                              <th>
-                                ARR_DELAY
-                              </th>
-                              <th>
-                                CANCELLED
-                              </th>
-                              <th>
-                                AIR_TIME
-                              </th>
+                              {% endfor %}
                             </thead>
                             <tbody>
                               {% for transaction in block_transactions %}
@@ -651,66 +488,11 @@
                         <div class="table-responsive">
                           <table class="table tablesorter" id="">
                             <thead class=" text-primary">
+                              {% for field in fields %}
                               <th>
-                                TRANSACTION_ID
+                                {{field}}
                               </th>
-                              <th>
-                                YEAR
-                              </th>
-                              <th>
-                                DAY_OF_WEEK
-                              </th>
-                              <th>
-                                FL_DATE
-                              </th>
-                              <th>
-                                OP_CARRIER_AIRLINE_ID
-                              </th>
-                              <th>
-                                OP_CARRIER_FL_NUM
-                              </th>
-                              <th>
-                                ORIGIN_AIRPORT_ID
-                              </th>
-                              <th>
-                                ORIGIN
-                              </th>
-                              <th>
-                                ORIGIN_CITY_NAME
-                              </th>
-                              <th>
-                                ORIGIN_STATE_NM
-                              </th>
-                              <th>
-                                DEST_AIRPORT_ID
-                              </th>
-                              <th>
-                                DEST
-                              </th>
-                              <th>
-                                DEST_CITY_NAME
-                              </th>
-                              <th>
-                                DEST_STATE_NM
-                              </th>
-                              <th>
-                                DEP_TIME
-                              </th>
-                              <th>
-                                DEP_DELAY
-                              </th>
-                              <th>
-                                ARR_TIME
-                              </th>
-                              <th>
-                                ARR_DELAY
-                              </th>
-                              <th>
-                                CANCELLED
-                              </th>
-                              <th>
-                                AIR_TIME
-                              </th>
+                              {% endfor %}
                             </thead>
                             <tbody>
                               {% for flight in flights_filtered %}
