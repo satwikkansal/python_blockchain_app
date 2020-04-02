@@ -59,6 +59,7 @@ To play around by spinning off multiple custom nodes, use the `register_with/` e
 Here's a sample scenario that you might wanna try,
 
 ```sh
+# Make sure you set the FLASK_APP environment variable to node_server.py before running these nodes
 # already running
 $ flask run --port 8000 &
 # spinning up new nodes
