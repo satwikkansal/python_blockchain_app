@@ -65,6 +65,7 @@ class Block:
         block_string = json.dumps(self, cls=BlockEncoder, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 
+        ## TODO update with metadata
     def has_transaction(self, id):
         #debug
         #print("69 ID ", id)
@@ -73,6 +74,7 @@ class Block:
 
         return self.transactions[0].TRANSACTION_ID <= id and self.transactions[-1].TRANSACTION_ID >= id
 
+        ## TODO update with metadata
     def get_transaction(self, id):
 
         if(self.has_transaction(id)):
@@ -93,13 +95,32 @@ class TransactionEncoder(JSONEncoder):
         def default(self, o):
             return o.__dict__
 
+
+'''
+chain_metadata: [
+    { 
+        index: id,
+        block_size: int,
+        first_transaction: id,
+        last_transaction: id,
+        hash: hash,
+        nonce: int,
+        previous_hash: hash
+    }
+]
+'''
 class Blockchain:
     # difficulty of our PoW algorithm
     difficulty = 2
+    LAST_CACHE_SIZE = 3000
+    RANDOM_CACHE_SIZE = 3000
 
     def __init__(self):
         self.unconfirmed_transactions = []
-        self.chain = []
+        self.chain_metadata = []
+        self.chain_random_cache = {}
+        self.chain_last_cache = {}
+        self.n_transactions = 0
 
     def create_genesis_block(self):
         """
@@ -109,11 +130,13 @@ class Blockchain:
         """
         genesis_block = Block(0, [], 0, "0")
         genesis_block.hash = genesis_block.compute_hash()
-        self.chain.append(genesis_block)
+        self.chain_metadata.append({ index: genesis_block.index, block_size: 0, first_transaction: NULL, last_transaction: NULL, hash: genesis_block.hash, nonce: genesis_block.nonce, previous_hash: NULL })
+        self.chain_cache[genesis_block.index] = genesis_block
 
     @property
-    def last_block(self):
-        return self.chain[-1]
+    def last_block_metadata(self):
+        return self.chain_metadata[-1]
+
 
     def add_block(self, block, proof):
         """
@@ -123,7 +146,7 @@ class Blockchain:
         * The previous_hash referred in the block and the hash of latest block
           in the chain match.
         """
-        previous_hash = self.last_block.hash
+        previous_hash = self.last_block_metadata["hash"]
 
         if previous_hash != block.previous_hash:
             #debug
@@ -139,8 +162,32 @@ class Blockchain:
         #debug
         #print("ADDING BLOCK ", block.index)
         #
+        self.n_transactions += block.get_block_len()
         block.hash = proof
-        self.chain.append(block)
+        self.chain_metadata.append({
+            index: block.index,
+            block_size: block.get_block_len(),
+            first_transaction: block.transactions[0].TRANSACTION_ID,
+            last_transaction: block.transactions[-1].TRANSACTION_ID,
+            hash: block.hash,
+            nonce: block.nonce,
+            previous_hash: block.previous_hash
+        })
+
+        chain_last_cache[block.index] = block
+        # check if chain_last_cache is too big
+        blocks_to_remove = []
+        remaining_transactions = LAST_CACHE_SIZE
+        #find block that must be removed from the cache
+        for i in reversed(list(chain_last_cache.keys())):
+            if remaining_transactions <= 0:
+                blocks_to_remove.append(i)
+            else:
+                remaining_transactions -= chain_last_cache[i].block_size
+
+        for i in blocks_to_remove:
+            del chain_last_cache[i]
+
         return True
 
     @staticmethod
@@ -171,6 +218,7 @@ class Blockchain:
                 block_hash == block.compute_hash())
 
     @classmethod
+        ## TODO update with metadata, only with multi peers
     def check_chain_validity(cls, chain):
         result = True
         previous_hash = "0"
@@ -190,6 +238,7 @@ class Blockchain:
 
         return result
 
+
     def mine(self):
         """
         This function serves as an interface to add the pending
@@ -208,12 +257,12 @@ class Blockchain:
             unconfirmed_transactions_to_block = self.unconfirmed_transactions
             self.unconfirmed_transactions = []
 
-        last_block = self.last_block
+        last_block_metadata = self.last_block_metadata
 
-        new_block = Block(index=last_block.index + 1,
+        new_block = Block(index=last_block_metadata.index + 1,
                           transactions=unconfirmed_transactions_to_block,
                           timestamp=time.time(),
-                          previous_hash=last_block.hash)
+                          previous_hash=last_block_metadata.hash)
 
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
@@ -224,14 +273,105 @@ class Blockchain:
             #print("Save failed!")
             return 0
 
+
+    def check_block_with_metadata(self, block, id):
+        #check block with metadata
+        ret = ( (block.index == chain_metadata[id]["index"]) and
+            (block.get_block_len() == chain_metadata[id]["block_size"]) and
+            (block.transactions[0].TRANSACTION_ID == chain_metadata[id]["first_transaction"]) and
+            (block.transactions[-1].TRANSACTION_ID == chain_metadata[id]["last_transaction"]) and
+            (block.hash == chain_metadata[id]["hash"]) and
+            (block.nonce != chain_metadata[id]["nonce"]) and 
+            (block.prevous_hash != chain_metadata[id]["prevous_hash"]) )
+
+        #check block hash
+        tmp_proof = block.__dict__.pop("hash")
+        ret = ret and self.is_valid_proof(block, tmp_proof)
+        return ret
+
+    #load into the cache the block and its neighbours, we assume that the block (id) isn't already in the caches 
+    def set_random_cache(self, id):
+        remaining_transactions = min(RANDOM_CACHE_SIZE, self.n_transactions)
+        new_random_cache = {}
+        tmp_block = self.read_block_from_backup(id)
+        
+        #checks block is the same with metadata
+        if not check_block_with_metadata(tmp_block, id):
+            return False
+        new_random_cache[id] = tmp_block
+        remaining_transactions -= new_random_cache[id]["block_size"]
+        
+        neighborhood = 1
+        while (remaining_transactions > 0):
+            previous_id = id-neighborhood
+            next_id = id+neighborhood
+            if (previous_id >= 1 and previous_id < len(blockchain.chain_metadata)):
+                if (previous_id in chain_random_cache):
+                    new_random_cache[previous_id] = chain_random_cache[previous_id]
+                    remaining_transactions -= new_random_cache[previous_id]["block_size"]
+                elif (not(previous_id in chain_last_cache)):
+                    tmp_block = self.read_block_from_backup(previous_id)
+                    #checks block is the same with metadata
+                    if not check_block_with_metadata(tmp_block, previous_id):
+                        return False
+                    new_random_cache[previous_id] = tmp_block
+                    remaining_transactions -= new_random_cache[previous_id]["block_size"]
+
+            if (next_id >= 1 and next_id < len(blockchain.chain_metadata)):
+                if (next_id in chain_random_cache):
+                    new_random_cache[next_id] = chain_random_cache[next_id]
+                    remaining_transactions -= new_random_cache[next_id]["block_size"]
+                elif (not(next_id in chain_last_cache)):
+                    tmp_block = self.read_block_from_backup(next_id)
+                    #checks block is the same with metadata
+                    if not check_block_with_metadata(tmp_block, next_id):
+                        return False
+                    new_random_cache[next_id] = tmp_block
+                    remaining_transactions -= new_random_cache[next_id]["block_size"]
+
+
     def get_block(self, id):
 
         if id < 0 or id > len(self.chain):
             return False
 
-        return self.chain[id]
+        #check if the block is stored in the cache
+        if (id in chain_last_cache):
+            #get the block from the cache
+            return chain_last_cache[id]
+
+        #check if the block is stored in the cache
+        if (id in chain_random_cache):
+            #get the block from the cache
+            return chain_random_cache[id]
+
+        #load the block (and the neighbours) into the random_cache
+        self.set_random_cache(id)
+        return self.chain_random_cache[id]
+
+    #read a block from file
+    def read_block_from_backup(self, id):
+        tmp_file = open(backup_path + '/' + str(id), 'r')
+        tmp_json = tmp_file.read()
+        tmp_dict = json.loads(tmp_json)
+
+        #create transactions objects
+        for i in range(0, len(tmp_dict["transactions"])):
+            tmp_trans = Transaction(tmp_dict["transactions"][i])
+            tmp_dict["transactions"][i] = tmp_trans
+        #debug
+
+        #print("TMP_DICT")
+        #print(tmp_dict)
+        #
+
+        #create block object
+        tmp_block = Block(0,0,0,0,0)
+        tmp_block.__dict__ = tmp_dict
+        return tmp_block
 
 
+        ## TODO update with metadata
     #read from the backup folder and initialize the chain
     def read_backup(self):
         if(not os.path.isdir(backup_path)):
@@ -254,35 +394,9 @@ class Blockchain:
 
         for n in backup:
             #parse json from file
-            tmp_file = open(backup_path + '/' + str(n), 'r')
-            #debug
-            #print("tmp_file")
-            #print(type(tmp_file))
-            #print(tmp_file)
-            #
-            tmp_json = tmp_file.read()
-
-            #debug
-            #print("TMP_JSON")
-            #print(type(tmp_json))
-            #
-            tmp_dict = json.loads(tmp_json)
-
-            #create transactions objects
-            for i in range(0, len(tmp_dict["transactions"])):
-                tmp_trans = Transaction(tmp_dict["transactions"][i])
-                tmp_dict["transactions"][i] = tmp_trans
-            #debug
-
-            #print("TMP_DICT")
-            #print(tmp_dict)
-            #
-
-            #create block object
-            tmp_block = Block(0,0,0,0,0)
-            tmp_proof = tmp_dict["hash"]
-            del tmp_dict["hash"]
-            tmp_block.__dict__ = tmp_dict
+            tmp_block = self.read_block_from_backup(n)
+            tmp_proof = tmp_block["hash"]
+            del tmp_block.__dict__["hash"]
 
             self.add_block(tmp_block, tmp_proof)
 
@@ -348,6 +462,7 @@ def new_transaction_multi():
     return "Success", 201
 
 
+        ## TODO update with metadata
 # endpoint to return the node's copy of the chain.
 # Our application will be using this endpoint to query
 # all the posts to display.
@@ -397,6 +512,8 @@ def get_chain():
                        "chain": chain_data,
                        "peers": list(peers)}, cls=BlockEncoder)
 
+
+        ## TODO update with metadata
 # endpoint to return the transactions of a block gived its id.
 # Our application will be using this endpoint to query
 # all the posts to display.
@@ -419,6 +536,8 @@ def get_transaction_by_block_id(block_id):
 
     return json.dumps({"block": block_to_add}, cls=BlockEncoder)
 
+
+        ## TODO update with metadata
 # endpoint to return the transaction gived its id.
 # Our application will be using this endpoint to query
 # all the posts to display.
@@ -456,6 +575,8 @@ def get_transaction_by_id(transaction_id): #tested
     else:
         return "Transaction not found", 404
 
+
+        ## TODO update with metadata
 @app.route('/transactions_pages', methods=['GET']) 
 def get_transactions_per_pages():
     page = int(request.args.get("page"))
@@ -506,6 +627,8 @@ def get_transactions_per_pages():
 
     return json.dumps({"transactions" : transactions})
 
+
+        ## TODO update with metadata
 @app.route('/transactions', methods=['GET']) #tested
 def get_flight_status_by_number_and_date():
     op_carrier = request.args.get("OP_CARRIER_FL_NUM")
@@ -538,6 +661,7 @@ def get_flight_status_by_number_and_date():
     return json.dumps({"flights" : result_flights})
 
 
+        ## TODO update with metadata
 @app.route('/average_delays', methods=['GET']) #tested
 def get_arr_delays_per_dates_and_carrier():
     op_carrier = request.args.get("OP_CARRIER_AIRLINE_ID")
@@ -578,6 +702,8 @@ def get_arr_delays_per_dates_and_carrier():
     else:
         return "Not found", 404
 
+
+        ## TODO update with metadata
 @app.route('/flight_counter', methods=['GET']) #tested
 def count_flights_from_A_to_B():
     origin = request.args.get("ORIGIN_CITY_NAME")
@@ -607,6 +733,7 @@ def count_flights_from_A_to_B():
 
 
 
+        ## TODO update with metadata
 # endpoint to request the node to mine the unconfirmed
 # transactions (if any). We'll be using it to initiate
 # a command to mine from our application itself.
@@ -776,3 +903,12 @@ def start_runner():
 
 start_runner()
 app.run(debug=False, port=8000)
+
+
+
+
+
+
+
+
+
