@@ -289,6 +289,45 @@ class Blockchain:
         ret = ret and self.is_valid_proof(block, tmp_proof)
         return ret
 
+
+    def set_last_cache(self):
+        id = chain_metadata[-1]["index"]
+        remaining_transactions = min(RANDOM_CACHE_SIZE, self.n_transactions)
+        new_last_cache = {}
+        tmp_block = self.read_block_from_backup(id)
+        
+        #checks block is the same with metadata
+        if not check_block_with_metadata(tmp_block, id):
+            return False
+        new_last_cache[id] = tmp_block
+        remaining_transactions -= new_last_cache[id]["block_size"]
+
+        step_back = 1
+        while (remaining_transactions > 0):
+            previous_id = id-step_back
+            #maybe useless check into the if
+            #check if previous_id is valid
+            if (previous_id >= 1 and previous_id < len(blockchain.chain_metadata)):
+                #check if previous_block is already stored in random_cache (recycle it, don't need to read from disk)
+                if (previous_id in chain_random_cache):
+                    new_last_cache[previous_id] = chain_random_cache[previous_id]
+                    remaining_transactions -= new_last_cache[previous_id]["block_size"]
+                #check if previous_block is already stored in last_cache (recycle it, don't need to read from disk)
+                elif (previous_id in chain_last_cache):
+                    new_last_cache[previous_id] = chain_last_cache[previous_id]
+                    remaining_transactions -= new_last_cache[previous_id]["block_size"]
+                else:
+                    #read block from disk
+                    tmp_block = self.read_block_from_backup(previous_id)
+                    #checks block is the same with metadata
+                    if not check_block_with_metadata(tmp_block, previous_id):
+                        return False
+                    new_last_cache[previous_id] = tmp_block
+                    remaining_transactions -= new_last_cache[previous_id]["block_size"]
+            step_back += 1
+        chain_last_cache = new_last_cache
+        return True
+
     #load into the cache the block and its neighbours, we assume that the block (id) isn't already in the caches 
     def set_random_cache(self, id):
         remaining_transactions = min(RANDOM_CACHE_SIZE, self.n_transactions)
@@ -301,34 +340,43 @@ class Blockchain:
         new_random_cache[id] = tmp_block
         remaining_transactions -= new_random_cache[id]["block_size"]
         
-        neighborhood = 1
+        neighbourhood = 1
         while (remaining_transactions > 0):
-            previous_id = id-neighborhood
-            next_id = id+neighborhood
+            previous_id = id-neighbourhood      #block on the left
+            next_id = id+neighbourhood          #block on the right
+
+            #check if previous_id is valid
             if (previous_id >= 1 and previous_id < len(blockchain.chain_metadata)):
+                #check if previous_block is already stored in random_cache (recycle it, don't need to read from disk)
                 if (previous_id in chain_random_cache):
                     new_random_cache[previous_id] = chain_random_cache[previous_id]
                     remaining_transactions -= new_random_cache[previous_id]["block_size"]
-                elif (not(previous_id in chain_last_cache)):
+                elif (not(previous_id in chain_last_cache)):                        #if previous_block is in last_cache, ignore it
+                    #read block from disk
                     tmp_block = self.read_block_from_backup(previous_id)
-                    #checks block is the same with metadata
+                    #check block is the same with metadata
                     if not check_block_with_metadata(tmp_block, previous_id):
                         return False
                     new_random_cache[previous_id] = tmp_block
                     remaining_transactions -= new_random_cache[previous_id]["block_size"]
-
+            
+            #check if next_id is valid
             if (next_id >= 1 and next_id < len(blockchain.chain_metadata)):
+                #check if next_block is already stored in random_cache (recycle it, don't need to read from disk)
                 if (next_id in chain_random_cache):
                     new_random_cache[next_id] = chain_random_cache[next_id]
                     remaining_transactions -= new_random_cache[next_id]["block_size"]
-                elif (not(next_id in chain_last_cache)):
+                elif (not(next_id in chain_last_cache)):                        #if next_block is in last_cache, ignore it
+                    #read block from disk
                     tmp_block = self.read_block_from_backup(next_id)
-                    #checks block is the same with metadata
+                    #check block is the same with metadata
                     if not check_block_with_metadata(tmp_block, next_id):
                         return False
                     new_random_cache[next_id] = tmp_block
                     remaining_transactions -= new_random_cache[next_id]["block_size"]
-
+            neighbourhood += 1
+        chain_random_cache = new_random_cache
+        return True
 
     def get_block(self, id):
 
@@ -371,7 +419,6 @@ class Blockchain:
         return tmp_block
 
 
-        ## TODO update with metadata
     #read from the backup folder and initialize the chain
     def read_backup(self):
         if(not os.path.isdir(backup_path)):
@@ -380,7 +427,6 @@ class Blockchain:
             backup = f                          #list of the names of the files in the backup folder
 
         backup = [int(i) for i in backup]
-
         backup.sort()
         #debug
         #print("SORTED BACKUP")
@@ -391,20 +437,42 @@ class Blockchain:
         #debug
         #print(backup)
         #
-
+        #build metadata
         for n in backup:
             #parse json from file
             tmp_block = self.read_block_from_backup(n)
             tmp_proof = tmp_block["hash"]
             del tmp_block.__dict__["hash"]
+            #block validation
+            if (not self.is_valid_proof(block, tmp_proof)):
+                return False
+            #block metadata
+            self.chain_metadata.append({
+                index: tmp_block.index,
+                block_size: tmp_block.get_block_len(),
+                first_transaction: tmp_block.transactions[0].TRANSACTION_ID,
+                last_transaction: tmp_block.transactions[-1].TRANSACTION_ID,
+                hash: tmp_proof,
+                nonce: tmp_block.nonce,
+                previous_hash: tmp_block.previous_hash
+            })
 
-            self.add_block(tmp_block, tmp_proof)
+        #initialize last_cache
+        self.set_last_cache()
+        #initialize random_cache (using greater block_id that is not into the last_cache)
+        #check if there are block/transaction out of the last_cache
+        if ( len(chain_metadata) > len(chain_last_cache) ):
+            set_random_cache(sorted(chain_last_cache.keys())[0] - 1)
+        else:
+            chain_random_cache = {}
+        return True
+
 
             #if n == 1:
             #    return
 
     def get_chain_length(self):
-        return len(self.chain)
+        return len(self.chain_metadata)
 
 
 
