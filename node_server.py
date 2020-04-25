@@ -131,7 +131,7 @@ class Blockchain:
         genesis_block = Block(0, [], 0, "0")
         genesis_block.hash = genesis_block.compute_hash()
         self.chain_metadata.append({ "index": genesis_block.index, "block_size": 0, "first_transaction": None, "last_transaction": None, "hash": genesis_block.hash, "nonce": genesis_block.nonce, "previous_hash": None })
-        self.chain_cache[genesis_block.index] = genesis_block
+        #self.chain_cache[genesis_block.index] = genesis_block
 
     @property
     def last_block_metadata(self):
@@ -276,13 +276,13 @@ class Blockchain:
 
     def check_block_with_metadata(self, block, id):
         #check block with metadata
-        ret = ( (block.index == chain_metadata[id]["index"]) and
-            (block.get_block_len() == chain_metadata[id]["block_size"]) and
-            (block.transactions[0].TRANSACTION_ID == chain_metadata[id]["first_transaction"]) and
-            (block.transactions[-1].TRANSACTION_ID == chain_metadata[id]["last_transaction"]) and
-            (block.hash == chain_metadata[id]["hash"]) and
-            (block.nonce != chain_metadata[id]["nonce"]) and
-            (block.prevous_hash != chain_metadata[id]["prevous_hash"]) )
+        ret = ( (block.index == self.chain_metadata[id]["index"]) and
+            (block.get_block_len() == self.chain_metadata[id]["block_size"]) and
+            (block.transactions[0].TRANSACTION_ID == self.chain_metadata[id]["first_transaction"]) and
+            (block.transactions[-1].TRANSACTION_ID == self.chain_metadata[id]["last_transaction"]) and
+            (block.hash == self.chain_metadata[id]["hash"]) and
+            (block.nonce != self.chain_metadata[id]["nonce"]) and
+            (block.prevous_hash != self.chain_metadata[id]["prevous_hash"]) )
 
         #check block hash
         tmp_proof = block.__dict__.pop("hash")
@@ -295,13 +295,13 @@ class Blockchain:
 
 
     def set_last_cache(self):
-        id = chain_metadata[-1]["index"]
+        id = self.chain_metadata[-1]["index"]
         remaining_transactions = min(self.LAST_CACHE_SIZE, self.n_transactions)
         new_last_cache = {}
         tmp_block = self.read_block_from_backup(id)
 
         #checks block is the same with metadata
-        if not check_block_with_metadata(tmp_block, id):
+        if not self.check_block_with_metadata(tmp_block, id):
             return False
         new_last_cache[id] = tmp_block
         remaining_transactions -= new_last_cache[id]["block_size"]
@@ -339,7 +339,7 @@ class Blockchain:
         tmp_block = self.read_block_from_backup(id)
 
         #checks block is the same with metadata
-        if not check_block_with_metadata(tmp_block, id):
+        if not self.check_block_with_metadata(tmp_block, id):
             return False
         new_random_cache[id] = tmp_block
         remaining_transactions -= new_random_cache[id]["block_size"]
@@ -492,10 +492,10 @@ class Blockchain:
         for n in backup:
             #parse json from file
             tmp_block = self.read_block_from_backup(n)
-            tmp_proof = tmp_block["hash"]
+            tmp_proof = tmp_block.__dict__["hash"]
             del tmp_block.__dict__["hash"]
             #block validation
-            if (not self.is_valid_proof(block, tmp_proof)):
+            if (not self.is_valid_proof(tmp_block, tmp_proof)):
                 return False
             #block metadata
             self.chain_metadata.append({
@@ -512,10 +512,10 @@ class Blockchain:
         self.set_last_cache()
         #initialize random_cache (using greater block_id that is not into the last_cache)
         #check if there are block/transaction out of the last_cache
-        if ( len(chain_metadata) > len(chain_last_cache) ):
-            set_random_cache(sorted(chain_last_cache.keys())[0] - 1)
+        if ( len(self.chain_metadata) > len(self.chain_last_cache) ):
+            self.set_random_cache( len(self.chain_metadata) - len(self.chain_last_cache) - 1 ) #TODO check correctness
         else:
-            chain_random_cache = {}
+            self.chain_random_cache = {}
         return True
 
 
