@@ -130,7 +130,7 @@ class Blockchain:
         """
         genesis_block = Block(0, [], 0, "0")
         genesis_block.hash = genesis_block.compute_hash()
-        self.chain_metadata.append({ index: genesis_block.index, block_size: 0, first_transaction: NULL, last_transaction: NULL, hash: genesis_block.hash, nonce: genesis_block.nonce, previous_hash: NULL })
+        self.chain_metadata.append({ "index": genesis_block.index, "block_size": 0, "first_transaction": None, "last_transaction": None, "hash": genesis_block.hash, "nonce": genesis_block.nonce, "previous_hash": None })
         self.chain_cache[genesis_block.index] = genesis_block
 
     @property
@@ -165,13 +165,13 @@ class Blockchain:
         self.n_transactions += block.get_block_len()
         block.hash = proof
         self.chain_metadata.append({
-            index: block.index,
-            block_size: block.get_block_len(),
-            first_transaction: block.transactions[0].TRANSACTION_ID,
-            last_transaction: block.transactions[-1].TRANSACTION_ID,
-            hash: block.hash,
-            nonce: block.nonce,
-            previous_hash: block.previous_hash
+            "index": block.index,
+            "block_size": block.get_block_len(),
+            "first_transaction": block.transactions[0].TRANSACTION_ID,
+            "last_transaction": block.transactions[-1].TRANSACTION_ID,
+            "hash": block.hash,
+            "nonce": block.nonce,
+            "previous_hash": block.previous_hash
         })
 
         chain_last_cache[block.index] = block
@@ -499,13 +499,13 @@ class Blockchain:
                 return False
             #block metadata
             self.chain_metadata.append({
-                index: tmp_block.index,
-                block_size: tmp_block.get_block_len(),
-                first_transaction: tmp_block.transactions[0].TRANSACTION_ID,
-                last_transaction: tmp_block.transactions[-1].TRANSACTION_ID,
-                hash: tmp_proof,
-                nonce: tmp_block.nonce,
-                previous_hash: tmp_block.previous_hash
+                "index": tmp_block.index,
+                "block_size": tmp_block.get_block_len(),
+                "first_transaction": tmp_block.transactions[0].TRANSACTION_ID,
+                "last_transaction": tmp_block.transactions[-1].TRANSACTION_ID,
+                "hash": tmp_proof,
+                "nonce": tmp_block.nonce,
+                "previous_hash": tmp_block.previous_hash
             })
 
         #initialize last_cache
