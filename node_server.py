@@ -409,14 +409,17 @@ class Blockchain:
             return False
         new_random_cache[id] = tmp_block
         remaining_transactions -= new_random_cache[id].get_block_len()
-
+        
         #step determine next block that will be added to the cache
         step = 1
         step_direction = 1
         while (remaining_transactions > 0):
-            next_id = id-step_back
+            next_id = id-step
             #maybe useless check into the if
             #check if next_id is valid
+            #debug
+            print("AAAAAAAAAAAAAAAAAA")
+            #
             if (next_id >= 1 and next_id < len(blockchain.chain_metadata)):
                 #check if previous_block is already stored in random_cache (recycle it, don't need to read from disk)
                 if (next_id in self.chain_random_cache):
