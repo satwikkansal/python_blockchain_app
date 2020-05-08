@@ -3,20 +3,41 @@
 
 {% block content %}
 	<br>
-
-	<center>
-	<form action="/submit" id="textform" method="post">
-	    <textarea name="content" rows="4" cols="50" placeholder="Just write whatever you want to..."></textarea>
-	    <br>
-	    <input type="text" name="author" placeholder="Your name">
-	    <input type="submit" value="Post">
-	</form>
-	</center>
+	<div>
+		<form action="/submit" id="textform" method="post">
+			<div class="col-8 col-sm-12">
+				<h2 id="typewriter"></h2>
+				<div class="form-group">
+					<textarea name="content" rows="10" cols="100" placeholder="Add Views here..."></textarea>
+				</div>
+				<div class="form-group">
+					<input type="text" name="author" placeholder="Your name" class="form-control" id="namefield">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="box bg-1"></div>
+					<button id="post_blog_button" type="submit" class="button" value="Post" >
+						<div id="translate"></div>
+						Submit Blog
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
 
 	<br>
 
-	<a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
-	<a href="/"><button>Resync</button></a>
+	<div class="container">
+		<div class="col-6 col-sm-12">
+			<a href="{{ node_address }}/mine" target="_blank">
+				<button class="btn btn-outline-success ">Request To Mine</button>
+			</a>
+			<a href="/">
+				<button class="btn btn-outline-dark">Post Below</button>
+			</a>
+		</div>
+	<!-- <a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
+	<a href="/"><button>Resync</button></a> -->
 
 	<div style="margin: 20px;">
 
@@ -37,6 +58,24 @@
 	{% endfor %}
 
 	<style>
+
+		h1{
+			color: maroon;
+		}
+		h3{
+			color: navy;
+		}
+		h2{
+			font-weight: 400;
+  			font-size:40px;
+		}
+		.container {
+			background-color: #E6E6E7;
+			padding: 2%;
+		}
+		textarea{
+			padding: 2%;
+		}
 		.post_box {
 		    background: #fff;
 		    padding: 12px 0px 0px 12px;
@@ -85,6 +124,7 @@
 		.post_box-options {
 		    float: right;
 		}
+		
 		.option-btn {
 		    background: #f8f8f8;
 		    border: none;
@@ -97,6 +137,72 @@
 		    outline: none;
 		    height: 42px;
 		}
+
+		
+		#post_blog_button {
+			text-align: center;
+			margin-left: 40%;
+			position: relative;
+			overflow: hidden;
+			cursor: pointer;
+			display: inline-flex;
+			height: 40px;
+			width: 150px;
+			border: 2px solid #A2BDDD;
+			/* margin: 20px 20px 20px 20px; */
+			color: black;
+			text-transform: uppercase;
+			text-decoration: none;
+			font-size: .8em;
+			letter-spacing: 1.5px;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+		}
+
+		#post_blog_button a {
+			position: relative;
+			transition: all .45s ease-Out;
+		}
+
+		#translate {
+			transform: rotate(50deg);
+			width: 100%;
+			height: 250%;
+			left: -200px;
+			top: -30px;
+			background: #468ADC;
+			opacity: 0.6;
+			position: absolute;
+			transition: all .3s ease-Out;
+		}
+
+		#post_blog_button:hover #translate {
+			left: 0;
+		}
+
+		#post_blog_button:hover a {
+			color: #D7E0EB;
+		}
+		#namefield {
+			width: 30%;
+			text-align: center;
+		}
 	</style>
-    </div>
+	</div>
+	</div>
+	<script>
+		var test = document.getElementById("typewriter");
+
+		var text = "Start Writing From Here..";
+		var result = "";
+		window.addEventListener("load", (event) => {
+		for (let i = 0; i < text.length; i++) {
+			setTimeout(function () {
+			result += text[i];
+			test.innerHTML = result;
+			}, 120 * i);
+		}
+		});
+	</script>
 {% endblock %}
