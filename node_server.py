@@ -112,8 +112,8 @@ chain_metadata: [
 class Blockchain:
     # difficulty of our PoW algorithm
     difficulty = 2
-    LAST_CACHE_SIZE = 0
-    RANDOM_CACHE_SIZE = 0
+    LAST_CACHE_SIZE = 80000
+    RANDOM_CACHE_SIZE = 80000
 
     def __init__(self):
         self.unconfirmed_transactions = []
@@ -358,7 +358,7 @@ class Blockchain:
             remaining_transactions -= new_random_cache[id].get_block_len()
 
         neighbourhood = 1
-        while (remaining_transactions > 0):
+        while (remaining_transactions > 0 and (id-neighbourhood > 0 or id + neighbourhood < len(blockchain.chain_metadata) or id+neighbourhood in self.chain_last_cache)):
             previous_id = id-neighbourhood      #block on the left
             next_id = id+neighbourhood          #block on the right
 
@@ -830,7 +830,9 @@ def get_flight_status_by_number_and_date():
     result_flights = []
 
     #initialize cache from the beginning of the chain
-    blockchain.set_random_cache_from(1)
+    if not blockchain.check_block_in_cache(1):
+        blockchain.set_random_cache_from(1)
+
     for i in range(1, blockchain.get_chain_length()):
         # shift the cache forward
         if (not blockchain.check_block_in_cache(i)):
