@@ -18,13 +18,20 @@
     <monitor host="127.0.0.1" type="snmp"></monitor>
   </monitoring>
   
-  <load duration="5" unit="minute">
+  <load duration="30" unit="minute">
   <!-- several arrival phases can be set: for each phase, you can set
   the mean inter-arrival time between new clients and the phase
   duration -->
-   <arrivalphase phase="1" duration="5" unit="minute">
+   <arrivalphase phase="1" duration="30" unit="minute">
      <users maxnumber="1" interarrival="0.01" unit="second"></users>
    </arrivalphase>
+
+   <!-- DIFFERENT WORKLOAD INTENSITIES-->
+   <!-- 
+    <arrivalphase phase="1" duration="30" unit="minute">
+     <users interarrival="?????" unit="second"></users>
+   </arrivalphase>
+   -->
   </load>
 
   <options>
@@ -48,6 +55,10 @@
         <request> <http url="/average_delays?OP_CARRIER_AIRLINE_ID=20304&amp;INITIAL_DATE=2010-01-08&amp;FINAL_DATE=2011-01-08" method="GET" version="1.1" ></http> </request>
       </transaction>
     </for>
+
+    <!--
+      <request> <http url="/transactions?OP_CARRIER_FL_NUM=4669&amp;FL_DATE=2010-01-08" method="GET" version="1.1" ></http> </request>
+    -->
 
   </session>
  </sessions>

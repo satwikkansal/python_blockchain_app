@@ -18,20 +18,21 @@
     <monitor host="127.0.0.1" type="snmp"></monitor>
   </monitoring>
   
-  <load duration="30" unit="minute">
+  <load>
   <!-- several arrival phases can be set: for each phase, you can set
   the mean inter-arrival time between new clients and the phase
   duration -->
+  <!--
    <arrivalphase phase="1" duration="30" unit="minute">
      <users maxnumber="1" interarrival="0.01" unit="second"></users>
    </arrivalphase>
-
+  -->
    <!-- DIFFERENT WORKLOAD INTENSITIES-->
-   <!-- 
-    <arrivalphase phase="1" duration="30" unit="minute">
-     <users interarrival="?????" unit="second"></users>
-   </arrivalphase>
-   -->
+   <!-- 0.8L -->
+    <arrivalphase phase="1" duration="5" unit="minute">
+     <users interarrival="????" unit="second"></users>
+    </arrivalphase>
+   
   </load>
 
   <options>
@@ -49,17 +50,18 @@
   <session name="http-example" probability="100" type="ts_http">
 
     <!-- full url with server name, this overrides the "server" config value -->
+  <!--  
     <for from="1" to="1000" incr="1" var="counter">
       <transaction name="req">
         <thinktime value="0.01"></thinktime>
-        <request> <http url="/transactions?OP_CARRIER_FL_NUM=4669&amp;FL_DATE=2010-01-08" method="GET" version="1.1" ></http> </request>
+        <request> <http url="/flight_counter?ORIGIN_CITY_NAME=Chicago,%20IL&amp;DEST_CITY_NAME=Springfield,%20MO&amp;INITIAL_DATE=2010-01-20&amp;FINAL_DATE=2011-01-20" method="GET" version="1.1" ></http> </request>
       </transaction>
     </for>
+  -->
 
-    <!-- DIFFERENT WORKLOAD INTENSITIES -->
-    <!--
-      <request> <http url="/transactions?OP_CARRIER_FL_NUM=4669&amp;FL_DATE=2010-01-08" method="GET" version="1.1" ></http> </request>
-    -->
+    
+    <request> <http url="/flight_counter?ORIGIN_CITY_NAME=Chicago,%20IL&amp;DEST_CITY_NAME=Springfield,%20MO&amp;INITIAL_DATE=2010-01-20&amp;FINAL_DATE=2011-01-20" method="GET" version="1.1" ></http> </request>
+    
 
   </session>
  </sessions>

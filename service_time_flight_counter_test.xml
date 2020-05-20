@@ -52,13 +52,12 @@
     <for from="1" to="1000" incr="1" var="counter">
       <transaction name="req">
         <thinktime value="0.01"></thinktime>
-        <request> <http url="/transactions?OP_CARRIER_FL_NUM=4669&amp;FL_DATE=2010-01-08" method="GET" version="1.1" ></http> </request>
+        <request> <http url="/flight_counter?ORIGIN_CITY_NAME=Chicago,%20IL&amp;DEST_CITY_NAME=Springfield,%20MO&amp;INITIAL_DATE=2010-01-20&amp;FINAL_DATE=2011-01-20" method="GET" version="1.1" ></http> </request>
       </transaction>
     </for>
 
-    <!-- DIFFERENT WORKLOAD INTENSITIES -->
     <!--
-      <request> <http url="/transactions?OP_CARRIER_FL_NUM=4669&amp;FL_DATE=2010-01-08" method="GET" version="1.1" ></http> </request>
+      <request> <http url="/flight_counter?ORIGIN_CITY_NAME=Chicago,%20IL&amp;DEST_CITY_NAME=Springfield,%20MO&amp;INITIAL_DATE=2010-01-20&amp;FINAL_DATE=2011-01-20" method="GET" version="1.1" ></http> </request>
     -->
 
   </session>
