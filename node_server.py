@@ -8,8 +8,11 @@ import threading
 from flask import Flask, request
 import requests
 import os
+import random
 
 backup_path = "./backup"
+
+CACHE_TOTAL_DIM = 20000000 #dimension in bytes
 
 transaction_fields = {"YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID",
 "OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",
@@ -112,8 +115,8 @@ chain_metadata: [
 class Blockchain:
     # difficulty of our PoW algorithm
     difficulty = 2
-    LAST_CACHE_SIZE = 80000
-    RANDOM_CACHE_SIZE = 80000
+    LAST_CACHE_SIZE = 0
+    RANDOM_CACHE_SIZE = 0
 
     def __init__(self):
         self.unconfirmed_transactions = []
@@ -298,6 +301,8 @@ class Blockchain:
     def set_last_cache(self):
         id = self.chain_metadata[-1]["index"]
         remaining_transactions = min(self.LAST_CACHE_SIZE, self.n_transactions)
+        print("LAST CACHE SIZE ", self.LAST_CACHE_SIZE)
+        print("REMAINING TRANS ", self.n_transactions)
         new_last_cache = {}
         if (remaining_transactions > 0):
             tmp_block = self.read_block_from_backup(id)
@@ -343,11 +348,13 @@ class Blockchain:
         #debug
         print("START RANDOM CACHE SET, id: ", id)
         #
-        remaining_transactions = min(self.RANDOM_CACHE_SIZE, self.n_transactions)
+        remaining_transactions = min(self.RANDOM_CACHE_SIZE, self.n_transactions) #TODO: è corretto?
         new_random_cache = {}
         if (remaining_transactions > 0):
             tmp_block = self.read_block_from_backup(id)
-
+            #debug
+            print("PRIMO IF")
+            #
             #checks block is the same with metadata
             if not self.check_block_with_metadata(tmp_block, id):
                 #debug
@@ -358,12 +365,17 @@ class Blockchain:
             remaining_transactions -= new_random_cache[id].get_block_len()
 
         neighbourhood = 1
-        while (remaining_transactions > 0 and (id-neighbourhood > 0 or id + neighbourhood < len(blockchain.chain_metadata) or id+neighbourhood in self.chain_last_cache)):
+        while (remaining_transactions > 0 and (id-neighbourhood > 0 or id+neighbourhood not in self.chain_last_cache)): #or id + neighbourhood < len(blockchain.chain_metadata)
             previous_id = id-neighbourhood      #block on the left
             next_id = id+neighbourhood          #block on the right
-
+            #debug
+            print("DENTRO WHILE 1")
+            #
             #check if previous_id is valid
             if (previous_id >= 1 and previous_id < len(blockchain.chain_metadata)):
+                #debug
+                print("DENTRO IF PREVIOUS")
+                #
                 #check if previous_block is already stored in random_cache (recycle it, don't need to read from disk)
                 if (previous_id in self.chain_random_cache):
                     new_random_cache[previous_id] = self.chain_random_cache[previous_id]
@@ -382,6 +394,9 @@ class Blockchain:
 
             #check if next_id is valid
             if (next_id >= 1 and next_id < len(blockchain.chain_metadata)):
+                #debug
+                print("DENTRO IF NEXT")
+                #
                 #check if next_block is already stored in random_cache (recycle it, don't need to read from disk)
                 if (next_id in self.chain_random_cache):
                     new_random_cache[next_id] = self.chain_random_cache[next_id]
@@ -410,6 +425,10 @@ class Blockchain:
         remaining_transactions = min(self.RANDOM_CACHE_SIZE, self.n_transactions)
         new_random_cache = {}
         if ( remaining_transactions > 0):
+
+            #debug
+            #print("Sto leggendo blocco ", id, " dal backup!")
+            #
             tmp_block = self.read_block_from_backup(id)
 
             #checks block is the same with metadata
@@ -426,40 +445,43 @@ class Blockchain:
             #maybe useless check into the if
             #check if next_id is valid
             #debug
-            print("next_id: ", next_id, "remaining_transactions: ", remaining_transactions)
+            #print("next_id: ", next_id, "remaining_transactions: ", remaining_transactions)
             #
             if (next_id >= 1 and next_id < len(blockchain.chain_metadata)):
                 #check if previous_block is already stored in random_cache (recycle it, don't need to read from disk)
                 if (next_id in self.chain_random_cache):
                     new_random_cache[next_id] = self.chain_random_cache[next_id]
                     #debug
-                    print("THEN, block_id: ", next_id, "; block_sixe: ", new_random_cache[next_id].get_block_len())
+                    #print("THEN, block_id: ", next_id, "; block_sixe: ", new_random_cache[next_id].get_block_len())
                     #
                     remaining_transactions -= new_random_cache[next_id].get_block_len()
                 #check if previous_block is already stored in last_cache, if yes, change direction
                 elif (next_id in self.chain_last_cache):
                     step = -1
                     step_direction = -1
-                    print("ELIF, step: ", step, "; step_direction: ", step_direction)
+                    #print("ELIF, step: ", step, "; step_direction: ", step_direction)
                 else:
                     #read block from disk
+                    #debug
+                    #print("Sto leggendo blocco ", next_id, " dal backup!")
+                    #
                     tmp_block = self.read_block_from_backup(next_id)
                     #checks block is the same with metadata
                     if not self.check_block_with_metadata(tmp_block, next_id):
                         return False
                     new_random_cache[next_id] = tmp_block
                     #debug
-                    print("ELSE, block_id: ", next_id,"; block_sixe: ", new_random_cache[next_id].get_block_len())
+                    #print("ELSE, block_id: ", next_id,"; block_sixe: ", new_random_cache[next_id].get_block_len())
                     #
                     remaining_transactions -= new_random_cache[next_id].get_block_len()
             #debug
-            print("step: ", step, "; step_direction: ", step_direction)
+            #print("step: ", step, "; step_direction: ", step_direction)
             #
             step += step_direction
         self.chain_random_cache = new_random_cache
         #debug
-        print("END RANDOM CACHE SET, id: ", id)
-        print(list(self.chain_random_cache.keys()))
+        #print("END RANDOM CACHE SET, id: ", id)
+        #print(list(self.chain_random_cache.keys()))
         #
         return True
 
@@ -484,8 +506,8 @@ class Blockchain:
         if (id in self.chain_random_cache):
             #get the block from the cache
             #debug
-            print("RANDOM CACHED BLOCKS1")
-            print(list(self.chain_random_cache.keys()))
+            #print("RANDOM CACHED BLOCKS1")
+            #print(list(self.chain_random_cache.keys()))
             #
             return self.chain_random_cache[id]
 
@@ -493,8 +515,8 @@ class Blockchain:
         if (self.RANDOM_CACHE_SIZE > 0):
             self.set_random_cache(id)
             #debug
-            print("RANDOM CACHED BLOCKS2")
-            print(list(self.chain_random_cache.keys()))
+            #print("RANDOM CACHED BLOCKS2")
+            #print(list(self.chain_random_cache.keys()))
             #
             return self.chain_random_cache[id]
         else:
@@ -546,6 +568,17 @@ class Blockchain:
         #print(backup)
         #
         #build metadata
+
+        block_dim = os.stat(backup_path + "/" + str(1)).st_size
+        self.LAST_CACHE_SIZE = (CACHE_TOTAL_DIM//2)//(block_dim//1000)
+        self.RANDOM_CACHE_SIZE = self.LAST_CACHE_SIZE
+        #self.LAST_CACHE_SIZE = 0
+        #self.RANDOM_CACHE_SIZE = self.LAST_CACHE_SIZE
+        #debug
+        print("LAST CHACHE SIZE ", self.LAST_CACHE_SIZE)
+        print("LAST CHACHE SIZE EFF DIM ", self.LAST_CACHE_SIZE * (block_dim//1000))
+        #
+
         for n in backup:
             #parse json from file
             tmp_block = self.read_block_from_backup(n)
@@ -657,12 +690,12 @@ def get_chain():
     #print("Blockchain SIZE")
     #print(len(blockchain.chain))
     #
-    set_random_cache_from(1)
+    blockchain.set_random_cache_from(1)
     for block_metadata in blockchain.chain_metadata:
 
         #controlla che il blocco sia nella cache, in caso contrario setta la cache a partire da quel blocco
         if (not blockchain.check_block_in_cache(block_metadata["index"]) ):
-            set_random_cache_from(block_metadata["index"])
+            blockchain.set_random_cache_from(block_metadata["index"])
 
         block = blockchain.get_block(block_metadata["index"])
         block_to_add = block.__dict__.copy()
@@ -911,10 +944,17 @@ def count_flights_from_A_to_B():
     destination = request.args.get("DEST_CITY_NAME")
     initial_date = request.args.get('INITIAL_DATE')
     final_date = request.args.get('FINAL_DATE')
-    print(initial_date)
-    print(final_date)
-    print(origin)
-    print(destination)
+    #debug
+    #print(initial_date)
+    #print(final_date)
+    #print(origin)
+    #print(destination)
+    #
+
+    rand_var = random.randint(0, 1000)
+    #debug
+    #print("SONO IN FLIGHT ", rand_var)
+    #
 
     filtered_flights_counter = 0
 
@@ -930,10 +970,17 @@ def count_flights_from_A_to_B():
         for flight in block.transactions:
 
             if 'ORIGIN_CITY_NAME' not in flight.__dict__.keys():
-                print(flight.__dict__)
+                #debug
+                #print(flight.__dict__)
+                #
+                "ciao"
             else:
                 if flight.__dict__['ORIGIN_CITY_NAME'] == origin and flight.__dict__['DEST_CITY_NAME'] == destination and flight.__dict__["FL_DATE"] >= initial_date and flight.__dict__["FL_DATE"] <= final_date:
                     filtered_flights_counter += 1
+
+    #debug
+    print("SONO IN FLIGHT END", rand_var)
+    #
 
     return {"filtered_flights_counter" : filtered_flights_counter}
 
@@ -1110,7 +1157,7 @@ def start_runner():
     thread.start()
 
 start_runner()
-app.run(debug=False, port=8000)
+app.run(debug=False, port=8000, threaded=False)
 
 
 
