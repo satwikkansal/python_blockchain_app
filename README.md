@@ -94,4 +94,4 @@ $ curl -X GET http://localhost:8001/chain
 $ curl -X GET http://localhost:8002/chain
 ```
 
-*PS: Take help from developers like me on Codementor (for free 10$ credits, use [this link](https://www.codementor.io/?partner=satwikkansal).*
+*PS: Take help from developers like me on Codementor (for free 10$ credits, use [this link](https://www.codementor.io/?partner=satwikkansal)).*
