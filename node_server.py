@@ -529,8 +529,14 @@ class Blockchain:
 
     #read a block from file
     def read_block_from_backup(self, id):
+        
+        #start time
+
         tmp_file = open(backup_path + '/' + str(id), 'r')
         tmp_json = tmp_file.read()
+
+        #close file, and calculate time
+
         tmp_dict = json.loads(tmp_json)
 
         #create transactions objects
@@ -546,6 +552,9 @@ class Blockchain:
         #create block object
         tmp_block = Block(0,0,0,0,0)
         tmp_block.__dict__ = tmp_dict
+
+        #end time
+
         return tmp_block
 
 
