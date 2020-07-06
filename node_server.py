@@ -9,10 +9,11 @@ from flask import Flask, request
 import requests
 import os
 import random
+from flask_caching import Cache
 
-backup_path = "./backup"
+backup_path = "/media/davide/HD 1TB davide/backup"
 
-CACHE_TOTAL_DIM = 20000000 #dimension in bytes
+CACHE_TOTAL_DIM = 0#20000000 #dimension in bytes
 
 transaction_fields = {"YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID",
 "OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",
@@ -115,8 +116,8 @@ chain_metadata: [
 class Blockchain:
     # difficulty of our PoW algorithm
     difficulty = 2
-    LAST_CACHE_SIZE = 0
-    RANDOM_CACHE_SIZE = 0
+    LAST_CACHE_SIZE = 1
+    RANDOM_CACHE_SIZE = 521000
 
     def __init__(self):
         self.unconfirmed_transactions = []
@@ -351,7 +352,11 @@ class Blockchain:
         remaining_transactions = min(self.RANDOM_CACHE_SIZE, self.n_transactions) #TODO: è corretto?
         new_random_cache = {}
         if (remaining_transactions > 0):
-            tmp_block = self.read_block_from_backup(id)
+
+            if (id in self.chain_random_cache):
+                tmp_block = self.chain_random_cache[id]
+            else:
+                tmp_block = self.read_block_from_backup(id)
             #debug
             print("PRIMO IF")
             #
@@ -429,11 +434,14 @@ class Blockchain:
             #debug
             #print("Sto leggendo blocco ", id, " dal backup!")
             #
-            tmp_block = self.read_block_from_backup(id)
+            if (id in self.chain_random_cache):
+                tmp_block = self.chain_random_cache[id]
+            else:
+                tmp_block = self.read_block_from_backup(id)
+                #checks block is the same with metadata
+                if not self.check_block_with_metadata(tmp_block, id):
+                    return False
 
-            #checks block is the same with metadata
-            if not self.check_block_with_metadata(tmp_block, id):
-                return False
             new_random_cache[id] = tmp_block
             remaining_transactions -= new_random_cache[id].get_block_len()
 
@@ -529,32 +537,30 @@ class Blockchain:
 
     #read a block from file
     def read_block_from_backup(self, id):
-        
-        #start time
-
-        tmp_file = open(backup_path + '/' + str(id), 'r')
+        prev_time = time.time()
+        tmp_file = open(backup_path + '/' + str(id), 'r', os.O_DIRECT)
         tmp_json = tmp_file.read()
-
-        #close file, and calculate time
-
+        print("HDD SERVICE TIME(" + str(id) + "): ", time.time()-prev_time, '\n')
         tmp_dict = json.loads(tmp_json)
 
         #create transactions objects
         for i in range(0, len(tmp_dict["transactions"])):
             tmp_trans = Transaction(tmp_dict["transactions"][i])
             tmp_dict["transactions"][i] = tmp_trans
-        #debug
 
+        #debug
         #print("TMP_DICT")
-        #print(tmp_dict)
+        #print(tmp_dict["hash"])
         #
 
         #create block object
         tmp_block = Block(0,0,0,0,0)
         tmp_block.__dict__ = tmp_dict
-
-        #end time
-
+        #debug
+        #print("TMP_DICT2")
+        #print(tmp_block.__dict__["hash"])
+        #print(tmp_block.hash)
+        #
         return tmp_block
 
 
@@ -579,6 +585,7 @@ class Blockchain:
         #build metadata
 
         block_dim = os.stat(backup_path + "/" + str(1)).st_size
+        #cache size set AAA
         self.LAST_CACHE_SIZE = (CACHE_TOTAL_DIM//2)//(block_dim//1000)
         self.RANDOM_CACHE_SIZE = self.LAST_CACHE_SIZE
         #self.LAST_CACHE_SIZE = 0
@@ -597,6 +604,7 @@ class Blockchain:
             if (not self.is_valid_proof(tmp_block, tmp_proof)):
                 return False
             #block metadata
+
             self.chain_metadata.append({
                 "index": tmp_block.index,
                 "block_size": tmp_block.get_block_len(),
@@ -628,7 +636,10 @@ class Blockchain:
 
 
 
+cache = Cache(config={'CACHE_TYPE': 'null'})
+
 app = Flask(__name__)
+cache.init_app(app)
 
 # the node's copy of blockchain
 blockchain = Blockchain()
@@ -970,6 +981,9 @@ def count_flights_from_A_to_B():
     #initialize cache from the beginning of the chain
     blockchain.set_random_cache_from(1)
     for i in range(1, blockchain.get_chain_length()):
+        #debug
+        #print("Nth BLOCK: ", i)
+        #
         # shift the cache forward
         if (not blockchain.check_block_in_cache(i)):
             blockchain.set_random_cache_from(i)
@@ -991,7 +1005,7 @@ def count_flights_from_A_to_B():
     print("SONO IN FLIGHT END", rand_var)
     #
 
-    return {"filtered_flights_counter" : filtered_flights_counter}
+    return json.dumps({"filtered_flights_counter" : filtered_flights_counter})
 
 
 
@@ -1166,13 +1180,5 @@ def start_runner():
     thread.start()
 
 start_runner()
+#print("AAAAAAAAAAAAAAAA ", app.config["CACHE_TYPE"])
 app.run(debug=False, port=8000, threaded=False)
-
-
-
-
-
-
-
-
-
