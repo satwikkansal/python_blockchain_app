@@ -1,0 +1,19 @@
+1) utilizzare raspberry per ospitare il server, fare i benchmark? La scheda sd integrata conta come disco? -> SI
+
+2) 15 test da 30 minuti, servono? -> Se il carico è basso probabilmente ne servono pochi, se il carico è alto probabilmente ne servono molti affinchè dal grafico emerga che molte richieste sono state fatte con il server in comportamento stazionario
+
+3) come vedere le prestazioni del disco -> iostat -d -x -p nvme0n1 -> disattivare cache di flask, chiedere alla google e UTILIZZARE HARD DISK
+
+4) endpoint da selezionare -> quali endpoint esplorare? -> se ne può utilizzare uno solo, utilizzarne di più per fare i fighi per mostrare esperimenti con differenti classi
+
+5) su quale server fare i test? -> frontend o backend? -> lo stesso, basta essere precisi negli scopi degli esperimenti
+
+6) eventuale domanda su mg1/mg1ps -> si vede che varianza m/g/1 migliore di quella dell'esponenziale
+
+
+COME MISURARE VARIANZA service time:
+
+0) sistemare il raspberry
+1) utilizzare file perl e stats per vedere dove calcola la media e aggiungere la varianza
+2) fare 30 richieste al volo e prendersi la varianza 
+3) fitting di curve -> non ci ho capito na fava

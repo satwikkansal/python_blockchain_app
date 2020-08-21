@@ -1,0 +1,41 @@
+workload_tests_08L.xml
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0334
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+[os_mon] memory supervisor port (memsup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0401
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+[os_mon] memory supervisor port (memsup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0431
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+[os_mon] memory supervisor port (memsup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0501
+[os_mon] memory supervisor port (memsup): Erlang has closed
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0532
+[os_mon] memory supervisor port (memsup): Erlang has closed
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0600
+[os_mon] memory supervisor port (memsup): Erlang has closed
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0630
+[os_mon] memory supervisor port (memsup): Erlang has closed
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0701
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+[os_mon] memory supervisor port (memsup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0732
+[os_mon] memory supervisor port (memsup): Erlang has closed
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+Starting Tsung
+Log directory is: /home/lorenzo/.tsung/log/20200525-0801
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+[os_mon] memory supervisor port (memsup): Erlang has closed

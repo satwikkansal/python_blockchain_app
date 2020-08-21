@@ -11,9 +11,9 @@ import os
 import random
 from flask_caching import Cache
 
-backup_path = "/media/davide/HD 1TB davide/backup"
+backup_path = "/mnt/HD1TB/backup"
 
-CACHE_TOTAL_DIM = 0#20000000 #dimension in bytes
+CACHE_TOTAL_DIM = 20000000 #dimension in bytes
 
 transaction_fields = {"YEAR", "DAY_OF_WEEK", "FL_DATE", "OP_CARRIER_AIRLINE_ID",
 "OP_CARRIER_FL_NUM", "ORIGIN_AIRPORT_ID", "ORIGIN", "ORIGIN_CITY_NAME", "ORIGIN_STATE_NM", "DEST_AIRPORT_ID",
@@ -116,9 +116,11 @@ chain_metadata: [
 class Blockchain:
     # difficulty of our PoW algorithm
     difficulty = 2
-    LAST_CACHE_SIZE = 1
-    RANDOM_CACHE_SIZE = 521000
-
+    #LAST_CACHE_SIZE = 1
+    #RANDOM_CACHE_SIZE = 521000
+    LAST_CACHE_SIZE = 0
+    RANDOM_CACHE_SIZE = 0
+    
     def __init__(self):
         self.unconfirmed_transactions = []
         self.chain_metadata = []
@@ -306,8 +308,9 @@ class Blockchain:
         print("REMAINING TRANS ", self.n_transactions)
         new_last_cache = {}
         if (remaining_transactions > 0):
+            prev_time = time.time()
             tmp_block = self.read_block_from_backup(id)
-
+            print("HDD SERVICE TIME(" + str(id) + "): ", time.time()-prev_time)
             #checks block is the same with metadata
             if not self.check_block_with_metadata(tmp_block, id):
                 return False
@@ -330,7 +333,9 @@ class Blockchain:
                     remaining_transactions -= new_last_cache[previous_id].get_block_len()
                 else:
                     #read block from disk
+                    prev_time = time.time()
                     tmp_block = self.read_block_from_backup(previous_id)
+                    print("HDD SERVICE TIME(" + str(previous_id) + "): ", time.time()-prev_time)
                     #checks block is the same with metadata
                     if not self.check_block_with_metadata(tmp_block, previous_id):
                         return False
@@ -356,7 +361,9 @@ class Blockchain:
             if (id in self.chain_random_cache):
                 tmp_block = self.chain_random_cache[id]
             else:
+                prev_time = time.time()
                 tmp_block = self.read_block_from_backup(id)
+                print("HDD SERVICE TIME(" + str(id) + "): ", time.time()-prev_time)
             #debug
             print("PRIMO IF")
             #
@@ -387,7 +394,9 @@ class Blockchain:
                     remaining_transactions -= new_random_cache[previous_id].get_block_len()
                 elif (not(previous_id in self.chain_last_cache)):                        #if previous_block is in last_cache, ignore it
                     #read block from disk
+                    prev_time = time.time()
                     tmp_block = self.read_block_from_backup(previous_id)
+                    print("HDD SERVICE TIME(" + str(previous_id) + "): ", time.time()-prev_time)
                     #check block is the same with metadata
                     if not self.check_block_with_metadata(tmp_block, previous_id):
                         #debug
@@ -408,7 +417,9 @@ class Blockchain:
                     remaining_transactions -= new_random_cache[next_id].get_block_len()
                 elif (not(next_id in self.chain_last_cache)):                        #if next_block is in last_cache, ignore it
                     #read block from disk
+                    prev_time = time.time()
                     tmp_block = self.read_block_from_backup(next_id)
+                    print("HDD SERVICE TIME(" + str(next_id) + "): ", time.time()-prev_time)
                     #check block is the same with metadata
                     if not self.check_block_with_metadata(tmp_block, next_id):
                         #debug
@@ -437,11 +448,13 @@ class Blockchain:
             if (id in self.chain_random_cache):
                 tmp_block = self.chain_random_cache[id]
             else:
-                tmp_block = self.read_block_from_backup(id)
+                prev_time = time.time()
+                tmp_block = self.read_block_from_backup(id)            
+                print("HDD SERVICE TIME(" + str(id) + "): ", time.time()-prev_time)
                 #checks block is the same with metadata
                 if not self.check_block_with_metadata(tmp_block, id):
                     return False
-
+            
             new_random_cache[id] = tmp_block
             remaining_transactions -= new_random_cache[id].get_block_len()
 
@@ -473,7 +486,9 @@ class Blockchain:
                     #debug
                     #print("Sto leggendo blocco ", next_id, " dal backup!")
                     #
+                    prev_time = time.time()
                     tmp_block = self.read_block_from_backup(next_id)
+                    print("HDD SERVICE TIME(" + str(next_id) + "): ", time.time()-prev_time)
                     #checks block is the same with metadata
                     if not self.check_block_with_metadata(tmp_block, next_id):
                         return False
@@ -529,7 +544,9 @@ class Blockchain:
             return self.chain_random_cache[id]
         else:
             #read block from disk
+            prev_time = time.time()
             tmp_block = self.read_block_from_backup(id)
+            print("HDD SERVICE TIME(" + str(id) + "): ", time.time()-prev_time)
             #checks block is the same with metadata
             if not self.check_block_with_metadata(tmp_block, id):
                 return False
@@ -540,14 +557,14 @@ class Blockchain:
         prev_time = time.time()
         tmp_file = open(backup_path + '/' + str(id), 'r', os.O_DIRECT)
         tmp_json = tmp_file.read()
-        print("HDD SERVICE TIME(" + str(id) + "): ", time.time()-prev_time, '\n')
+        print("HDD EFFECTIVE SERVICE TIME(" + str(id) + "): ", time.time()-prev_time, '\n')
         tmp_dict = json.loads(tmp_json)
 
         #create transactions objects
         for i in range(0, len(tmp_dict["transactions"])):
             tmp_trans = Transaction(tmp_dict["transactions"][i])
             tmp_dict["transactions"][i] = tmp_trans
-
+        
         #debug
         #print("TMP_DICT")
         #print(tmp_dict["hash"])
@@ -597,14 +614,16 @@ class Blockchain:
 
         for n in backup:
             #parse json from file
+            prev_time = time.time()
             tmp_block = self.read_block_from_backup(n)
+            print("HDD SERVICE TIME(" + str(n) + "): ", time.time()-prev_time)
             tmp_proof = tmp_block.__dict__["hash"]
             del tmp_block.__dict__["hash"]
             #block validation
             if (not self.is_valid_proof(tmp_block, tmp_proof)):
                 return False
             #block metadata
-
+            
             self.chain_metadata.append({
                 "index": tmp_block.index,
                 "block_size": tmp_block.get_block_len(),
@@ -1182,3 +1201,12 @@ def start_runner():
 start_runner()
 #print("AAAAAAAAAAAAAAAA ", app.config["CACHE_TYPE"])
 app.run(debug=False, port=8000, threaded=False)
+
+
+
+
+
+
+
+
+
