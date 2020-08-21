@@ -15,6 +15,7 @@ The application runs on a Raspberry Pi4b, that has this specifications:
 
 The backend of the web application is developed with Flask, and uses local files to store the blocks of the blockchain in the disk. During the execution the program takes advantage of a cache, that has a size of 20 MB, to improve the performances.
 
+<TODO explain caching>
 
 The application uses the blockchain to manage a database of flying statistics, where each flyght information is a transaction, so the application allow to:
 - add a new transactions;
@@ -34,7 +35,7 @@ The blockchain is a single peer and the requests are served by the application a
 
 In order to measure the performance indices of our application, we use Tsung benchmark tool. Both the application and the tsung monitor run on the same Raspberry machine, but even if they are in the same machine, the tsung monitor does not require too much resources and the Raspberry only runs this two programs, so its performance are not compromised.
 
-### Service time and variance
+## Service time and variance
 
 If we imagine the system as a monolithic queue, we can measure its service time and variance. To perform this test, we assume to have a closed sistem with only one customer. The customer sends repeadetly the same request at the flight_counter enpoint of the server with a small delay, 0.01 s, between each request.
 
@@ -48,7 +49,7 @@ The mean service time obtained is averaged over 15 runs of 30 minutes and the va
 
 For each benchmark, since the task requires to use a query and each query iterates over all the blockchain and makes a tiny amount of computation for each block, the theoretical and empirical behaviour of the system is the same independently of the particular request sent, so we decided to use the flight_counter query.
 
-### Workload tests
+## Workload tests
 
 In this section, we deal with an open system and we perform 4 tests with different workload intensities: 0.3L, 0.5L, 0.8L, 0.85L, where L is the maximum arrival rate determined from the expected service time estimated in the previous section.
 
@@ -90,6 +91,15 @@ In this test, an M/G/1 system is better than a M/G/1/PS because the variance of 
 
 <TODO add graphs and n of jobs>
 
-### Queueing network model
+## Queueing network model
+
+In this section, we propose a queueing network model of our application, composed by 4 stations:
+- TERMINAL: station that models the thinking time of the network, equal to 5 seconds;
+- CPU: station that models the processor, that has a service rate equal to 1/0,0008;
+- DISK: station that models the disk, that has a service rate equal to 1/0,046;
+- DELAY STATION: station that models the additional computation time that the system intoduce each time a block is read from the disk (fetch and integrity checks), and has a service rate equal to 1/0,039.
 
 <img src="qn_model.png" width="500"/>
+
+We obtained the serice rate of the CPU by running a tsung test with all the blocks of the blockchain loaded in the cache, so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we ran a test while using a python profiler named "cProfile" that provide the execution time of the different program functions.
+
