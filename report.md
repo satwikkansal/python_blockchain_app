@@ -103,3 +103,17 @@ In this section, we propose a queueing network model of our application, compose
 
 We obtained the serice rate of the CPU by running a tsung test with all the blocks of the blockchain loaded in the cache, so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we ran a test while using a python profiler named "cProfile" that provide the execution time of the different program functions.
 
+The routing of the system is deterministic, each time a starting request arrives to the CPU, the CPU sets the "random" cache by forwarding the request to the disk and the delay station. In the subsystem composed by disk and delay station, the request iterates for each block that is read and added to the cache, so, since the cache size is 19 blocks, the request goes back from the delay station to the disk 18 times, and then goes back to the CPU.
+
+After the cache was set, the CPU consumes the blocks in the cache by iterating on itself for each block. When all the 19 blocks of the cache has been processed by the CPU, the request goes again to the disk for replenishing the cache with the next 19 blocks, and so on and so forth. The last 19 blocks are not read from the disk because they are already in the "last" cache.
+
+Only when all blocks of the blockchain are consumed by the CPU the request goes back to the terminal.
+
+To simplify the analysis of the system by using a queueing network, we decided to approximate the deterministic routing with a probablistic one, so we get:
+- p1 = 1/523, the CPU recives 523 (TODO check this number) request and only at the end goes back to the terminal;
+- p2 = 1 - p1 - p3 = 0.9465, probablity of a cache hit;
+- p3 = 27/523 = 0,0516, probablilty of a cache miss (# of cache replenishing / # of blocks);
+- p4 = 1/19, the cycle disk-delay station iterates 19 times before going back to the CPU;
+- p5 = 1 - p4 = 18/19;
+
+The probablilistic routing for p4 and p5 are approximated because the 27th replenish of the random cache loads into the cache the blocks with ID 495-503 (the remaining blocks are already in the last cache). The remaining 10 places in the random cache are taken by the blocks 485-494 that are already in the cache from the previous cycle. Anyway, in our model we assume that the last cycle loads 19 blocks in the cache all from the disk (like all the other cycles).
