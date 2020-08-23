@@ -71,7 +71,7 @@ where E[W] is the mean waiting time, and corresponds to
 
 $$ E[W] =  \frac{ρ + λμσ^2}{2(μ − λ)} $$
 
-where μ is the expected service rate, σ^2 is second moment of the service time distribution, λ the arrival rate and ρ is equal to λ/μ.
+where μ is the expected service rate, $σ^2$ is second moment of the service time distribution, λ the arrival rate and ρ is equal to $\frac{λ}{μ}$.
 
 For M/G/1/PS queueing system, the expected response time is given by
 
@@ -95,9 +95,9 @@ In this test, an M/G/1 system is better than a M/G/1/PS because the variance of 
 
 In this section, we propose a queueing network model of our application, composed by 4 stations:
 - TERMINAL: station that models the thinking time of the network, equal to 5 seconds;
-- CPU: station that models the processor, that has a service rate equal to 1/0,0008;
-- DISK: station that models the disk, that has a service rate equal to 1/0,046;
-- DELAY STATION: station that models the additional computation time that the system intoduce each time a block is read from the disk (fetch and integrity checks), and has a service rate equal to 1/0,039.
+- CPU: station that models the processor, that has a service rate equal to $\frac{1}{0.0008}$;
+- DISK: station that models the disk, that has a service rate equal to $\frac{1}{0.046}$;
+- DELAY STATION: station that models the additional computation time that the system intoduce each time a block is read from the disk (fetch and integrity checks), and has a service rate equal to $\frac{1}{0.039}$.
 
 <img src="qn_model.png" width="500"/>
 
@@ -110,10 +110,63 @@ After the cache was set, the CPU consumes the blocks in the cache by iterating o
 Only when all blocks of the blockchain are consumed by the CPU the request goes back to the terminal.
 
 To simplify the analysis of the system by using a queueing network, we decided to approximate the deterministic routing with a probablistic one, so we get:
-- p1 = 1/523, the CPU recives 523 (TODO check this number) request and only at the end goes back to the terminal;
-- p2 = 1 - p1 - p3 = 0.9465, probablity of a cache hit;
-- p3 = 27/523 = 0,0516, probablilty of a cache miss (# of cache replenishing / # of blocks);
-- p4 = 1/19, the cycle disk-delay station iterates 19 times before going back to the CPU;
-- p5 = 1 - p4 = 18/19;
+- $p_1$ = 1/523, the CPU recives 523 (TODO check this number) request and only at the end goes back to the terminal;
+- $p_2$ = 1 - $p_1$ - $p_3$ = 0.9465, probablity of a cache hit;
+- $p_3$ = $\frac{27}{523}$ = 0,0516, probablilty of a cache miss (# of cache replenishing / # of blocks);
+- $p_4$ = $\frac{1}{19}$, the cycle disk-delay station iterates 19 times before going back to the CPU;
+- $p_5$ = 1 - $p_4$ = $\frac{18}{19}$;
 
-The probablilistic routing for p4 and p5 are approximated because the 27th replenish of the random cache loads into the cache the blocks with ID 495-503 (the remaining blocks are already in the last cache). The remaining 10 places in the random cache are taken by the blocks 485-494 that are already in the cache from the previous cycle. Anyway, in our model we assume that the last cycle loads 19 blocks in the cache all from the disk (like all the other cycles).
+The probablilistic routing for $p_4$ and $p_5$ are approximated because the 27th replenish of the random cache loads into the cache the blocks with ID 495-503 (the remaining blocks are already in the last cache). The remaining 10 places in the random cache are taken by the blocks 485-494 that are already in the cache from the previous cycle. Anyway, in our model we assume that the last cycle loads 19 blocks in the cache all from the disk (like all the other cycles).
+
+## Bottleneck and level of multiprogramming
+
+Given our model, we have to find in the first place the traffic equations of the system, that gives us the relative visit ratios of the stations with the respect to the reference station. From that, by knowing the expected service time of the stations, we can compute the service demand. The bottleneck of the system will be the station with the higher service demand.
+
+The system of traffic equations is:
+
+$$
+\begin{cases}
+    V_1 = V_2 p_1 \\
+    V_2 = V_2 p_2 + V_4 p_4 + V_1 \\
+    V_3 = V_2 p_3 + V_4 p_5 \\
+    V_4 = V_3
+\end{cases}
+$$
+
+and if we fix $V_1$ equal to 1, we get the relative visit ratios:
+
+$$
+\begin{cases}
+    V_1 = 1 \\
+    V_2 = 523 \\
+    V_3 = 513 \\
+    V_4 = 513
+\end{cases}
+$$
+
+Now we can compute the serice demand (of all the stations, except the terminal) in the form 
+
+$$ \bar{D}_i = V_i \frac{1}{\mu_i} $$
+
+so we get:
+
+$$
+\bar{D}_2 = 0.422 \\
+\bar{D}_3 = 24 \\
+\bar{D}_4 = 20
+$$
+
+From this results, we can notice that the bottleneck of the system is the disk station, because is has the higher service demand. This result was expected, because the disk is the component of the system with the worst performance indices, and all stations has similar numbers of visits.
+
+In order to complete the operational analysis, we have to find the maximum level of multiprogramming of the system. Since our system is a closed interactive system, we know the following bounds on the stationary throughput and the expected response time of the system
+
+$$ X \leq \min\left(\frac{N}{\bar{D} + \bar{Z}}, \frac{1}{\bar{D}_b}\right) \\
+\bar{R} \geq \max \left( \bar{D}, N \bar{D}_b - \bar{Z} \right) $$
+
+where N is the number of jobs, $\bar{D}$ is the sum of all the service demands, except the reference station, $\bar{D}_b$ is the service demand of the bottleneck, and $\bar{Z}$ is the thinking time.
+
+These bounds rapresent asynptotes of the two performance measure. As we will see in the next section, the optimal level of multiprogramming is the number of jobs characterizing the intersection point of the two asynptots and can be obtained by 
+
+$$ N_{opt} = \frac{\bar{Z} + \bar{D}}{\bar{D}_b} \approx \frac{5 + 44.422}{24} \approx 2 $$
+
+## JMT
