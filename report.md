@@ -44,7 +44,8 @@ The mean service time obtained is averaged over 15 runs of 30 minutes and the va
 | Request | Mean Service Time | Variance |
 |---|---|---|
 | flight_counter | 40.49938 s | 1.38635 s |
-
+| average_delays | 41.67625 s |  |
+| transactions |||
 <TODO add other queries>
 
 For each benchmark, since the task requires to use a query and each query iterates over all the blockchain and makes a tiny amount of computation for each block, the theoretical and empirical behaviour of the system is the same independently of the particular request sent, so we decided to use the flight_counter query.
@@ -98,7 +99,7 @@ In this section, we propose a queueing network model of our application, compose
 - CPU: a station that models the processor, that has a service rate equal to $\frac{1}{0.0008}$;
 - DISK: a station that models the disk, that has a service rate equal to $\frac{1}{0.046}$;
 - DELAY STATION: a station that models the additional computation time that the system introduces each time a block is read from the disk (fetch and integrity checks), and has a service rate equal to $\frac{1}{0.039}$.
-
+  
 <img src="qn_model.png" width="500"/>
 
 We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we ran a test while using a python profiler named "cProfile" that provide the execution time of the different program functions.
@@ -170,3 +171,17 @@ These bounds represent asymptotes of the two performance measure. As we will see
 $$ N_{opt} = \frac{\bar{Z} + \bar{D}}{\bar{D}_b} \approx \frac{5 + 44.422}{24} \approx 2 $$
 
 ## JMT
+
+In the last part of our analysis, we used JMT to performe the MVA analysis on our queueing network model to find the average performance indices. 
+
+We parametrized the MVA with our service times and visits ratios, and we obtained a model with this values:
+
+<img src="jmt_data.jpg" width="300"/>
+
+Notice that the service demands calculated by JMT are very similar to the ones obtained from the experiment.
+
+Now we can take a look to the utilization of the stations of our model, i.e., CPU (blue), disk (green) and delay station (black).
+
+<img src="utilization_graph.jpg" width="500"/>
+
+By looking to this graph we can notice, as expected from the previous analysis on the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utlization of the bottlenack starts to become critical after 2 customers in the system.
