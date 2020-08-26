@@ -25,7 +25,7 @@ The application uses the blockchain to manage a database of flying statistics, w
 <TODO aggiungere immagini frontend>
 
 Then, we added specific endpoint for different operations to benchmark later:
-- transactions: query the status of a flight given OP_CARRIER_FL_NUM and the DATE;
+- filter_transactions: query the status of a flight given OP_CARRIER_FL_NUM and the DATE;
 - average_delays: query the average delay of a flight carrier in a certain interval of time;
 - flight_counter: given a pair of cities A and B, and a time interval, count the number of flights connecting city A to city B.
 
@@ -43,9 +43,9 @@ The mean service time obtained is averaged over 15 runs of 30 minutes and the va
 
 | Request | Mean Service Time | Variance |
 |---|---|---|
-| flight_counter | 40.49938 s | 1.38635 s |
-| average_delays | 41.67625 s |  |
-| transactions |||
+| flight_counter | 40.49938 s | 1.38635 |
+| average_delays | 41.67625 s | 1,46747 |
+| filter_transactions | 41,565 | 6,52621 |
 <TODO add other queries>
 
 For each benchmark, since the task requires to use a query and each query iterates over all the blockchain and makes a tiny amount of computation for each block, the theoretical and empirical behaviour of the system is the same independently of the particular request sent, so we decided to use the flight_counter query.
@@ -185,3 +185,29 @@ Now we can take a look to the utilization of the stations of our model, i.e., CP
 <img src="utilization_graph.jpg" width="500"/>
 
 By looking to this graph we can notice, as expected from the previous analysis on the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utlization of the bottlenack starts to become critical after 2 customers in the system.
+
+<img src="asymptotes.jpg" width="500"/>
+
+As expected, with a number of customers greater than 2, the throughput grows slowly until it reachs the stable value near to 22, similar to the value of the asymptote given by the bottleneck law
+
+$$
+
+\rho_b = \frac{X_b}{\mu_b} = \frac{X_1 \bar{V}_b}{\mu_b} = X_1 \bar{D}_b < 1 \\
+\rightarrow X < \frac{1}{\bar{D}_b} \approx 0,0417
+
+$$
+
+Then we can find the equation of the second asymptot, given by
+
+$$
+
+X = \frac{N}{\bar{R} + \bar{Z}} \leq \frac{N}{\bar{D} + \bar{Z}}
+ 
+$$
+
+If we look at the intersection of the two asymptotes, we can notice that its abscissa coincides with the $N_{opt}$, i.e., 2.
+
+<img src="throughput.jpg" width="270"/><img src="n_of_customers.jpg" width="270"/><img src="system_response_time.jpg" width="270"/>
+
+From these graphs, we can observe that, while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. Moreover, since the thoughput of the bottleneck reached the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations become constant. The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keep growing.
+
