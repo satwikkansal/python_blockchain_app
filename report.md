@@ -14,15 +14,18 @@ The application runs on a Raspberry Pi4b, that has these specifications:
 - OS: Raspbian 10, 32-bit.
 
 The backend of the web application is developed with Flask and uses local files to store the blocks of the blockchain in the disk. During the execution the program takes advantage of a cache, that has a size of 20 MB, to improve the performances.
-
-<TODO explain caching>
+In particular, we use two types of caches: the "last" cache that keeps the last mined blocks, and the "random" cache that keeps the adjacent blocks of the last requested block. Each cache has the same size (10 MB each), and so it can keep 19 blocks.
 
 The application uses the blockchain to manage a database of flying statistics, where each flight information is a transaction, so the application allows to:
 - add a new transaction;
 - retrieve a transaction based on the transaction id;
 - retrieve all the transactions of a block.
 
-<TODO aggiungere immagini frontend>
+<img src="Frontend-images/Frontend1.png" width="350"/>
+
+<img src="Frontend-images/Frontend3.png" width="350"/>
+
+<img src="Frontend-images/Frontend6.png" width="350"/>
 
 Then, we added specific endpoint for different operations to benchmark later:
 - filter_transactions: query the status of a flight given OP_CARRIER_FL_NUM and the DATE;
@@ -45,8 +48,9 @@ The mean service time obtained is averaged over 15 runs of 30 minutes and the va
 |---|---|---|
 | flight_counter | 40.49938 s | 1.38635 |
 | average_delays | 41.67625 s | 1,46747 |
-| filter_transactions | 41,565 | 6,52621 |
-<TODO add other queries>
+| filter_transactions | 41,565 s | 6,52621 |
+| get_block |  | 0.0349 |
+| get_transaction |  | 0.02117 |
 
 For each benchmark, since the task requires to use a query and each query iterates over all the blockchain and makes a tiny amount of computation for each block, the theoretical and empirical behaviour of the system is the same independently of the particular request sent, so we decided to use the flight_counter query.
 
@@ -111,7 +115,7 @@ After the cache was set, the CPU consumes the blocks in the cache by iterating o
 Only when all blocks of the blockchain are consumed by the CPU the request goes back to the terminal.
 
 To simplify the analysis of the system by using a queueing network, we decided to approximate the deterministic routing with a probablistic one, so we get:
-- $p_1$ = 1/523, the CPU recives 523 (TODO check this number) request and only at the end goes back to the terminal;
+- $p_1$ = 1/523, the CPU recives 523 request and only at the end goes back to the terminal;
 - $p_2$ = 1 - $p_1$ - $p_3$ = 0.9465, probablity of a cache hit;
 - $p_3$ = $\frac{27}{523}$ = 0,0516, probablilty of a cache miss (# of cache replenishing / # of blocks);
 - $p_4$ = $\frac{1}{19}$, the cycle disk-delay station iterates 19 times before going back to the CPU;
