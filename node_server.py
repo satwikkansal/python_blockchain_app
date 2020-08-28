@@ -11,7 +11,7 @@ import os
 import random
 from flask_caching import Cache
 
-backup_path = "/mnt/HD1TB/backup"
+backup_path = "./backup"
 
 CACHE_TOTAL_DIM = 20000000 #dimension in bytes
 
