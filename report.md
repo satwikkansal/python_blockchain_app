@@ -207,7 +207,24 @@ $$
 
 If we look at the intersection of the two asymptotes, we can notice that its abscissa coincides with the $N_{opt}$, i.e., 2.
 
-<img src="throughput.jpg" width="270"/><img src="n_of_customers.jpg" width="270"/><img src="system_response_time.jpg" width="270"/>
+<img src="throughput.jpg" width="270"/><img src="n_of_customers.jpg" width="270"/>
 
-From these graphs, we can observe that, while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. Moreover, since the thoughput of the bottleneck reached the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations become constant. The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keep growing.
+From these graphs, we can observe that, while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. Moreover, since the thoughput of the bottleneck reached the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations become constant. 
 
+<img src="asymptotes_resp_time.jpg" width="500"/>
+
+The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keep growing. As we can see from the picture, the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
+
+$$
+
+\bar{R} \geq \max \left( \bar{D}, N \bar{D}_b - \bar{Z} \right)
+
+$$
+
+In conclusion, the analysis made by JMT confirms the results obtained by our benchmark and our theoretical analysis.
+
+## Conclusions
+
+Thanks to these benchmarks, we can notice that ther response time of our application is quite high, but from the bottleneck analysis we know that the disk is the component that has more impact on the overall perfomance of our system. However, the analysis aloows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in exam.
+
+Before these tests, we thought that our application would have good performance even under heavy load, but the benchmarks showed us the importance of testing the performance and scalability of the application before its release.
