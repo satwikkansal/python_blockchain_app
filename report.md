@@ -107,11 +107,11 @@ In this section, we propose a queueing network model of our application [Fig. 3]
   
 <center> <figure> <img src="qn_model.png" width="500"/> <figcaption> Figure 3: representation of our model</figcaption> </figure> </center>
 
-We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we ran a test while using a python profiler named "cProfile" that provides the execution time of the different program functions.
+We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we ran a test using a python profiler named "cProfile" that provides the execution time of the different program functions.
 
 The routing of the system is deterministic, each time a starting request arrives in the CPU, the CPU sets the "random" cache by forwarding the request to the disk and the delay station. In the subsystem composed by disk and delay station, the request iterates for each block that is read and added to the cache, so, since the cache size is 19 blocks, the request goes back from the delay station to the disk 18 times, and then goes back to the CPU.
 
-After the cache was set, the CPU consumes the blocks in the cache by iterating on itself for each block. When all the 19 blocks of the cache have been processed by the CPU, the request goes again to the disk for replenishing the cache with the next 19 blocks, and so on and so forth. The last 19 blocks are not read from the disk because they are already in the "last" cache.
+After the cache is set, the CPU consumes the blocks in the cache by iterating on itself for each block. When all the 19 blocks of the cache have been processed by the CPU, the request goes again to the disk for replenishing the cache with the next 19 blocks, and so on and so forth. The last 19 blocks are not read from the disk because they are already in the "last" cache.
 
 Only when all blocks of the blockchain are consumed by the CPU the request goes back to the terminal.
 
@@ -189,11 +189,11 @@ Now we can take a look to the utilization of the stations of our model [Fig. 5],
 
 <center> <figure> <img src="utilization_graph.jpg" width="500"/> <figcaption> Figure 5: utilizations of each station </figcaption> </figure> </center>
 
-By looking to this graph we can notice, as expected from the previous analysis on the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utlization of the bottlenack starts to become critical after 2 customers in the system.
+By looking to this graph we can notice, as expected from the previous analysis on the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utilization of the bottleneck starts to become critical after 2 customers in the system.
 
 <center> <figure> <img src="asymptotes.jpg" width="500"/> <figcaption> Figure 6: throughput of the system with its asymptotes  </figcaption> </figure> </center>
 
-As expected, with a number of customers greater than 2, the throughput grows slowly until it reachs the stable value near to 22, similar to the value of the asymptote given by the bottleneck law
+As expected, with a number of customers greater than 2, the throughput grows slowly until it reachs the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law
 
 $$
 
@@ -230,6 +230,7 @@ In conclusion, the analysis made by JMT confirms the results obtained by our ben
 
 ## Conclusions
 
-Thanks to these benchmarks, we can notice that ther response time of our application is quite high, but from the bottleneck analysis we know that the disk is the component that has more impact on the overall perfomance of our system. However, the analysis aloows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in exam.
+Thanks to these benchmarks, we can notice that the response time of our application is quite high, but from the bottleneck analysis we know that the disk is the component that has more impact on the overall perfomance of our system. However, the analysis allows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in exam.
+Notice that, when we improve the performance of the disk station, the delay station become the new bottleneck (beacuse it has a service demand similar to the disk), making the additional improvement to the disk less effective. So, in order to improve the performance of the system, we need also to improve the performance of the delay station, i.e., using a better CPU or/and optimize the encoding of the block to string with an alternative data structure.
 
 Before these tests, we thought that our application would have good performance even under heavy load, but the benchmarks showed us the importance of testing the performance and scalability of the application before its release.
