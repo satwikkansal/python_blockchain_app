@@ -48,7 +48,7 @@ The mean service time obtained is averaged over 15 runs of 30 minutes and the va
 |---|---|---|
 | flight_counter | 40.49938 s | 1.38635 |
 | average_delays | 41.67625 s | 1,46747 |
-| filter_transactions | 41,565 s | 6,52621 |
+| filter_transactions | 41,565 s | 2.20881 |
 | get_block | 1.43812 s | 0.0349 |
 | get_transaction | 1.40188 s | 0.02117 |
 
@@ -95,17 +95,29 @@ $$ E[R] = \frac{1}{μ − λ} $$
 In [Fig. 2] are shown the mean response times of each model when the workload varies. If we look at the results, we can notice that our program and the M/G/1 system perform better than M/G/1/PS system, and at high load, our application performs better than M/G/1.
 In this test, an M/G/1 system is better than an M/G/1/PS because the variance of the service time obtained is lower than the one that we can get from the exponential service time distribution of the M/G/1/PS with the same service rate.
 
-<TODO add graphs and n of jobs>
+<center> <figure> <img src="LoadxWorkload.png" width="400"/> <figcaption> Figure 3: System load average comparison of workload with rate 0.3L and 0.85 </figcaption> <figure> </center>
+
+The graph in [Fig. 3] shows the system load average on two tests with completly different workloads. The test with workload 0.3L has peaks with similar value to ones with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the customers is significantly lower.
+
+<center> <figure> <img src="LoadxUsers-03vs085.png" width="400"/> <figcaption> Figure 4: Number of customer comparison of workload 0.3L-0.85L </figcaption> <figure> </center>
+
+It's interesting also to observe how the number of users in the system changes over time and different workloads. From [Fig. 4], that represents the number of users with the respects to the time in tests with different workloads, emerges that higher the workload higher the number of users in the system. 
+
+<!--Moreover, at high loads, only a small variation of the workload might induce an important improvment of the number of customers, while at lower loads the difference between the number of customers is less significant.-->
+
+<center> <figure> <img src="LoadxRespTime-03vs085.png" width="400"/><figcaption> Figure 5: Transaction duration comparison of workload 0.3L-0.85</figcaption> <figure> </center>
+
+Finally, the comparison between the transaction duration over time in tests with different workloads ([Fig. 5]) confirms the observations explained in the previous paragraph. Infact, the number and duration of the transactions become higher at high load, since the number of jobs in the waiting room increases.
 
 ## Queueing network model
 
-In this section, we propose a queueing network model of our application [Fig. 3], composed of 4 stations:
+In this section, we propose a queueing network model of our application [Fig. 6], composed of 4 stations:
 - TERMINAL: a station that models the thinking time of the network, equal to 5 seconds;
 - CPU: a station that models the processor, that has a service rate equal to $\frac{1}{0.0008}=1250$ j/s;
 - DISK: a station that models the disk, that has a service rate equal to $\frac{1}{0.046}\approx22$ j/s;
 - DELAY STATION: a station that models the additional computation time that the system introduces each time a block is read from the disk (fetch and integrity checks), and has a service rate equal to $\frac{1}{0.039}\approx26$ j/s.
   
-<center> <figure> <img src="qn_model.png" width="500"/> <figcaption> Figure 3: representation of our model</figcaption> </figure> </center>
+<center> <figure> <img src="qn_model.png" width="500"/> <figcaption> Figure 6: representation of our model</figcaption> </figure> </center>
 
 We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we ran a test using a python profiler named "cProfile" that provides the execution time of the different program functions.
 
@@ -179,19 +191,19 @@ $$ N_{opt} = \frac{\bar{Z} + \bar{D}}{\bar{D}_b} \approx \frac{5 + 44.422}{24} \
 
 In the last part of our analysis, we used JMT to performe the MVA analysis on our queueing network model to find the average performance indices. 
 
-We parametrized the MVA with our service times and visits ratios, and we obtained a model with the values in [Fig. 4].
+We parametrized the MVA with our service times and visits ratios, and we obtained a model with the values in [Fig. 7].
 
-<center> <figure> <img src="jmt_data.jpg" width="300"/> <figcaption> Figure 4: JMVA model details </figcaption> </figure> </center>
+<center> <figure> <img src="jmt_data.jpg" width="300"/> <figcaption> Figure 7: JMVA model details </figcaption> </figure> </center>
 
 Notice that the service demands calculated by JMT are very similar to the ones obtained from the experiment.
 
-Now we can take a look to the utilization of the stations of our model [Fig. 5], i.e., CPU (blue), disk (green) and delay station (black).
+Now we can take a look to the utilization of the stations of our model [Fig. 8], i.e., CPU (blue), disk (green) and delay station (black).
 
-<center> <figure> <img src="utilization_graph.jpg" width="500"/> <figcaption> Figure 5: utilizations of each station </figcaption> </figure> </center>
+<center> <figure> <img src="utilization_graph.jpg" width="500"/> <figcaption> Figure 8: utilizations of each station </figcaption> </figure> </center>
 
 By looking to this graph we can notice, as expected from the previous analysis on the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utilization of the bottleneck starts to become critical after 2 customers in the system.
 
-<center> <figure> <img src="asymptotes.jpg" width="500"/> <figcaption> Figure 6: throughput of the system with its asymptotes  </figcaption> </figure> </center>
+<center> <figure> <img src="asymptotes.jpg" width="500"/> <figcaption> Figure 9: throughput of the system with its asymptotes  </figcaption> </figure> </center>
 
 As expected, with a number of customers greater than 2, the throughput grows slowly until it reachs the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law
 
@@ -210,15 +222,15 @@ X = \frac{N}{\bar{R} + \bar{Z}} \leq \frac{N}{\bar{D} + \bar{Z}}
  
 $$
 
-If we look at the intersection of the two asymptotes, from [Fig. 6], we can notice that its abscissa coincides with the $N_{opt}$, i.e., 2.
+If we look at the intersection of the two asymptotes, from [Fig. 9], we can notice that its abscissa coincides with the $N_{opt}$, i.e., 2.
 
-<center> <figure> <img src="throughput.jpg" width="270"/><img src="n_of_customers.jpg" width="270"/> <figcaption> Figure 7: throughput and numeber of customers of each station </figcaption></figure></center>
+<center> <figure> <img src="throughput.jpg" width="270"/><img src="n_of_customers.jpg" width="270"/> <figcaption> Figure 10: throughput and numeber of customers of each station </figcaption></figure></center>
 
-From [Fig. 7], we can observe that, while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. Moreover, since the thoughput of the bottleneck reached the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations become constant. 
+From [Fig. 10], we can observe that, while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. Moreover, since the thoughput of the bottleneck reached the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations become constant. 
 
-<center> <figure> <img src="asymptotes_resp_time.jpg" width="500"/> <figcaption> Figure 8: response time of the system with its asymptotes </figcaption> </figure> </center>
+<center> <figure> <img src="asymptotes_resp_time.jpg" width="500"/> <figcaption> Figure 11: response time of the system with its asymptotes </figcaption> </figure> </center>
 
-The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keep growing. As we can see from the picture [Fig. 8], the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
+The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keep growing. As we can see from the picture [Fig. 11], the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
 
 $$
 
