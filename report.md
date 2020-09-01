@@ -208,18 +208,14 @@ By looking to this graph we can notice, as expected from the previous analysis o
 As expected, with a number of customers greater than 2, the throughput grows slowly until it reaches the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law
 
 $$
-
 \rho_b = \frac{X_b}{\mu_b} = \frac{X_1 \bar{V}_b}{\mu_b} = X_1 \bar{D}_b < 1 \\
 \rightarrow X < \frac{1}{\bar{D}_b} \approx 0,0417
-
 $$
 
 Then we can find the equation of the second asymptotic, given by
 
 $$
-
 X = \frac{N}{\bar{R} + \bar{Z}} \leq \frac{N}{\bar{D} + \bar{Z}}
- 
 $$
 
 If we look at the intersection of the two asymptotes, from [Fig. 9], we can notice that its abscissa coincides with the $N_{opt}$, i.e., 2.
@@ -233,9 +229,7 @@ From [Fig. 10], we can observe that, while the bottleneck gets saturated, its th
 The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keeps growing. As we can see from the picture [Fig. 11], the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
 
 $$
-
 \bar{R} \geq \max \left( \bar{D}, N \bar{D}_b - \bar{Z} \right)
-
 $$
 
 In conclusion, the analysis made by JMT confirms the results obtained by our benchmark and our theoretical analysis.
