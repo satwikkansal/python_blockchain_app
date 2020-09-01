@@ -2,7 +2,7 @@
 # Software, performance and scalability
 # Blockchain app Report
 
-### Buoso Tommaso 864055, Cazzaro Lorenzo 8644683, Cecchini Davide 862701, Di Campi Alessia 861844
+### Buoso Tommaso 864055, Cazzaro Lorenzo 864683, Cecchini Davide 862701, Di Campi Alessia 861844
 
 
 # Introduction
@@ -13,7 +13,7 @@ The application runs on a Raspberry Pi4b, that has these specifications:
 - HDD: Toshiba HDTB 310 EK3AA, 1 TB, 5400 rpm (connected to the Raspberry by an USB 3.0);
 - OS: Raspbian 10, 32-bit.
 
-The backend of the web application is developed with Flask and uses local files to store the blocks of the blockchain in the disk. During the execution the program manages one request at time and takes advantage of a cache, that has a size of 20 MB, to improve the performances.
+The backend of the web application is developed with Flask and uses local files to store the blocks of the blockchain in the disk. During the execution the program manages one request at a time and takes advantage of a cache, that has a size of 20 MB, to improve the performances.
 In particular, we use two types of caches: the "last" cache that keeps the last mined blocks, and the "random" cache that keeps the adjacent blocks of the last requested block. Each cache has the same size (10 MB each), and so it can keep 19 blocks.
 
 The application uses the blockchain to manage a database of flying statistics, where each flight information is a transaction, so the application allows to:
@@ -77,7 +77,7 @@ where E[W] is the mean waiting time and corresponds to
 
 $$ E[W] =  \frac{ρ + λμσ^2}{2(μ − λ)} $$
 
-where μ is the expected service rate, $σ^2$ is the second moment of the service time distribution, λ the arrival rate and ρ is equal to $\frac{λ}{μ}$.
+where μ is the expected service rate, $σ^2$ is the second moment of the service time distribution, λ the arrival rate and ρ are equal to $\frac{λ}{μ}$.
 
 For M/G/1/PS queueing system, the expected response time is given by
 
@@ -97,17 +97,17 @@ In this test, an M/G/1 system is better than an M/G/1/PS because the variance of
 
 <center> <figure> <img src="LoadxWorkload.png" width="400"/> <figcaption> Figure 3: System load average comparison of workload with rate 0.3L and 0.85 </figcaption> <figure> </center>
 
-The graph in [Fig. 3] shows the system load average on two tests with completly different workloads. The test with workload 0.3L has peaks with similar value to ones with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the customers is significantly lower.
+The graph in [Fig. 3] shows the system load average on two tests with completely different workloads. The test with workload 0.3L has peaked with similar value to ones with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the customers is significantly lower.
 
 <center> <figure> <img src="LoadxUsers-03vs085.png" width="400"/> <figcaption> Figure 4: Number of customer comparison of workload 0.3L-0.85L </figcaption> <figure> </center>
 
 It's interesting also to observe how the number of users in the system changes over time and different workloads. From [Fig. 4], that represents the number of users with the respects to the time in tests with different workloads, emerges that higher the workload higher the number of users in the system. 
 
-<!--Moreover, at high loads, only a small variation of the workload might induce an important improvment of the number of customers, while at lower loads the difference between the number of customers is less significant.-->
+<!--Moreover, at high loads, only a small variation of the workload might induce an important improvement of the number of customers, while at lower loads the difference between the number of customers is less significant.-->
 
 <center> <figure> <img src="LoadxRespTime-03vs085.png" width="400"/><figcaption> Figure 5: Transaction duration comparison of workload 0.3L-0.85</figcaption> <figure> </center>
 
-Finally, the comparison between the transaction duration over time in tests with different workloads ([Fig. 5]) confirms the observations explained in the previous paragraph. Infact, the number and duration of the transactions become higher at high load, since the number of jobs in the waiting room increases.
+Finally, the comparison between the transaction duration over time in tests with different workloads ([Fig. 5]) confirms the observations explained in the previous paragraph. In fact, the number and duration of the transactions become higher at high load, since the number of jobs in the waiting room increases.
 
 ## Queueing network model
 
@@ -189,7 +189,7 @@ $$ N_{opt} = \frac{\bar{Z} + \bar{D}}{\bar{D}_b} \approx \frac{5 + 44.422}{24} \
 
 ## JMT
 
-In the last part of our analysis, we used JMT to performe the MVA analysis on our queueing network model to find the average performance indices. 
+In the last part of our analysis, we used JMT to perform the MVA analysis on our queueing network model to find the average performance indices. 
 
 We parametrized the MVA with our service times and visits ratios, and we obtained a model with the values in [Fig. 7].
 
@@ -197,7 +197,7 @@ We parametrized the MVA with our service times and visits ratios, and we obtaine
 
 Notice that the service demands calculated by JMT are very similar to the ones obtained from the experiment.
 
-Now we can take a look to the utilization of the stations of our model [Fig. 8], i.e., CPU (blue), disk (green) and delay station (black).
+Now we can take a look at the utilization of the stations of our model [Fig. 8], i.e., CPU (blue), disk (green) and delay station (black).
 
 <center> <figure> <img src="utilization_graph.jpg" width="500"/> <figcaption> Figure 8: utilizations of each station </figcaption> </figure> </center>
 
@@ -205,7 +205,7 @@ By looking to this graph we can notice, as expected from the previous analysis o
 
 <center> <figure> <img src="asymptotes.jpg" width="500"/> <figcaption> Figure 9: throughput of the system with its asymptotes  </figcaption> </figure> </center>
 
-As expected, with a number of customers greater than 2, the throughput grows slowly until it reachs the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law
+As expected, with a number of customers greater than 2, the throughput grows slowly until it reaches the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law
 
 $$
 
@@ -214,7 +214,7 @@ $$
 
 $$
 
-Then we can find the equation of the second asymptot, given by
+Then we can find the equation of the second asymptotic, given by
 
 $$
 
@@ -226,11 +226,11 @@ If we look at the intersection of the two asymptotes, from [Fig. 9], we can noti
 
 <center> <figure> <img src="throughput.jpg" width="270"/><img src="n_of_customers.jpg" width="270"/> <figcaption> Figure 10: throughput and numeber of customers of each station </figcaption></figure></center>
 
-From [Fig. 10], we can observe that, while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. Moreover, since the thoughput of the bottleneck reached the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations become constant. 
+From [Fig. 10], we can observe that, while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. Moreover, since the throughput of the bottleneck reached the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations become constant. 
 
 <center> <figure> <img src="asymptotes_resp_time.jpg" width="500"/> <figcaption> Figure 11: response time of the system with its asymptotes </figcaption> </figure> </center>
 
-The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keep growing. As we can see from the picture [Fig. 11], the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
+The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keeps growing. As we can see from the picture [Fig. 11], the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
 
 $$
 
@@ -242,7 +242,7 @@ In conclusion, the analysis made by JMT confirms the results obtained by our ben
 
 ## Conclusions
 
-Thanks to these benchmarks, we can notice that the response time of our application is quite high, but from the bottleneck analysis we know that the disk is the component that has more impact on the overall perfomance of our system. However, the analysis allows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in exam.
-Notice that, when we improve the performance of the disk station, the delay station become the new bottleneck (beacuse it has a service demand similar to the disk), making the additional improvement to the disk less effective. So, in order to improve the performance of the system, we need also to improve the performance of the delay station, i.e., using a better CPU or/and optimize the encoding of the block to string with an alternative data structure.
+Thanks to these benchmarks, we can notice that the response time of our application is quite high, but from the bottleneck analysis, we know that the disk is the component that has more impact on the overall performance of our system. However, the analysis allows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in the exam.
+Notice that, when we improve the performance of the disk station, the delay station become the new bottleneck (because it has a service demand similar to the disk), making the additional improvement to the diskless effective. So, in order to improve the performance of the system, we need also to improve the performance of the delay station, i.e., using a better CPU or/and optimize the encoding of the block to string with an alternative data structure.
 
 Before these tests, we thought that our application would have good performance even under heavy load, but the benchmarks showed us the importance of testing the performance and scalability of the application before its release.
