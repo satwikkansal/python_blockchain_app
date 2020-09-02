@@ -13,7 +13,11 @@ The application runs on a Raspberry Pi4b, that has these specifications:
 - HDD: Toshiba HDTB 310 EK3AA, 1 TB, 5400 rpm (connected to the Raspberry by an USB 3.0);
 - OS: Raspbian 10, 32-bit.
 
-The backend of the web application is developed with Flask and uses local files to store the blocks of the blockchain in the disk. During the execution the program manages one request at a time and takes advantage of a cache, that has a size of 20 MB, to improve the performances.
+<TODO: forse metterei prima le funzionalità dell'applicazione e dopo descrizione backend (da distinguere tra backend service e frontend) e dopo di che descrizione brevissima del frontend con riferimento alle figure relative.
+Quindi metterei funzionalità dell'applicazione, specifiche rasp, descrizione backend e semmai frontend.
+>
+
+The backend service of the web application is developed with Flask and uses local files to store the blocks of the blockchain in the disk. During the execution the program manages one request at a time and takes advantage of a cache, that has a size of 20 MB, to improve the performances.
 In particular, we use two types of caches: the "last" cache that keeps the last mined blocks, and the "random" cache that keeps the adjacent blocks of the last requested block. Each cache has the same size (10 MB each), and so it can keep 19 blocks.
 
 The application uses the blockchain to manage a database of flying statistics, where each flight information is a transaction, so the application allows to:
@@ -36,11 +40,15 @@ The blockchain is a single peer and the requests are served by the application a
 
 # Performance evaluation
 
-To measure the performance indices of our application, we use the Tsung benchmark tool. Both the application and the Tsung monitor run on the same Raspberry machine. Even if they are in the same machine, the Tsung monitor does not require too many resources and the Raspberry only runs these two programs, so the execution of the application is not compromised, and the results given by Tsung are a good approximation of the once that would be obtained if the application had been executed in a separate machine.
+To measure the performance indices of our application, we use the Tsung benchmark tool. Both the application and the Tsung monitor run on the same Raspberry machine. Even if they are in the same machine, the Tsung monitor does not require too many resources and the Raspberry only runs these two programs, so the execution of the application is not compromised and the results given by Tsung are a good approximation of the once that would be obtained if the application was executed in a separate machine.
 
 ## Service time and variance
 
-If we imagine the system as a monolithic queue, we can measure its service time and variance. To perform this test, we assume to have a closed system with only one customer. The customer sends repeatedly the same request at the flight_counter endpoint of the server with a small delay, 0.01 s, between each request.
+If we imagine the system as a monolithic queue, we can measure the mean service time and its variance. To perform this test, we assume to have a closed system with only one customer. 
+
+<TODO: controllare questa parte, effettivamente qui sotto abbiamo interrogato tutti gli endpoint. Per get block and transaction, i parametri delle richieste sono randomici, corretto?>
+
+The customer sends repeatedly the same request at the flight_counter endpoint of the server with a small delay, 0.01 s, between each request.
 
 The mean service time obtained is averaged over 15 runs of 30 minutes and the variance is obtained by taking 100 measures from the log of a test.
 
@@ -52,12 +60,15 @@ The mean service time obtained is averaged over 15 runs of 30 minutes and the va
 | get_block | 1.43812 s | 0.0349 |
 | get_transaction | 1.40188 s | 0.02117 |
 
-For each benchmark, since the task requires to use a query and each query iterates over all the blockchain and makes a tiny amount of computation for each block, the theoretical and empirical behaviour of the system is the same independently of the particular request sent, so we decided to use the flight_counter query.
+<TODO: riformulare. Non sarebbe meglio dire che le prime tre query sono le più lente e consistono in iterare l'intera blockchain?
+Spieghiamo anche perchè il mean service time ottenuto è un buon expected response time?>
+
+Since the task requires to use a query and each query iterates over all the blockchain and makes a tiny amount of computation for each block, the theoretical and empirical behaviour of the system in each benchmark is the same independently of the particular request sent. Therefore we decide to continue the analysis by testing only the flight_counter query.
 <TODO rivedere in base ai nuovi risultati>
 
 ## Workload tests
 
-In this section, we model our system as an open system and we perform 4 tests with different workload intensities: 0.3L, 0.5L, 0.8L, 0.85L, where L is the maximum arrival rate determined from the expected service time estimated in the previous section.
+In this section, we model our system as an open system and we show the results of 4 complete tests with different workload intensities: 0.3L, 0.5L, 0.8L, 0.85L, where L is the maximum arrival rate determined from the expected service time estimated in the previous section.
 
 Given L = 0,024692, we have:
 
@@ -77,11 +88,13 @@ where E[W] is the mean waiting time and corresponds to
 
 $$ E[W] =  \frac{ρ + λμσ^2}{2(μ − λ)} $$
 
-where μ is the expected service rate, $σ^2$ is the second moment of the service time distribution, λ the arrival rate and ρ are equal to $\frac{λ}{μ}$.
+where μ is the expected service rate, $σ^2$ is the second central moment of the service time distribution, λ the arrival rate and ρ are equal to $\frac{λ}{μ}$.
 
 For M/G/1/PS queueing system, the expected response time is given by
 
 $$ E[R] = \frac{1}{μ − λ} $$
+
+The results observed and predicted are shown in the table below, while in [Fig.2] are shown the mean response times of each model when the workload varies.
 
 | Fraction | M/G/1 | M/G/1/PS | Mean response time tested|
 |---|---|---|---|
@@ -90,18 +103,26 @@ $$ E[R] = \frac{1}{μ − λ} $$
 | 0.8 | 121,56659 | 202,49688 | 95,04 |
 | 0.85 | 155,34459 | 269,99583 | 102,12 |
 
-<center> <figure> <img src="workload_graph.jpg" width="500"/> <figcaption> Figure 2: workload comparison </figcaption> <figure> </center>
+<center> <figure> <img src="workload_graph_cut.jpg" width="500"/> <figcaption> Figure 2: workload comparison </figcaption> <figure> </center>
 
-In [Fig. 2] are shown the mean response times of each model when the workload varies. If we look at the results, we can notice that our program and the M/G/1 system perform better than M/G/1/PS system, and at high load, our application performs better than M/G/1.
+If we look at the results and [Fig.2], we can notice that our application and the M/G/1 system perform better than M/G/1/PS system and at high load the mean response time of our application stands out with respect to the once obtained by considering the M/G/1 queue.
 In this test, an M/G/1 system is better than an M/G/1/PS because the variance of the service time obtained is lower than the one that we can get from the exponential service time distribution of the M/G/1/PS with the same service rate.
+
+The data gathered by Tsung allow to make other considerations about the performance indices of our application.
+
+<TODO: si potrebbe mettere come ordine: number of customers, transaction duration e load per far vedere la corrispondenza transactions - peak of load>
 
 <center> <figure> <img src="LoadxWorkload.png" width="400"/> <figcaption> Figure 3: System load average comparison of workload with rate 0.3L and 0.85 </figcaption> <figure> </center>
 
-The graph in [Fig. 3] shows the system load average on two tests with completely different workloads. The test with workload 0.3L has peaked with similar value to ones with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the customers is significantly lower.
+The graph in [Fig. 3] shows the system load average on two tests with completely different workloads: load with workload 0.85L in yellow and 0.3L in blue. The load of the system in test with workload 0.3L presents peaks with similar value to the ones obtained with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the customers is significantly lower. 
+
+<!-- It's important to notice that the load increases a lot during the execution of a job. Because of that it's observable a correspondence between the load graph and the transaction duration graph. For example after 1000 seconds, a new serie of consecutive requests arrives at the system and the workload starts to increase... -->
 
 <center> <figure> <img src="LoadxUsers-03vs085.png" width="400"/> <figcaption> Figure 4: Number of customer comparison of workload 0.3L-0.85L </figcaption> <figure> </center>
 
-It's interesting also to observe how the number of users in the system changes over time and different workloads. From [Fig. 4], that represents the number of users with the respects to the time in tests with different workloads, emerges that higher the workload higher the number of users in the system. 
+It's interesting also to observe how the number of users in the system changes over time and different workloads. [Fig. 4]represents the number of users with the respects to the time in tests with different workloads and from that emerges that higher the workload higher the number of users in the system over time. 
+
+<!-- [Fig. 4] represents the number of users with the respects to the time in tests with different workloads. The yellow line shows the trend of the number of users with workload 0.85L, while the blue line with workload 0.3L. In the test considered with workload 0.3L is observed only one peak of 2 customers in the system, while with workload 0.85 the peaks observed are two, one of 8 customers. As expected, the higher the workload, the higher the number of users in the system over time. The difference is evident only in certain interval of time because of the randomness of the arrival process.
 
 <!--Moreover, at high loads, only a small variation of the workload might induce an important improvement of the number of customers, while at lower loads the difference between the number of customers is less significant.-->
 
@@ -119,13 +140,19 @@ In this section, we propose a queueing network model of our application [Fig. 6]
   
 <center> <figure> <img src="qn_model.png" width="500"/> <figcaption> Figure 6: representation of our model</figcaption> </figure> </center>
 
-We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we ran a test using a python profiler named "cProfile" that provides the execution time of the different program functions.
+We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we run (monitor?) a test 
 
-The routing of the system is deterministic, each time a starting request arrives in the CPU, the CPU sets the "random" cache by forwarding the request to the disk and the delay station. In the subsystem composed by disk and delay station, the request iterates for each block that is read and added to the cache, so, since the cache size is 19 blocks, the request goes back from the delay station to the disk 18 times, and then goes back to the CPU.
+<TODO: quale test?>
 
-After the cache is set, the CPU consumes the blocks in the cache by iterating on itself for each block. When all the 19 blocks of the cache have been processed by the CPU, the request goes again to the disk for replenishing the cache with the next 19 blocks, and so on and so forth. The last 19 blocks are not read from the disk because they are already in the "last" cache.
+by using a python profiler named "cProfile" that provides the execution time of the different program functions.
 
-Only when all blocks of the blockchain are consumed by the CPU the request goes back to the terminal.
+The routing of the system is deterministic. Each time a starting request arrives in the CPU, the CPU sets the "random" cache by forwarding the request to the disk and the delay station. Then, in the subsystem composed by disk and delay station, the request iterates for each block, that is read and added to the cache, so, since the cache size is 19 blocks, the request goes back from the delay station to the disk 18 times, and then goes back to the CPU.
+
+After the cache is set, the CPU consumes the blocks in the cache by iterating on itself for each block. 
+<TODO: è corretto l'iterating in itself?>
+When all the 19 blocks of the cache have been processed by the CPU, the request goes again to the disk for replenishing the cache with the next 19 blocks, and so on and so forth. The last 19 blocks are not read from the disk because they are already in the "last" cache.
+
+Only when all blocks of the blockchain are consumed by the CPU, the request goes back to the terminal.
 
 To simplify the analysis of the system by using a queueing network, we decided to approximate the deterministic routing with a probablistic one, so we get:
 - $p_1$ = 1/523, the CPU recives 523 request and only at the end goes back to the terminal;
@@ -138,7 +165,7 @@ The probabilistic routing for $p_4$ and $p_5$ are approximated because the 27th 
 
 ## Bottleneck and level of multiprogramming
 
-Given our model, we have to find in the first place the traffic equations of the system, that gives us the relative visit ratios of the stations with respect to the reference station. From that, by knowing the expected service time of the stations, we can compute the service demand. The bottleneck of the system will be the station with the higher service demand.
+Given our model, we have to find in the first place the system of traffic equations of the system, that gives us the relative visit ratios of the stations with respect to the reference station. From that, by knowing the expected service time of the stations, we can compute the service demand. The bottleneck of the system will be the station with the higher service demand.
 
 The system of traffic equations is:
 
@@ -189,6 +216,8 @@ $$ N_{opt} = \frac{\bar{Z} + \bar{D}}{\bar{D}_b} \approx \frac{5 + 44.422}{24} \
 
 ## JMT
 
+<TODO: anche qui, si potrebbero mettere prima i grafici delle tre stazioni e poi quelli complessivi.>
+
 In the last part of our analysis, we used JMT to perform the MVA analysis on our queueing network model to find the average performance indices. 
 
 We parametrized the MVA with our service times and visits ratios, and we obtained a model with the values in [Fig. 7].
@@ -205,7 +234,7 @@ By looking to this graph we can notice, as expected from the previous analysis o
 
 <center> <figure> <img src="asymptotes.jpg" width="500"/> <figcaption> Figure 9: throughput of the system with its asymptotes  </figcaption> </figure> </center>
 
-As expected, with a number of customers greater than 2, the throughput grows slowly until it reaches the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law
+In [Fig. 9] is shown the throughput of the system (in blue) as the number of customers increases. As expected, with a number of customers greater than 2, the throughput grows slowly until it reaches the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law
 
 $$
 \rho_b = \frac{X_b}{\mu_b} = \frac{X_1 \bar{V}_b}{\mu_b} = X_1 \bar{D}_b < 1 \\
@@ -236,7 +265,7 @@ In conclusion, the analysis made by JMT confirms the results obtained by our ben
 
 ## Conclusions
 
-Thanks to these benchmarks, we can notice that the response time of our application is quite high, but from the bottleneck analysis, we know that the disk is the component that has more impact on the overall performance of our system. However, the analysis allows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in the exam.
-Notice that, when we improve the performance of the disk station, the delay station become the new bottleneck (because it has a service demand similar to the disk), making the additional improvement to the diskless effective. So, in order to improve the performance of the system, we need also to improve the performance of the delay station, i.e., using a better CPU or/and optimize the encoding of the block to string with an alternative data structure.
+Thanks to these benchmarks, we can notice that the response time of our application is quite high, but from the bottleneck analysis we know that the disk is the component that has more impact on the overall performance of our system. However, the analysis allows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in exam.
+Notice that, when we improve the performance of the disk station, the delay station become the new bottleneck (because it has a service demand similar to the disk), making the additional improvement of the disk less effective. So, in order to improve the performance of the system, we need also to improve the performance of the delay station, i.e., using a better CPU or/and optimizing the encoding of the blocks to strings with an alternative data structure.
 
 Before these tests, we thought that our application would have good performance even under heavy load, but the benchmarks showed us the importance of testing the performance and scalability of the application before its release.
