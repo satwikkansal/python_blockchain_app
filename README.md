@@ -205,8 +205,6 @@ $$ N_{opt} = \frac{\bar{Z} + \bar{D}}{\bar{D}_b} \approx \frac{5 + 44.422}{24} \
 
 ## JMT
 
-<TODO: anche qui, si potrebbero mettere prima i grafici delle tre stazioni e poi quelli complessivi.>
-
 In the last part of our analysis, we used JMT to perform the MVA analysis on our queueing network model to find the average performance indices. 
 
 We parametrized the MVA with our service times and visits ratios, and we obtained a model with the values in [Fig. 7].
@@ -215,36 +213,42 @@ We parametrized the MVA with our service times and visits ratios, and we obtaine
 
 Notice that the service demands calculated by JMT are very similar to the ones obtained from the experiment.
 
-Now we can take a look at the utilization of the stations of our model [Fig. 8], i.e., CPU (blue), disk (green) and delay station (black).
+Now we can take a look at the performance indices of the CPU, disk and delay station w.r.t. the number of customers.
+
+The utilization of the stations of our model is shown [Fig. 8], in particular for the CPU (blue), disk (green) and delay station (black).
 
 <center> <figure> <img src="Graphs/utilization_graph.jpg" width="500"/> <figcaption> Figure 8: utilizations of each station </figcaption> </figure> </center>
 
-By looking to this graph we can notice, as expected from the previous analysis on the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utilization of the bottleneck starts to become critical after 2 customers in the system.
+By looking to this graph we can notice, as expected from the previous analysis on the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utilization of the bottleneck starts to become critical after 2 customers in the system. 
 
-<center> <figure> <img src="Graphs/asymptotes.jpg" width="500"/> <figcaption> Figure 9: throughput of the system with its asymptotes  </figcaption> </figure> </center>
+The saturation of the disk station influences the throughput and number of customers of the three stations. Indeed, as we can see from the left plot in [Fig. 9], where is represented the throughput of CPU (blue), disk (green) and delay station (black), while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. 
 
-In [Fig. 9] is shown the throughput of the system (in blue) as the number of customers increases. As expected, with a number of customers greater than 2, the throughput grows slowly until it reaches the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law
+<center> <figure> <img src="Graphs/throughput.jpg" width="270"/><img src="Graphs/n_of_customers.jpg" width="270"/> <figcaption> Figure 9: throughput and number of customers of each station </figcaption></figure></center>
+
+Moreover, since the bottleneck reaches the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations becomes constant. This observation is confirmed by observing the graph on the right in [Fig. 9], where is shown the number of customers in each station, with the disk in green, as the number of customers increases.
+
+<center> <figure> <img src="Graphs/asymptotes.jpg" width="500"/> <figcaption> Figure 10: throughput of the system with its asymptotes  </figcaption> </figure> </center>
+
+Finally, we confirm the previous observation about the optimal number of customers by observing the throughput and mean response time of the aggregate system. 
+
+In [Fig. 10] is represented the throughput of the entire system w.r.t. the number of customers in blue, while the two asymptotes obtained by the asymptotic operational analysis are in orange and red. As expected, with a number of customers greater than 2, the throughput grows slowly until it reaches the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law:
 
 $$
 \rho_b = \frac{X_b}{\mu_b} = \frac{X_1 \bar{V}_b}{\mu_b} = X_1 \bar{D}_b < 1 \\
 \rightarrow X < \frac{1}{\bar{D}_b} \approx 0,0417
 $$
 
-Then we can find the equation of the second asymptotic, given by
+We can also find the equation of the second asymptote, given by
 
 $$
 X = \frac{N}{\bar{R} + \bar{Z}} \leq \frac{N}{\bar{D} + \bar{Z}}
 $$
 
-If we look at the intersection of the two asymptotes, from [Fig. 9], we can notice that its abscissa coincides with the $N_{opt}$, i.e., 2.
-
-<center> <figure> <img src="Graphs/throughput.jpg" width="270"/><img src="Graphs/n_of_customers.jpg" width="270"/> <figcaption> Figure 10: throughput and numeber of customers of each station </figcaption></figure></center>
-
-From [Fig. 10], we can observe that, while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. Moreover, since the throughput of the bottleneck reached the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations become constant. 
+If we look at the intersection of the two asymptotes, from [Fig. 10], we can notice that its abscissa coincides with the $N_{opt}$, i.e., 2.
 
 <center> <figure> <img src="Graphs/asymptotes_resp_time.jpg" width="500"/> <figcaption> Figure 11: response time of the system with its asymptotes </figcaption> </figure> </center>
 
-The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the system response time keeps growing. As we can see from the picture [Fig. 11], the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
+The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the aggregate system response time keeps growing. As we can see from the picture [Fig. 11], the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
 
 $$
 \bar{R} \geq \max \left( \bar{D}, N \bar{D}_b - \bar{Z} \right)
