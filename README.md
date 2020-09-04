@@ -1,5 +1,5 @@
-## Ca' Foscari University
-# Software, performance and scalability
+## Ca' Foscari University - Master's Degree in Computer Science
+# Software performance and scalability
 # Blockchain app Report
 
 ### Buoso Tommaso 864055, Cazzaro Lorenzo 864683, Cecchini Davide 862701, Di Campi Alessia 861844
@@ -23,10 +23,10 @@ The application runs on a Raspberry Pi4b, that has these specifications:
 - HDD: Toshiba HDTB 310 EK3AA, 1 TB, 5400 rpm (connected to the Raspberry by an USB 3.0);
 - OS: Raspbian 10, 32-bit.
 
-The backend service of the web application is developed with Flask and interacts with the blockchain that stores the flying data. The requests are served by the application according to an FCFS discipline. During the execution the program manages one request at a time and takes advantage of a cache, that has a size of 20 MB, to improve the performances.
+The backend service of the web application is developed with Flask and interacts with the blockchain that stores the flying data. The requests are served by the application according to an FCFS discipline. During the execution the program manages one request at a time and takes advantage of a cache, that has a size of 20 MB, to improve the performance.
 In particular, we use two types of caches: the "last" cache that keeps the last mined blocks, and the "random" cache that keeps the adjacent blocks of the last requested block. Each cache has the same size (10 MB each), and so it can keep 19 blocks.
 
-The blockchain is stored in a single node, the same that provides the backend service, by using local files in the disk. A new block is mined and added to the blockchain once a minute by the backend, whether the are new transactions to add. Since each block can contain at most 1000 transactions, our initial blockchain contains 522 blocks of size equal to 1000 (except for the last one).
+The blockchain is stored in a single node, the same that provides the backend service, by using local files in the disk. A new block is mined and added to the blockchain once a minute by the backend, whether the are new transactions to add. Since each block can contain at most 1000 transactions, our initial blockchain contains 522 blocks of size equal to 1000 transactions (except for the last one).
 
 The frontend service is also developed with Flask, it interacts with the backend service and is offered by the unique node where backend and blockchain reside. Some pictures of the functionalities offered are in [Fig. 1].
 
@@ -38,15 +38,15 @@ The frontend service is also developed with Flask, it interacts with the backend
 
 # Performance evaluation
 
-To measure the performance indices of our application, we use the Tsung benchmark tool. Both the application and the Tsung monitor run on the same Raspberry machine. Even if they are in the same machine, the Tsung monitor does not require too many resources and the Raspberry only runs these two programs, so the execution of the application is not compromised and the results given by Tsung are a good approximation of the once that would be obtained if the application was executed in a separate machine.
+To measure the performance indices of our application, we use the Tsung benchmark tool. Both the application and the Tsung monitor run on the same Raspberry machine. Even if they are in the same machine, the Tsung monitor does not require too many resources and the Raspberry only runs these two programs, so the execution of the application is not compromised and the results given by Tsung are a good approximation of the ones that would be obtained if the application was executed in a separate machine.
 
 ## Service time and variance
 
-If we imagine the system as a monolithic queue, we can measure the mean service time and its variance. To perform this test, we assume to have a closed system with only one customer. 
+If we imagine the system as a monolithic queue, we can measure the expected value and the variance of the service time. To perform this test, we assume to have an interactive closed system with only one customer. 
 
-The customer sends repeatedly the same request at the flight_counter endpoint of the server with a small delay, 0.01 s, between each request.
+A test consists in the customer that sends repeatedly the same request at selected endpoint of the server with a small delay, 0.01 s, between each request.
 
-The mean service time of each query is obtained by taking the average result over 15 runs of 30 minutes of the same test and the variance is obtained by taking 100 measures from the logs of the tests for each query.
+The mean service time of each query is obtained by taking the average result over 15 runs of 30 minutes of the same test and the variance is obtained by taking 100 measures from the logs of the tests for each query. The results are shown in the table below. 
 
 | Request | Mean Service Time | Variance |
 |---|---|---|
@@ -58,7 +58,7 @@ The mean service time of each query is obtained by taking the average result ove
 
 The task of the first three queries in the table above consists in iterating over all the blockchain and making a tiny amount of computation for each block, while the get_block query consists in a direct access to the block and get_transaction is served by using binary search for finding the right block and directly returning the transaction. As consequence, the last two queries in the table have a small service time and the remaining three are very slow because of the exploration of all the blockchain.
 
-The theoretical and empirical behaviour of the system when executing the first three queries is the same independently of the particular request. Therefore we decide to continue the analysis by testing only the flight_counter query in order to not overestimate the performances of our system.
+The theoretical and empirical behaviour of the system when executing the first three queries is the same independently of the particular request. Therefore we decide to continue the analysis by testing only the flight_counter query in order to not overestimate the performance of our system.
 
 ## Workload tests
 
@@ -66,12 +66,12 @@ In this section, we model our system as an open system and we show the results o
 
 Given L = 0,024692, we have:
 
-|Fraction|Load|
-|---|---|
-|0.3|134,99792|
-|0.5|80,99875|
-|0.8|50,62422|
-|0.85|47,64632|
+|Fraction of the load| Arrival rate | Interarrival load |
+|---|---|---|
+|0.3|0.0074076|134.99792|
+|0.5|0.0123459|80.99875|
+|0.8|0.0197534|50.62422|
+|0.85|0.020988|47.64632|
 
 Then we compare these measurements with the lines predicted by M/G/1 and M/G/1/PS queueing systems.
 For M/G/1 queueing system, the expected response time is given by
@@ -82,7 +82,7 @@ where E[W] is the mean waiting time and corresponds to
 
 $$ E[W] =  \frac{ρ + λμσ^2}{2(μ − λ)} $$
 
-where μ is the expected service rate, $σ^2$ is the second central moment of the service time distribution, λ the arrival rate and ρ are equal to $\frac{λ}{μ}$.
+where μ is the expected service rate, $σ^2$ is the second central moment of the service time distribution, λ the arrival rate and ρ is equal to $\frac{λ}{μ}$.
 
 For M/G/1/PS queueing system, the expected response time is given by
 
@@ -99,25 +99,24 @@ The results observed and predicted are shown in the table below, while in [Fig.2
 
 <center> <figure> <img src="Graphs/workload_graph_cut.jpg" width="500"/> <figcaption> Figure 2: workload comparison </figcaption> <figure> </center>
 
-If we look at the results and [Fig.2], we can notice that our application and the M/G/1 system perform better than M/G/1/PS system and at high load the mean response time of our application stands out with respect to the once obtained by considering the M/G/1 queue.
-In this test, an M/G/1 system is better than an M/G/1/PS because the variance of the service time obtained is lower than the one that we can get from the exponential service time distribution of the M/G/1/PS with the same service rate.
+If we look at the results and [Fig.2], we can notice that our application and the M/G/1 system perform better than M/G/1/PS system and at high load the mean response time of our application stands out with respect to the one obtained by considering the M/G/1 queue.
+In this test, the M/G/1 system is better than the M/G/1/PS because the variance of the service time obtained is lower than the one that we can get from the exponential service time distribution of the M/G/1/PS with the same mean service rate.
 
 The data gathered by Tsung allow to make other considerations about the performance indices of our application.
 
-<center> <figure> <img src="Graphs/LoadxRespTime-03vs085.png" width="400"/><figcaption> Figure 3: Transaction duration comparison of workload 0.3L-0.85</figcaption> <figure> </center>
+<center> <figure> <img src="Graphs/LoadxRespTime-03vs085.png" width="400"/><figcaption> Figure 3: Transaction duration comparison with workloads 0.3L-0.85</figcaption> <figure> </center>
 
-The comparison between the transaction duration over time in tests with different workloads is shown in [Fig. 3], where the results with workload 0.85L are in orange and with workload 0.3L in blue. The graph confirms the expected behaviour: infact, the number and duration of the transactions become higher at high load, since the number of jobs in the waiting room increases. The maximum transaction duration when the workload is 0.3L is around 73s, while with workload 0.85L is around 223s.
+The comparison between the transaction duration over time in tests with different workloads is shown in [Fig. 3], where the results with workload 0.85L are in orange and with workload 0.3L in blue. The graph confirms the expected behaviour: the number and duration of the transactions become higher at high load, since the number of jobs in the waiting room increases. The maximum transaction duration when the workload is 0.3L is around 73s, while with workload 0.85L is around 223s.
 
+<center> <figure> <img src="Graphs/LoadxUsers-03vs085.png" width="400"/> <figcaption> Figure 4: Number of customer comparison with workloads 0.3L-0.85L </figcaption> <figure> </center>
 
-<center> <figure> <img src="Graphs/LoadxUsers-03vs085.png" width="400"/> <figcaption> Figure 4: Number of customer comparison of workload 0.3L-0.85L </figcaption> <figure> </center>
-
-It's interesting also to observe how the number of users in the system changes over time and different workloads. [Fig. 4] represents the number of users with the respects to the time in tests with different workloads. The orange line shows the trend of the number of users with workload 0.85L, while the blue line with workload 0.3L. In the test considered with workload 0.3L is observed only one peak of 2 customers in the system, while with workload 0.85 the peaks observed are two, one of 8 customers. As expected, the higher the workload, the higher the number of users in the system over time. The difference is evident only in certain interval of time because of the randomness of the arrival process. Moreover, this confirms the observations of the previous pragraph, indeed the the peaks of users in the system occur at the same time of the longer transactions.
+It's interesting also to observe how the number of users in the system changes over time and with different workloads. [Fig. 4] represents the number of users with the respects to the time in two tests with different workloads. The orange line shows the trend of the number of users with workload 0.85L, while the blue line with workload 0.3L. In the test considered with workload 0.3L is observed only one peak of 2 customers in the system, while with workload 0.85L the peaks observed are two, one of 6 customers. As expected, the higher the workload, the higher the number of users in the system over time. The difference is evident only in certain interval of time because of the randomness of the arrival process. Moreover, this confirms the observations of the previous pragraph, indeed the the peaks of users in the system occur approximatively at the same time of the longer transactions.
 
 Finally, the graph in [Fig. 5] shows the system load average on two tests with completely different workloads: load with workload 0.85L in yellow and 0.3L in blue.
 
-<center> <figure> <img src="Graphs/LoadxWorkload.png" width="400"/> <figcaption> Figure 5: System load average comparison of workload with rate 0.3L and 0.85 </figcaption> <figure> </center>
+<center> <figure> <img src="Graphs/LoadxWorkload.png" width="400"/> <figcaption> Figure 5: System load average comparison with workloads 0.3L-0.85L </figcaption> <figure> </center>
 
-The load of the system in test with workload 0.3L presents peaks with similar value to the ones obtained with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the customers is significantly lower. It's important to notice that the load increases a lot during the execution of a job. Because of that it's observable a sort of correlation between the load graph and the transaction duration graph. 
+The load of the system in test with workload 0.3L presents peaks with similar value to the ones obtained with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the requests is significantly lower. It's important to notice that the load increases a lot during the execution of a job. Because of that it's observable a sort of correlation between the load graph and the transaction duration graph. 
 
 ## Queueing network model
 
@@ -125,17 +124,14 @@ In this section, we propose a queueing network model of our application [Fig. 6]
 - TERMINAL: a station that models the thinking time of the network, equal to 5 seconds;
 - CPU: a station that models the processor, that has a service rate equal to $\frac{1}{0.0008}=1250$ j/s;
 - DISK: a station that models the disk, that has a service rate equal to $\frac{1}{0.046}\approx22$ j/s;
-- DELAY STATION: a station that models the additional computation time that the system introduces each time a block is read from the disk (fetch and integrity checks), and has a service rate equal to $\frac{1}{0.039}\approx26$ j/s.
+- DELAY STATION: a station that models the additional computation time that the system introduces each time a block is read from the disk (fetch and integrity checks) and has a service rate equal to $\frac{1}{0.039}\approx26$ j/s.
   
-<center> <figure> <img src="Graphs/qn_model.png" width="500"/> <figcaption> Figure 6: representation of our model</figcaption> </figure> </center>
+<center> <figure> <img src="Graphs/qn_model.png" width="500"/> <figcaption> Figure 6: schema of our model</figcaption> </figure> </center>
 
-We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we run (monitor?) a test 
+<TODO: quali test>
+We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we run (monitor?) a test by using a python profiler named "cProfile" that provides the execution time of the different program functions.
 
-<TODO: quale test?>
-
-by using a python profiler named "cProfile" that provides the execution time of the different program functions.
-
-The routing of the system is deterministic. Each time a starting request arrives in the CPU, the CPU sets the "random" cache by forwarding the request to the disk and the delay station. Then, in the subsystem composed by disk and delay station, the request iterates for each block, that is read and added to the cache, so, since the cache size is 19 blocks, the request goes back from the delay station to the disk 18 times, and then goes back to the CPU.
+The routing of the system is deterministic. Each time a starting request arrives at the CPU, the CPU sets the "random" cache by forwarding the request to the disk and the delay station. Then, in the subsystem composed by disk and delay station, the request iterates for each block, that is read and added to the cache, so, since the cache size is 19 blocks, the request goes back from the delay station to the disk 18 times, and then goes back to the CPU.
 
 After the cache is set, the CPU consumes the blocks in the cache by iterating on itself for each block. 
 <TODO: è corretto l'iterating in itself?>
@@ -199,7 +195,7 @@ $$ X \leq \min\left(\frac{N}{\bar{D} + \bar{Z}}, \frac{1}{\bar{D}_b}\right) \\
 
 where N is the number of jobs, $\bar{D}$ is the sum of all the service demands, except the reference station, $\bar{D}_b$ is the service demand of the bottleneck, and $\bar{Z}$ is the thinking time.
 
-These bounds represent asymptotes of the two performance measure. As we will see in the next section, the optimal level of multiprogramming is the number of jobs characterizing the intersection point of the two asymptotes and can be obtained by 
+These bounds represent asymptotes of the two performance measures. As we will see in the next section, the optimal level of multiprogramming is the number of jobs characterizing the intersection point of the two asymptotes and can be obtained by 
 
 $$ N_{opt} = \frac{\bar{Z} + \bar{D}}{\bar{D}_b} \approx \frac{5 + 44.422}{24} \approx 2 $$
 
@@ -211,25 +207,25 @@ We parametrized the MVA with our service times and visits ratios, and we obtaine
 
 <center> <figure> <img src="Graphs/jmt_data.jpg" width="300"/> <figcaption> Figure 7: JMVA model details </figcaption> </figure> </center>
 
-Notice that the service demands calculated by JMT are very similar to the ones obtained from the experiment.
+Notice that the service demands calculated by JMT are very similar to the ones obtained from the experiments.
 
-Now we can take a look at the performance indices of the CPU, disk and delay station w.r.t. the number of customers.
+Now we can take a look at the performance indices of the CPU, disk and delay station w.r.t. the level of multiprogramming of the system.
 
-The utilization of the stations of our model is shown [Fig. 8], in particular for the CPU (blue), disk (green) and delay station (black).
+The utilization of the stations of our model is shown in [Fig. 8], in particular for the CPU (blue), disk (green) and delay station (black).
 
-<center> <figure> <img src="Graphs/utilization_graph.jpg" width="500"/> <figcaption> Figure 8: utilizations of each station </figcaption> </figure> </center>
+<center> <figure> <img src="Graphs/utilization_graph.jpg" width="500"/> <figcaption> Figure 8: utilization of each station </figcaption> </figure> </center>
 
-By looking to this graph we can notice, as expected from the previous analysis on the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utilization of the bottleneck starts to become critical after 2 customers in the system. 
-
-The saturation of the disk station influences the throughput and number of customers of the three stations. Indeed, as we can see from the left plot in [Fig. 9], where is represented the throughput of CPU (blue), disk (green) and delay station (black), while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. 
+By looking to this graph we can notice, as expected from the previous analysis of the bottleneck, that the station that gets saturated faster is the disk station. Consistent with the $N_{opt}$ calculated previously, the graph shows that the utilization of the bottleneck starts to become critical after 2 customers in the system. 
 
 <center> <figure> <img src="Graphs/throughput.jpg" width="270"/><img src="Graphs/n_of_customers.jpg" width="270"/> <figcaption> Figure 9: throughput and number of customers of each station </figcaption></figure></center>
 
-Moreover, since the bottleneck reaches the saturation, the number of costumers in the disk station keep growing, and the number of customers in the other stations becomes constant. This observation is confirmed by observing the graph on the right in [Fig. 9], where is shown the number of customers in each station, with the disk in green, as the number of customers increases.
+The saturation of the disk station influences the throughput and number of customers of the three stations. Indeed, as we can see from the left plot in [Fig. 9], where is represented the throughput of CPU (blue), disk (green) and delay station (black), while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. 
+
+Moreover, since the bottleneck reaches the saturation, the number of costumers in the disk station keeps growing, and the number of customers in the other stations becomes constant. This observation is confirmed by he plot on the right in [Fig. 9], where is shown the number of customers in each station, with the disk in green, as the number of customers increases.
+
+Finally, we confirm the observation in the previous chapter about the optimal number of customers by observing the throughput and mean response time of the aggregate system. 
 
 <center> <figure> <img src="Graphs/asymptotes.jpg" width="500"/> <figcaption> Figure 10: throughput of the system with its asymptotes  </figcaption> </figure> </center>
-
-Finally, we confirm the previous observation about the optimal number of customers by observing the throughput and mean response time of the aggregate system. 
 
 In [Fig. 10] is represented the throughput of the entire system w.r.t. the number of customers in blue, while the two asymptotes obtained by the asymptotic operational analysis are in orange and red. As expected, with a number of customers greater than 2, the throughput grows slowly until it reaches the stable value near to 0.042, similar to the value of the asymptote given by the bottleneck law:
 
@@ -248,7 +244,7 @@ If we look at the intersection of the two asymptotes, from [Fig. 10], we can not
 
 <center> <figure> <img src="Graphs/asymptotes_resp_time.jpg" width="500"/> <figcaption> Figure 11: response time of the system with its asymptotes </figcaption> </figure> </center>
 
-The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the aggregate system response time keeps growing. As we can see from the picture [Fig. 11], the graph of the response time of the system respect the two asymptotes that can be found by using the asymptotic operational analysis, in particular
+The waiting time of the bottleneck grows linearly to the number of customers in the bottlenecks waiting room, so also the aggregate system response time keeps growing. As we can see from the picture [Fig. 11], the graph of the response time of the system respects the two asymptotes that can be found by using the asymptotic operational analysis, in particular
 
 $$
 \bar{R} \geq \max \left( \bar{D}, N \bar{D}_b - \bar{Z} \right)

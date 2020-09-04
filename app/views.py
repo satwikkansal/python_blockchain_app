@@ -163,24 +163,24 @@ def submit_textarea():
     return redirect('/')
 
 
-@app.route('/submit_multi', methods=['POST'])
-def submit_textarea_multi():
+#@app.route('/submit_multi', methods=['POST'])
+#def submit_textarea_multi():
     """
     Endpoint to create many new transaction via our application.
     """
 
-    new_transactions_json = request.form.getlist("transactions[]");
-    new_transactions = [json.loads(line) for line in new_transactions_json]
+#    new_transactions_json = request.form.getlist("transactions[]");
+#    new_transactions = [json.loads(line) for line in new_transactions_json]
 
     # Submit a transaction
-    new_tx_address = "{}/new_transaction_multi".format(CONNECTED_NODE_ADDRESS)
+#    new_tx_address = "{}/new_transaction_multi".format(CONNECTED_NODE_ADDRESS)
 
-    requests.post(new_tx_address,
-                  json=new_transactions,
-                  headers={'Content-type': 'application/json'})
+#    requests.post(new_tx_address,
+ #                 json=new_transactions,
+#                 headers={'Content-type': 'application/json'})
 
 
-    return redirect('/')
+ #   return redirect('/')
 
 
 def timestamp_to_string(epoch_time):

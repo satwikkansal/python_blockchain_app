@@ -11,7 +11,8 @@ import os
 import random
 from flask_caching import Cache
 
-backup_path = "/mnt/HD1TB/backup"
+#backup_path = "/mnt/HD1TB/backup"
+backup_path = "./backup"
 
 CACHE_TOTAL_DIM = 20000000 #size in bytes
 
@@ -173,11 +174,11 @@ class Blockchain:
             blocks_to_remove = []
             remaining_transactions = self.LAST_CACHE_SIZE
             #find block that must be removed from the cache
-            for i in reversed(list(chain_last_cache.keys())):
+            for i in reversed(list(self.chain_last_cache.keys())):
                 if remaining_transactions <= 0:
                     blocks_to_remove.append(i)
                 else:
-                    remaining_transactions -= self.chain_last_cache[i].block_size
+                    remaining_transactions -= self.chain_last_cache[i].get_block_len()
 
             for i in blocks_to_remove:
                 del self.chain_last_cache[i]
@@ -246,10 +247,11 @@ class Blockchain:
             self.unconfirmed_transactions = []
 
         last_block_metadata = self.last_block_metadata
-        new_block = Block(index=last_block_metadata.index + 1,
+        print("MINE LAST BLOCK metadata: ", last_block_metadata)
+        new_block = Block(index=last_block_metadata["index"] + 1,
                           transactions=unconfirmed_transactions_to_block,
                           timestamp=time.time(),
-                          previous_hash=last_block_metadata.hash)
+                          previous_hash=last_block_metadata["hash"])
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
 
@@ -552,15 +554,15 @@ def new_transaction():
 
 #endpoint to submit many new transaction. This will be used by
 # our application to add new data to the blockchain
-@app.route('/new_transaction_multi', methods=['POST']) #tested
-def new_transaction_multi():
-    tx_data = request.get_json()
-    for line in tx_data:
-        line["timestamp"] = time.time()
-        transaction = Transaction(line)
-        blockchain.add_new_transaction(transaction)
-    mine_unconfirmed_transactions()
-    return "Success", 201
+#@app.route('/new_transaction_multi', methods=['POST']) #tested
+#def new_transaction_multi():
+#    tx_data = request.get_json()
+#    for line in tx_data:
+#        line["timestamp"] = time.time()
+#        transaction = Transaction(line)
+#        blockchain.add_new_transaction(transaction)
+#    mine_unconfirmed_transactions()
+#    return "Success", 201
 
 
 # endpoint to return the node's copy of the chain.
