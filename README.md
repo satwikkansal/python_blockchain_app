@@ -65,7 +65,7 @@ In this section, we model our system as an open system and we show the results o
 
 Given L = 0,024692, we have:
 
-|Fraction of the load| Arrival rate | Interarrival load |
+|Fraction of the load| Workload intensity | Interarrival time |
 |---|---|---|
 |0.3|0.0074076|134.99792|
 |0.5|0.0123459|80.99875|
