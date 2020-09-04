@@ -4,7 +4,6 @@
 
 ### Buoso Tommaso 864055, Cazzaro Lorenzo 864683, Cecchini Davide 862701, Di Campi Alessia 861844
 
-
 # Introduction
 
 The application uses the blockchain to manage a database of flying statistics, where each flight information is a transaction, so the application allows to:
@@ -82,7 +81,7 @@ where E[W] is the mean waiting time and corresponds to
 
 $$ E[W] =  \frac{ρ + λμσ^2}{2(μ − λ)} $$
 
-where μ is the expected service rate, $σ^2$ is the second central moment of the service time distribution, λ the arrival rate and ρ is equal to $\frac{λ}{μ}$.
+where μ is the expected service rate, $σ^2$ is the variance of the service time distribution, λ the arrival rate and ρ is equal to $\frac{λ}{μ}$.
 
 For M/G/1/PS queueing system, the expected response time is given by
 
@@ -100,7 +99,7 @@ The results observed and predicted are shown in the table below, while in [Fig.2
 <center> <figure> <img src="Graphs/workload_graph_cut.jpg" width="500"/> <figcaption> Figure 2: workload comparison </figcaption> <figure> </center>
 
 If we look at the results and [Fig.2], we can notice that our application and the M/G/1 system perform better than M/G/1/PS system and at high load the mean response time of our application stands out with respect to the one obtained by considering the M/G/1 queue.
-In this test, the M/G/1 system is better than the M/G/1/PS because the variance of the service time obtained is lower than the one that we can get from the exponential service time distribution of the M/G/1/PS with the same mean service rate.
+In this test, the M/G/1 system performs better than the M/G/1/PS. Indeed, the performance of the M/G/1/PS queue is similar to the one of the M/M/1 thanks to the insensitivity property and, in this case, the variance of the service time obtained from the experiments seems to be better than the variance of the exponential distribution of the service time of the M/M/1.
 
 The data gathered by Tsung allow to make other considerations about the performance indices of our application.
 
@@ -128,14 +127,11 @@ In this section, we propose a queueing network model of our application [Fig. 6]
   
 <center> <figure> <img src="Graphs/qn_model.png" width="500"/> <figcaption> Figure 6: schema of our model</figcaption> </figure> </center>
 
-<TODO: quali test>
-We obtained the service rate of the CPU by running a Tsung test with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU. Differently, for the disk and the delay station, we run (monitor?) a test by using a python profiler named "cProfile" that provides the execution time of the different program functions.
+We obtained the service rate of the CPU by running a test in the setting to obtain the mean service time with all the blocks of the blockchain loaded in the cache, so that we didn't have the overhead introduced by the delay station on the CPU and the mean service time obtained results to be a good approximation of the CPU mean service time. Differently, for the disk and the delay station, we run the same test by using a python profiler named "cProfile" that provides the execution time of the different program functions.
 
 The routing of the system is deterministic. Each time a starting request arrives at the CPU, the CPU sets the "random" cache by forwarding the request to the disk and the delay station. Then, in the subsystem composed by disk and delay station, the request iterates for each block, that is read and added to the cache, so, since the cache size is 19 blocks, the request goes back from the delay station to the disk 18 times, and then goes back to the CPU.
 
-After the cache is set, the CPU consumes the blocks in the cache by iterating on itself for each block. 
-<TODO: è corretto l'iterating in itself?>
-When all the 19 blocks of the cache have been processed by the CPU, the request goes again to the disk for replenishing the cache with the next 19 blocks, and so on and so forth. The last 19 blocks are not read from the disk because they are already in the "last" cache.
+After the cache is set, the CPU consumes the blocks in the cache by iterating on itself for each block. When all the 19 blocks of the cache have been processed by the CPU, the request goes again to the disk for replenishing the cache with the next 19 blocks, and so on and so forth. The last 19 blocks are not read from the disk because they are already in the "last" cache.
 
 Only when all blocks of the blockchain are consumed by the CPU, the request goes back to the terminal.
 
@@ -221,7 +217,7 @@ By looking to this graph we can notice, as expected from the previous analysis o
 
 The saturation of the disk station influences the throughput and number of customers of the three stations. Indeed, as we can see from the left plot in [Fig. 9], where is represented the throughput of CPU (blue), disk (green) and delay station (black), while the bottleneck gets saturated, its throughput stops growing, like the others as a consequence. 
 
-Moreover, since the bottleneck reaches the saturation, the number of costumers in the disk station keeps growing, and the number of customers in the other stations becomes constant. This observation is confirmed by he plot on the right in [Fig. 9], where is shown the number of customers in each station, with the disk in green, as the number of customers increases.
+Moreover, since the bottleneck reaches the saturation, the number of costumers in the disk station keeps growing, and the number of customers in the other stations becomes constant. This observation is confirmed by the plot on the right in [Fig. 9], where is shown the number of customers in each station, with the disk in green, as the number of customers increases.
 
 Finally, we confirm the observation in the previous chapter about the optimal number of customers by observing the throughput and mean response time of the aggregate system. 
 
