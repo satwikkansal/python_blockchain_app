@@ -43,7 +43,7 @@ To measure the performance indices of our application, we use the Tsung benchmar
 
 If we imagine the system as a monolithic queue, we can measure the expected value and the variance of the service time. To perform this test, we assume to have an interactive closed system with only one customer. 
 
-A test consists in the customer that sends repeatedly the same request at selected endpoint of the server with a small delay, 0.01 s, between each request.
+A test consists of the customer that sends repeatedly the same request at the selected endpoint of the server with a small delay, 0.01 s, between each request.
 
 The mean service time of each query is obtained by taking the average result over 15 runs of 30 minutes of the same test and the variance is obtained by taking 100 measures from the logs of the tests for each query. The results are shown in the table below. 
 
@@ -55,7 +55,7 @@ The mean service time of each query is obtained by taking the average result ove
 | get_block | 1.43812 s | 0.0349 |
 | get_transaction | 1.40188 s | 0.02117 |
 
-The task of the first three queries in the table above consists in iterating over all the blockchain and making a tiny amount of computation for each block, while the get_block query consists in a direct access to the block and get_transaction is served by using binary search for finding the right block and directly returning the transaction. As consequence, the last two queries in the table have a small service time and the remaining three are very slow because of the exploration of all the blockchain.
+The task of the first three queries in the table above consists in iterating over all the blockchain and making a tiny amount of computation for each block, while the get_block query consists in direct access to the block and get_transaction is served by using binary search for finding the right block and directly returning the transaction. As a consequence, the last two queries in the table have a small service time and the remaining three are very slow because of the exploration of all the blockchain.
 
 The theoretical and empirical behaviour of the system when executing the first three queries is the same independently of the particular request. Therefore we decide to continue the analysis by testing only the flight_counter query in order to not overestimate the performance of our system.
 
@@ -81,7 +81,7 @@ where E[W] is the mean waiting time and corresponds to
 
 $$ E[W] =  \frac{ρ + λμσ^2}{2(μ − λ)} $$
 
-where μ is the expected service rate, $σ^2$ is the variance of the service time distribution, λ the arrival rate and ρ is equal to $\frac{λ}{μ}$.
+where μ is the expected service rate, $σ^2$ is the variance of the service time distribution, λ the arrival rate and ρ are equal to $\frac{λ}{μ}$.
 
 For M/G/1/PS queueing system, the expected response time is given by
 
@@ -98,10 +98,10 @@ The results observed and predicted are shown in the table below, while in [Fig.2
 
 <center> <figure> <img src="Graphs/workload_graph_cut.jpg" width="500"/> <figcaption> Figure 2: workload comparison </figcaption> <figure> </center>
 
-If we look at the results and [Fig.2], we can notice that our application and the M/G/1 system perform better than M/G/1/PS system and at high load the mean response time of our application stands out with respect to the one obtained by considering the M/G/1 queue.
+If we look at the results and [Fig.2], we can notice that our application and the M/G/1 system perform better than M/G/1/PS system and at high load, the mean response time of our application stands out with respect to the one obtained by considering the M/G/1 queue.
 In this test, the M/G/1 system performs better than the M/G/1/PS. Indeed, the performance of the M/G/1/PS queue is similar to the one of the M/M/1 thanks to the insensitivity property and, in this case, the variance of the service time obtained from the experiments seems to be better than the variance of the exponential distribution of the service time of the M/M/1.
 
-The data gathered by Tsung allow to make other considerations about the performance indices of our application.
+The data gathered by Tsung allow making other considerations about the performance indices of our application.
 
 <center> <figure> <img src="Graphs/LoadxRespTime-03vs085.png" width="400"/><figcaption> Figure 3: Transaction duration comparison with workloads 0.3L-0.85</figcaption> <figure> </center>
 
@@ -109,13 +109,13 @@ The comparison between the transaction duration over time in tests with differen
 
 <center> <figure> <img src="Graphs/LoadxUsers-03vs085.png" width="400"/> <figcaption> Figure 4: Number of customer comparison with workloads 0.3L-0.85L </figcaption> <figure> </center>
 
-It's interesting also to observe how the number of users in the system changes over time and with different workloads. [Fig. 4] represents the number of users with the respects to the time in two tests with different workloads. The orange line shows the trend of the number of users with workload 0.85L, while the blue line with workload 0.3L. In the test considered with workload 0.3L is observed only one peak of 2 customers in the system, while with workload 0.85L the peaks observed are two, one of 6 customers. As expected, the higher the workload, the higher the number of users in the system over time. The difference is evident only in certain interval of time because of the randomness of the arrival process. Moreover, this confirms the observations of the previous pragraph, indeed the the peaks of users in the system occur approximatively at the same time of the longer transactions.
+It's interesting also to observe how the number of users in the system changes over time and with different workloads. [Fig. 4] represents the number of users with the respects to the time in two tests with different workloads. The orange line shows the trend of the number of users with workload 0.85L, while the blue line with workload 0.3L. In the test considered with the workload, 0.3L is observed only one peak of 2 customers in the system, while with workload 0.85L the peaks observed are two, one of 6 customers. As expected, the higher the workload, the higher the number of users in the system over time. The difference is evident only in a certain interval of time because of the randomness of the arrival process. Moreover, this confirms the observations of the previous paragraph, indeed the peaks of users in the system occur approximatively at the same time as the longer transactions.
 
 Finally, the graph in [Fig. 5] shows the system load average on two tests with completely different workloads: load with workload 0.85L in yellow and 0.3L in blue.
 
 <center> <figure> <img src="Graphs/LoadxWorkload.png" width="400"/> <figcaption> Figure 5: System load average comparison with workloads 0.3L-0.85L </figcaption> <figure> </center>
 
-The load of the system in test with workload 0.3L presents peaks with similar value to the ones obtained with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the requests is significantly lower. It's important to notice that the load increases a lot during the execution of a job. Because of that it's observable a sort of correlation between the load graph and the transaction duration graph. 
+The load of the system in test with workload 0.3L presents peaks with similar value to the ones obtained with workload 0.85, but the load remains high for a shorter period of time since the arrival rate of the requests is significantly lower. It's important to notice that the load increases a lot during the execution of a job. Because of that, it's observable a sort of correlation between the load graph and the transaction duration graph. 
 
 ## Queueing network model
 
@@ -127,7 +127,7 @@ In this section, we propose a queueing network model of our application [Fig. 6]
   
 <center> <figure> <img src="Graphs/qn_model.png" width="500"/> <figcaption> Figure 6: schema of our model</figcaption> </figure> </center>
 
-We obtained the service rate of the CPU by running a test in the setting to obtain the mean service time with all the blocks of the blockchain loaded in the cache, so that we didn't have the overhead introduced by the delay station on the CPU and the mean service time obtained results to be a good approximation of the CPU mean service time. Differently, for the disk and the delay station, we run the same test by using a python profiler named "cProfile" that provides the execution time of the different program functions.
+We obtained the service rate of the CPU by running a test in the setting to obtain the mean service time with all the blocks of the blockchain loaded in the cache so that we didn't have the overhead introduced by the delay station on the CPU and the mean service time obtained results to be a good approximation of the CPU mean service time. Differently, for the disk and the delay station, we run the same test by using a python profiler named "cProfile" that provides the execution time of the different program functions.
 
 The routing of the system is deterministic. Each time a starting request arrives at the CPU, the CPU sets the "random" cache by forwarding the request to the disk and the delay station. Then, in the subsystem composed by disk and delay station, the request iterates for each block, that is read and added to the cache, so, since the cache size is 19 blocks, the request goes back from the delay station to the disk 18 times, and then goes back to the CPU.
 
@@ -191,7 +191,7 @@ $$ X \leq \min\left(\frac{N}{\bar{D} + \bar{Z}}, \frac{1}{\bar{D}_b}\right) \\
 
 where N is the number of jobs, $\bar{D}$ is the sum of all the service demands, except the reference station, $\bar{D}_b$ is the service demand of the bottleneck, and $\bar{Z}$ is the thinking time.
 
-These bounds represent asymptotes of the two performance measures. As we will see in the next section, the optimal level of multiprogramming is the number of jobs characterizing the intersection point of the two asymptotes and can be obtained by 
+These bounds represent the asymptotes of the two performance measures. As we will see in the next section, the optimal level of multiprogramming is the number of jobs characterizing the intersection point of the two asymptotes and can be obtained by 
 
 $$ N_{opt} = \frac{\bar{Z} + \bar{D}}{\bar{D}_b} \approx \frac{5 + 44.422}{24} \approx 2 $$
 
@@ -250,7 +250,7 @@ In conclusion, the analysis made by JMT confirms the results obtained by our ben
 
 ## Conclusions
 
-Thanks to these benchmarks, we can notice that the response time of our application is quite high, but from the bottleneck analysis we know that the disk is the component that has more impact on the overall performance of our system. However, the analysis allows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in exam.
+Thanks to these benchmarks, we can notice that the response time of our application is quite high, but from the bottleneck analysis, we know that the disk is the component that has more impact on the overall performance of our system. However, the analysis allows us to make considerations about how we can improve the system. For example, the mechanical disk can be replaced by an SSD or by an online database to reduce the service demand of the storage station, and reduce the mean service time of the query taken in exam.
 Notice that, when we improve the performance of the disk station, the delay station become the new bottleneck (because it has a service demand similar to the disk), making the additional improvement of the disk less effective. So, in order to improve the performance of the system, we need also to improve the performance of the delay station, i.e., using a better CPU or/and optimizing the encoding of the blocks to strings with an alternative data structure.
 
 Before these tests, we thought that our application would have good performance even under heavy load, but the benchmarks showed us the importance of testing the performance and scalability of the application before its release.
