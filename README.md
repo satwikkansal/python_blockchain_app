@@ -4,7 +4,7 @@ A simple tutorial for developing a blockchain application from scratch in Python
 
 ## What is blockchain? How it is implemented? And how it works?
 
-Please read the [step-by-step implementation tutorial](https://www.ibm.com/developerworks/cloud/library/cl-develop-blockchain-app-in-python/index.html) to get your answers :)
+Please read the [step-by-step implementation tutorial](https://gist.github.com/satwikkansal/4a857cad2797b9d199547a752933a715) to get your answers :)
 
 ## Instructions to run
 
