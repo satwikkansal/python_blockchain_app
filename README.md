@@ -1,6 +1,6 @@
 # Updated UI - Looking Forward to update Reply Button. Debugging etc.
 
-![image.png](https://github.com/satwikkansal/python_blockchain_app/raw/master/screenshots/updates.png)
+![image.png](https://github.com/satwikkansal/python_blockchain_app/raw/master/screenshots/Updates.png)
 
 
 # python_blockchain_app
