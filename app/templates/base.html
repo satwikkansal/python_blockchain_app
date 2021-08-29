@@ -1,12 +1,52 @@
 <html>
   <head>
-    <title>{{ title }}</title>
+    <title >{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='style.css')}}">
+    <style>
+      body {
+        background-image: url(https://bernardmarr.com/img/30%20Real%20Examples%20Of%20Blockchain%20Technology%20In%20Practice.png);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #333;
+      }
+      
+      li {
+        float: left;
+      }
+      
+      li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+      }
+      
+      li a:hover {
+        background-color: #111;
+      }
+      </style>
   </head>
-  <body>
-    <div><a href="/index">Home</a></div>
-    <center><h1>{{ title }}</h1></center>
+  <body >
+    <div>
+      <ul>
+        <li><a class="active" href="#home">Home</a></li>
+        <li><a href="https://gist.github.com/satwikkansal/4a857cad2797b9d199547a752933a715">More Info</a></li>
+        <li><a href="https://github.com/SwasthikaDev/python_blockchain_app">Github Repo</a></li>
+        <li><a href="https://github.com/satwikkansal/python_blockchain_app">Original Repo</a></li>
+        <li><a href="https://swasthikadev.github.io/SwasthikaDevadiga/">About</a></li>
+      </ul>
+    </div>
+    <center><h1 style="color: rgb(226, 226, 236);">{{ title }}</h1></center>
     <hr>
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages() %} 
     {% if messages %}
     <ul>
     {% for message in messages %}
@@ -16,5 +56,5 @@
     {% endif %}
     {% endwith %}
     {% block content %}{% endblock %}
-  </body>
+  </body> 
 </html>
