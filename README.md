@@ -93,5 +93,3 @@ Once you do all this, you can run the application, create transactions (post mes
 $ curl -X GET http://localhost:8001/chain
 $ curl -X GET http://localhost:8002/chain
 ```
-
-*PS: For consulting, you can reach out to me via Codementor (use [this link](https://www.codementor.io/satwikkansal?partner=satwikkansal) for free 10$ credits).*
