@@ -8,3 +8,7 @@ build-frontend:
 .PHONY: build-backend
 build-backend:
 	docker build -t python-blockchain-backend -f Dockerfile.backend .
+
+.PHONY: run
+run: build-backend build-frontend
+	docker-compose up
