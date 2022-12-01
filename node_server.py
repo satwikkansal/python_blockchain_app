@@ -1,3 +1,5 @@
+import os
+import atexit
 from hashlib import sha256
 import json
 import time
@@ -26,9 +28,13 @@ class Blockchain:
     # difficulty of our PoW algorithm
     difficulty = 2
 
-    def __init__(self):
+    def __init__(self, chain=None):
         self.unconfirmed_transactions = []
-        self.chain = []
+        self.chain_file_name = chain_file_name
+        self.chain = chain
+        if self.chain is None:
+            self.chain = []
+            self.create_genesis_block()
 
     def create_genesis_block(self):
         """
@@ -135,14 +141,76 @@ class Blockchain:
         return True
 
 
-app = Flask(__name__)
-
 # the node's copy of blockchain
-blockchain = Blockchain()
-blockchain.create_genesis_block()
+blockchain = None
 
 # the address to other participating members of the network
-peers = set()
+peers = None
+
+
+app = Flask(__name__)
+
+
+chain_file_name = os.environ.get('DATA_FILE')
+
+
+def create_chain_from_dump(chain_dump):
+    generated_blockchain = Blockchain()
+    generated_blockchain.create_genesis_block()
+    for idx, block_data in enumerate(chain_dump):
+        if idx == 0:
+            continue  # skip genesis block
+        block = Block(block_data["index"],
+                      block_data["transactions"],
+                      block_data["timestamp"],
+                      block_data["previous_hash"],
+                      block_data["nonce"])
+        proof = block_data['hash']
+        added = generated_blockchain.add_block(block, proof)
+        if not added:
+            raise Exception("The chain dump is tampered!!")
+    return generated_blockchain
+
+
+# endpoint to return the node's copy of the chain.
+# Our application will be using this endpoint to query
+# all the posts to display.
+@app.route('/chain', methods=['GET'])
+def get_chain():
+    chain_data = []
+    for block in blockchain.chain:
+        chain_data.append(block.__dict__)
+    return json.dumps({"length": len(chain_data),
+                       "chain": chain_data,
+                       "peers": list(peers)})
+
+
+def dump_chain():
+    if chain_file_name is not None:
+        with open(chain_file_name, 'w') as chain_file:
+            chain_file.write(get_chain())
+
+
+atexit.register(dump_chain)
+
+
+if chain_file_name is None:
+    data = None
+else:
+    with open(chain_file_name, 'r') as chain_file:
+        raw_data = chain_file.read()
+        if raw_data is None:
+            data = None
+        else:
+            data = json.loads(raw_data)
+
+if data is None:
+    # the node's copy of blockchain
+    blockchain = Blockchain()
+    peers = set()
+else:
+    blockchain = create_chain_from_dump(data['chain'])
+    peers.update(data['peers'])
 
 
 # endpoint to submit a new transaction. This will be used by
@@ -161,19 +229,6 @@ def new_transaction():
     blockchain.add_new_transaction(tx_data)
 
     return "Success", 201
-
-
-# endpoint to return the node's copy of the chain.
-# Our application will be using this endpoint to query
-# all the posts to display.
-@app.route('/chain', methods=['GET'])
-def get_chain():
-    chain_data = []
-    for block in blockchain.chain:
-        chain_data.append(block.__dict__)
-    return json.dumps({"length": len(chain_data),
-                       "chain": chain_data,
-                       "peers": list(peers)})
 
 
 # endpoint to request the node to mine the unconfirmed
@@ -238,24 +293,6 @@ def register_with_existing_node():
     else:
         # if something goes wrong, pass it on to the API response
         return response.content, response.status_code
-
-
-def create_chain_from_dump(chain_dump):
-    generated_blockchain = Blockchain()
-    generated_blockchain.create_genesis_block()
-    for idx, block_data in enumerate(chain_dump):
-        if idx == 0:
-            continue  # skip genesis block
-        block = Block(block_data["index"],
-                      block_data["transactions"],
-                      block_data["timestamp"],
-                      block_data["previous_hash"],
-                      block_data["nonce"])
-        proof = block_data['hash']
-        added = generated_blockchain.add_block(block, proof)
-        if not added:
-            raise Exception("The chain dump is tampered!!")
-    return generated_blockchain
 
 
 # endpoint to add a block mined by someone else to

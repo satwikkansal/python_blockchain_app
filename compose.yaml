@@ -1,3 +1,8 @@
+volumes:
+  data1:
+  data2:
+  data3:
+
 services:
   backend1:
     build:
@@ -6,7 +11,10 @@ services:
     image: python-blockchain-backend
     environment:
       FLASK_RUN_PORT: 8000
+      DATA_FILE: /data/chain.json
     network_mode: "host"
+    volumes:
+      - "data1:/data"
   backend2:
     build:
       context: .
@@ -14,7 +22,10 @@ services:
     image: python-blockchain-backend
     environment:
       FLASK_RUN_PORT: 8001
+      DATA_FILE: /data/chain.json
     network_mode: "host"
+    volumes:
+      - "data2:/data"
   backend3:
     build:
       context: .
@@ -22,7 +33,10 @@ services:
     image: python-blockchain-backend
     environment:
       FLASK_RUN_PORT: 8002
+      DATA_FILE: /data/chain.json
     network_mode: "host"
+    volumes:
+      - "data3:/data"
   frontend:
     build:
       context: .
