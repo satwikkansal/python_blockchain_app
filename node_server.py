@@ -1,12 +1,17 @@
 import os
+import sys
+import signal
 import atexit
 from hashlib import sha256
 import json
 import time
+import logging
 
 from flask import Flask, request
 import requests
 
+
+logging.basicConfig(level=logging.DEBUG)
 
 class Block:
     def __init__(self, index, transactions, timestamp, previous_hash, nonce=0):
@@ -61,14 +66,13 @@ class Blockchain:
         previous_hash = self.last_block.hash
 
         if previous_hash != block.previous_hash:
-            return False
+            raise ValueError("Previous hash incorrect")
 
         if not Blockchain.is_valid_proof(block, proof):
-            return False
+            raise ValueError("Block proof invalid")
 
         block.hash = proof
         self.chain.append(block)
-        return True
 
     @staticmethod
     def proof_of_work(block):
@@ -145,7 +149,7 @@ class Blockchain:
 blockchain = None
 
 # the address to other participating members of the network
-peers = None
+peers = set()
 
 
 app = Flask(__name__)
@@ -156,7 +160,6 @@ chain_file_name = os.environ.get('DATA_FILE')
 
 def create_chain_from_dump(chain_dump):
     generated_blockchain = Blockchain()
-    generated_blockchain.create_genesis_block()
     for idx, block_data in enumerate(chain_dump):
         if idx == 0:
             continue  # skip genesis block
@@ -166,9 +169,7 @@ def create_chain_from_dump(chain_dump):
                       block_data["previous_hash"],
                       block_data["nonce"])
         proof = block_data['hash']
-        added = generated_blockchain.add_block(block, proof)
-        if not added:
-            raise Exception("The chain dump is tampered!!")
+        generated_blockchain.add_block(block, proof)
     return generated_blockchain
 
 
@@ -185,13 +186,19 @@ def get_chain():
                        "peers": list(peers)})
 
 
-def dump_chain():
+def save_chain():
     if chain_file_name is not None:
         with open(chain_file_name, 'w') as chain_file:
             chain_file.write(get_chain())
 
 
-atexit.register(dump_chain)
+def exit_from_signal(signum, stack_frame):
+    sys.exit(0)
+
+
+atexit.register(save_chain)
+signal.signal(signal.SIGTERM, exit_from_signal)
+signal.signal(signal.SIGINT, exit_from_signal)
 
 
 if chain_file_name is None:
@@ -199,7 +206,7 @@ if chain_file_name is None:
 else:
     with open(chain_file_name, 'r') as chain_file:
         raw_data = chain_file.read()
-        if raw_data is None:
+        if raw_data is None or len(raw_data) == 0:
             data = None
         else:
             data = json.loads(raw_data)
@@ -207,7 +214,6 @@ else:
 if data is None:
     # the node's copy of blockchain
     blockchain = Blockchain()
-    peers = set()
 else:
     blockchain = create_chain_from_dump(data['chain'])
     peers.update(data['peers'])
@@ -308,9 +314,9 @@ def verify_and_add_block():
                   block_data["nonce"])
 
     proof = block_data['hash']
-    added = blockchain.add_block(block, proof)
-
-    if not added:
+    try:
+        blockchain.add_block(block, proof)
+    except:
         return "The block was discarded by the node", 400
 
     return "Block added to the chain", 201
