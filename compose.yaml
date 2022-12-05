@@ -1,0 +1,33 @@
+services:
+  backend1:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: python-blockchain-backend
+    environment:
+      FLASK_RUN_PORT: 8000
+    network_mode: "host"
+  backend2:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: python-blockchain-backend
+    environment:
+      FLASK_RUN_PORT: 8001
+    network_mode: "host"
+  backend3:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: python-blockchain-backend
+    environment:
+      FLASK_RUN_PORT: 8002
+    network_mode: "host"
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    image: python-blockchain-frontend
+    environment:
+      FLASK_RUN_PORT: 5000
+    network_mode: "host"
