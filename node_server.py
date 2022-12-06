@@ -141,12 +141,13 @@ class Blockchain:
         return True
 
 
+app = Flask(__name__)
+
 # the node's copy of blockchain
 blockchain = None
 
 # the address to other participating members of the network
 peers = set()
-app = Flask(__name__)
 
 
 # endpoint to submit a new transaction. This will be used by
