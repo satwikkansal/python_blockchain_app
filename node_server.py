@@ -5,13 +5,10 @@ import atexit
 from hashlib import sha256
 import json
 import time
-import logging
 
 from flask import Flask, request
 import requests
 
-
-logging.basicConfig(level=logging.DEBUG)
 
 class Block:
     def __init__(self, index, transactions, timestamp, previous_hash, nonce=0):
