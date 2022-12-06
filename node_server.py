@@ -311,8 +311,8 @@ def verify_and_add_block():
     proof = block_data['hash']
     try:
         blockchain.add_block(block, proof)
-    except:
-        return "The block was discarded by the node", 400
+    except ValueError as e:
+        return "The block was discarded by the node: " + e.str(), 400
 
     return "Block added to the chain", 201
 
