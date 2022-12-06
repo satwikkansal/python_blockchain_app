@@ -32,7 +32,6 @@ class Blockchain:
 
     def __init__(self, chain=None):
         self.unconfirmed_transactions = []
-        self.chain_file_name = chain_file_name
         self.chain = chain
         if self.chain is None:
             self.chain = []
