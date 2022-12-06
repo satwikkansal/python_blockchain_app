@@ -146,9 +146,25 @@ blockchain = None
 
 # the address to other participating members of the network
 peers = set()
-
-
 app = Flask(__name__)
+
+
+# endpoint to submit a new transaction. This will be used by
+# our application to add new data (posts) to the blockchain
+@app.route('/new_transaction', methods=['POST'])
+def new_transaction():
+    tx_data = request.get_json()
+    required_fields = ["author", "content"]
+
+    for field in required_fields:
+        if not tx_data.get(field):
+            return "Invalid transaction data", 404
+
+    tx_data["timestamp"] = time.time()
+
+    blockchain.add_new_transaction(tx_data)
+
+    return "Success", 201
 
 
 chain_file_name = os.environ.get('DATA_FILE')
@@ -213,24 +229,6 @@ if data is None:
 else:
     blockchain = create_chain_from_dump(data['chain'])
     peers.update(data['peers'])
-
-
-# endpoint to submit a new transaction. This will be used by
-# our application to add new data (posts) to the blockchain
-@app.route('/new_transaction', methods=['POST'])
-def new_transaction():
-    tx_data = request.get_json()
-    required_fields = ["author", "content"]
-
-    for field in required_fields:
-        if not tx_data.get(field):
-            return "Invalid transaction data", 404
-
-    tx_data["timestamp"] = time.time()
-
-    blockchain.add_new_transaction(tx_data)
-
-    return "Success", 201
 
 
 # endpoint to request the node to mine the unconfirmed
