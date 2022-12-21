@@ -1,3 +1,7 @@
+import os
+import sys
+import signal
+import atexit
 from hashlib import sha256
 import json
 import time
@@ -26,9 +30,12 @@ class Blockchain:
     # difficulty of our PoW algorithm
     difficulty = 2
 
-    def __init__(self):
+    def __init__(self, chain=None):
         self.unconfirmed_transactions = []
-        self.chain = []
+        self.chain = chain
+        if self.chain is None:
+            self.chain = []
+            self.create_genesis_block()
 
     def create_genesis_block(self):
         """
@@ -55,14 +62,13 @@ class Blockchain:
         previous_hash = self.last_block.hash
 
         if previous_hash != block.previous_hash:
-            return False
+            raise ValueError("Previous hash incorrect")
 
         if not Blockchain.is_valid_proof(block, proof):
-            return False
+            raise ValueError("Block proof invalid")
 
         block.hash = proof
         self.chain.append(block)
-        return True
 
     @staticmethod
     def proof_of_work(block):
@@ -138,8 +144,7 @@ class Blockchain:
 app = Flask(__name__)
 
 # the node's copy of blockchain
-blockchain = Blockchain()
-blockchain.create_genesis_block()
+blockchain = None
 
 # the address to other participating members of the network
 peers = set()
@@ -163,6 +168,24 @@ def new_transaction():
     return "Success", 201
 
 
+chain_file_name = os.environ.get('DATA_FILE')
+
+
+def create_chain_from_dump(chain_dump):
+    generated_blockchain = Blockchain()
+    for idx, block_data in enumerate(chain_dump):
+        if idx == 0:
+            continue  # skip genesis block
+        block = Block(block_data["index"],
+                      block_data["transactions"],
+                      block_data["timestamp"],
+                      block_data["previous_hash"],
+                      block_data["nonce"])
+        proof = block_data['hash']
+        generated_blockchain.add_block(block, proof)
+    return generated_blockchain
+
+
 # endpoint to return the node's copy of the chain.
 # Our application will be using this endpoint to query
 # all the posts to display.
@@ -174,6 +197,39 @@ def get_chain():
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data,
                        "peers": list(peers)})
+
+
+def save_chain():
+    if chain_file_name is not None:
+        with open(chain_file_name, 'w') as chain_file:
+            chain_file.write(get_chain())
+
+
+def exit_from_signal(signum, stack_frame):
+    sys.exit(0)
+
+
+atexit.register(save_chain)
+signal.signal(signal.SIGTERM, exit_from_signal)
+signal.signal(signal.SIGINT, exit_from_signal)
+
+
+if chain_file_name is None:
+    data = None
+else:
+    with open(chain_file_name, 'r') as chain_file:
+        raw_data = chain_file.read()
+        if raw_data is None or len(raw_data) == 0:
+            data = None
+        else:
+            data = json.loads(raw_data)
+
+if data is None:
+    # the node's copy of blockchain
+    blockchain = Blockchain()
+else:
+    blockchain = create_chain_from_dump(data['chain'])
+    peers.update(data['peers'])
 
 
 # endpoint to request the node to mine the unconfirmed
@@ -240,24 +296,6 @@ def register_with_existing_node():
         return response.content, response.status_code
 
 
-def create_chain_from_dump(chain_dump):
-    generated_blockchain = Blockchain()
-    generated_blockchain.create_genesis_block()
-    for idx, block_data in enumerate(chain_dump):
-        if idx == 0:
-            continue  # skip genesis block
-        block = Block(block_data["index"],
-                      block_data["transactions"],
-                      block_data["timestamp"],
-                      block_data["previous_hash"],
-                      block_data["nonce"])
-        proof = block_data['hash']
-        added = generated_blockchain.add_block(block, proof)
-        if not added:
-            raise Exception("The chain dump is tampered!!")
-    return generated_blockchain
-
-
 # endpoint to add a block mined by someone else to
 # the node's chain. The block is first verified by the node
 # and then added to the chain.
@@ -271,10 +309,10 @@ def verify_and_add_block():
                   block_data["nonce"])
 
     proof = block_data['hash']
-    added = blockchain.add_block(block, proof)
-
-    if not added:
-        return "The block was discarded by the node", 400
+    try:
+        blockchain.add_block(block, proof)
+    except ValueError as e:
+        return "The block was discarded by the node: " + e.str(), 400
 
     return "Block added to the chain", 201
 
