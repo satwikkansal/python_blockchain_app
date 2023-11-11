@@ -183,7 +183,6 @@ def new_transaction():
 
 chain_file_name = os.environ.get('DATA_FILE')
 
-
 def create_chain_from_dump(chain_dump):
     generated_blockchain = Blockchain()
     for idx, block_data in enumerate(chain_dump): # no longer need to skip genesis block
@@ -337,6 +336,11 @@ def verify_and_add_block():
 @app.route('/pending_tx')
 def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
+
+@app.route('/save', methods=['GET'])
+def save():
+    save_chain()
+    return "Blockchain saved", 200
 
 
 def consensus():
