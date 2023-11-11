@@ -9,6 +9,8 @@ import time
 from flask import Flask, request
 import requests
 
+directory = os.path.dirname(os.path.abspath(__file__))
+os.chdir(directory)
 
 class Block:
     def __init__(self, index, transactions, timestamp, previous_hash, nonce=0):
@@ -43,13 +45,16 @@ class Blockchain:
         the chain. The block has index 0, previous_hash as 0, and
         a valid hash.
         """
-        genesis_block = Block(0, [], 0, "0")
+        genesis_block = Block(0, [], time.time(), "0")
         genesis_block.hash = genesis_block.compute_hash()
         self.chain.append(genesis_block)
 
     @property
     def last_block(self):
-        return self.chain[-1]
+        if len(self.chain) <= 0:
+            return None
+        else:
+            return self.chain[-1]
 
     def add_block(self, block, proof):
         """
@@ -59,13 +64,21 @@ class Blockchain:
         * The previous_hash referred in the block and the hash of latest block
           in the chain match.
         """
-        previous_hash = self.last_block.hash
+        last_block = self.last_block
+        
+        if block.index == 0: # if the block is a genesis block
+            self.chain.clear() # then give up all the blocks in the chain
+            block.hash = proof
+            self.chain.append(block)
+            return
+            
+        if last_block is not None:
+            previous_hash = last_block.hash
+            if previous_hash != block.previous_hash:
+                raise ValueError("Previous hash incorrect")
 
-        if previous_hash != block.previous_hash:
-            raise ValueError("Previous hash incorrect")
-
-        if not Blockchain.is_valid_proof(block, proof):
-            raise ValueError("Block proof invalid")
+            if not Blockchain.is_valid_proof(block, proof):
+                raise ValueError("Block proof invalid")
 
         block.hash = proof
         self.chain.append(block)
@@ -173,9 +186,7 @@ chain_file_name = os.environ.get('DATA_FILE')
 
 def create_chain_from_dump(chain_dump):
     generated_blockchain = Blockchain()
-    for idx, block_data in enumerate(chain_dump):
-        if idx == 0:
-            continue  # skip genesis block
+    for idx, block_data in enumerate(chain_dump): # no longer need to skip genesis block
         block = Block(block_data["index"],
                       block_data["transactions"],
                       block_data["timestamp"],
@@ -216,13 +227,18 @@ signal.signal(signal.SIGINT, exit_from_signal)
 
 if chain_file_name is None:
     data = None
-else:
+elif os.path.exists(chain_file_name): # else if chain file exists
     with open(chain_file_name, 'r') as chain_file:
         raw_data = chain_file.read()
         if raw_data is None or len(raw_data) == 0:
             data = None
         else:
             data = json.loads(raw_data)
+else: # else if chain file specfied but does not exists
+    blockchain = Blockchain()
+    data = None
+    with open(chain_file_name,"w") as chain_file:
+        chain_file.write(get_chain())
 
 if data is None:
     # the node's copy of blockchain
@@ -247,7 +263,7 @@ def mine_unconfirmed_transactions():
         if chain_length == len(blockchain.chain):
             # announce the recently mined block to the network
             announce_new_block(blockchain.last_block)
-        return "Block #{} is mined.".format(blockchain.last_block.index)
+    return "Block #{} is mined.".format(blockchain.last_block.index)
 
 
 # endpoint to add new peers to the network.
